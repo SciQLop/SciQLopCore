@@ -8,25 +8,61 @@
 #include <Common/spimpl.h>
 #include <Common/containers.h>
 
+/**
+ * @brief The VariableSynchronizationGroup2 class holds a list of Variables uuid which are synchronized
+ * @note This class is part of SciQLop internals, as a normal user you shouldn't have to care about it
+ */
 class SCIQLOP_CORE_EXPORT VariableSynchronizationGroup2
 {
 
 public:
     explicit VariableSynchronizationGroup2()=default;
-    // Convenience ctor to build a group with a default variable
+    /**
+     * @brief VariableSynchronizationGroup2 is a convenience ctor to build a group with a default variable
+     * @param variable
+     */
     explicit VariableSynchronizationGroup2(QUuid variable)
         :_variables{{variable}}
     {}
 
-    void addVariable(QUuid variable);
-    void removeVariable(QUuid variable);
+    /**
+     * @brief addVariable adds the given variable to the group, does nothing if the varaible is alredy in the group
+     * @param variable
+     * @sa removeVariable
+     */
+    void addVariable(QUuid variable) noexcept
+    {
+        this->_variables.insert(variable);
+    }
 
-    bool contains(QUuid variable)
+    /**
+     * @brief removeVariable removes the given variable from the group, does nothing if the varaible is not in the group
+     * @param variable
+     * @sa addVariable
+     */
+    void removeVariable(QUuid variable) noexcept
+    {
+        this->_variables.extract(variable);
+    }
+
+    /**
+     * @brief contains checks if the given variable is in the group
+     * @param variable
+     * @return true if the variable is in the group
+     */
+    bool contains(QUuid variable) const noexcept
     {
         return SciQLop::containers::contains(this->_variables,variable);
     }
 
-    const std::set<QUuid> &variables() const noexcept;
+    /**
+     * @brief variables
+     * @return the list of synchronized variables in this group as a std::set
+     */
+    const std::set<QUuid> &variables() const noexcept
+    {
+        return this->_variables;
+    }
 
 private:
     std::set<QUuid> _variables;

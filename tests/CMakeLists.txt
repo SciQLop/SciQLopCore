@@ -4,6 +4,7 @@ add_definitions(-DCORE_TESTS_RESOURCES_DIR="${CMAKE_CURRENT_LIST_DIR}/../tests-r
 declare_test(TestStringUtils TestStringUtils Common/TestStringUtils.cpp "sciqlopcore;Qt5::Test")
 
 declare_test(TestContainers TestContainers Common/TestContainers.cpp "sciqlopcore;Qt5::Test")
+declare_test(TestSyncGroup TestSyncGroup Variable/TestSyncGroup.cpp "sciqlopcore;Qt5::Test")
 
 
 declare_test(TestDataSeriesUtils TestDataSeriesUtils Data/TestDataSeriesUtils.cpp "sciqlopcore;Qt5::Test")
