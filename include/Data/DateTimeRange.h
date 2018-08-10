@@ -7,8 +7,22 @@
 
 #include <Common/DateUtils.h>
 #include <Common/MetaTypes.h>
+#include <opaque/numeric_typedef.hpp>
 
 #include <cmath>
+
+
+template <typename T>
+struct Seconds : opaque::numeric_typedef<T, Seconds<T>> ,
+        opaque::binop::multipliable     <Seconds<T>, true , Seconds<T>, T, T>,
+        opaque::binop::dividable        <Seconds<T>, true , Seconds<T>, T, T>,
+        opaque::binop::addable          <Seconds<T>, true , Seconds<T>, T, T>,
+        opaque::binop::subtractable     <Seconds<T>, true , Seconds<T>, T, T>
+
+{
+  using base  = opaque::numeric_typedef<T, Seconds<T>>;
+  using base::base;
+};
 
 /**
  * @brief The SqpRange struct holds the information of time parameters
@@ -27,7 +41,7 @@ struct DateTimeRange {
     /// End time (UTC)
     double m_TEnd;
 
-    double delta()const {return this->m_TEnd - this->m_TStart;}
+    Seconds<double> delta()const {return Seconds<double>{this->m_TEnd - this->m_TStart};}
 
     bool contains(const DateTimeRange &dateTime) const noexcept
     {
@@ -48,7 +62,84 @@ struct DateTimeRange {
         return equals(m_TStart, other.m_TStart) && equals(m_TEnd, other.m_TEnd);
     }
     bool operator!=(const DateTimeRange &other) const { return !(*this == other); }
+
+    void grow(double factor)
+    {
+        double grow_v{delta()*(factor - 1.)/2.};
+        m_TStart -= grow_v;
+        m_TEnd += grow_v;
+    }
+
+    void shrink(double factor)
+    {
+        double shrink_v{this->delta()*(1. - factor)/2.};
+        m_TStart += shrink_v;
+        m_TEnd -= shrink_v;
+    }
+
+    DateTimeRange& operator*=(double k)
+    {
+        this->grow(k);
+        return *this;
+    }
+
+    DateTimeRange&  operator/=(double k)
+    {
+        this->shrink(k);
+        return *this;
+    }
+
 };
+
+template <class T>
+DateTimeRange& operator+=(DateTimeRange&r, Seconds<T> offset)
+{
+    shift(r,offset);
+    return r;
+}
+
+template <class T>
+DateTimeRange&  operator-=(DateTimeRange&r, Seconds<T> offset)
+{
+    shift(r,-offset);
+}
+
+template <class T>
+void shift(DateTimeRange& r, Seconds<T> offset)
+{
+    r.m_TEnd+=static_cast<double>(offset);
+    r.m_TStart+=static_cast<double>(offset);
+}
+
+inline DateTimeRange operator*(const DateTimeRange& r, double k)
+{
+    DateTimeRange result{r};
+    result.grow(k);
+    return result;
+}
+
+inline DateTimeRange operator/(const DateTimeRange& r, double k)
+{
+    DateTimeRange result{r};
+    result.shrink(k);
+    return result;
+}
+
+template<class T>
+DateTimeRange operator+(const DateTimeRange& r, Seconds<T> offset)
+{
+    DateTimeRange result{r};
+    shift(result,offset);
+    return result;
+}
+
+template<class T>
+DateTimeRange operator-(const DateTimeRange& r, Seconds<T> offset)
+{
+    DateTimeRange result{r};
+    shift(result,-offset);
+    return result;
+}
 
 const auto INVALID_RANGE
     = DateTimeRange{std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
