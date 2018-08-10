@@ -44,7 +44,7 @@ public:
 
     /// @return the number of points hold by the variable. The number of points is updated each time
     /// the data series changes
-    int nbPoints() const noexcept;
+    unsigned int nbPoints() const noexcept;
 
     /// Returns the real range of the variable, i.e. the min and max x-axis values of the data
     /// series between the range of the variable. The real range is updated each time the variable

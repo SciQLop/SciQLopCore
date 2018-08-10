@@ -100,7 +100,7 @@ struct Variable::VariablePrivate {
     QVariantHash m_Metadata;
     std::shared_ptr<IDataSeries> m_DataSeries;
     DateTimeRange m_RealRange;
-    int m_NbPoints;
+    unsigned int m_NbPoints;
     DataSeriesType m_Type;
 
     QReadWriteLock m_Lock;
@@ -171,7 +171,7 @@ void Variable::setCacheRange(const DateTimeRange &cacheRange) noexcept
     impl->unlock();
 }
 
-int Variable::nbPoints() const noexcept
+unsigned int Variable::nbPoints() const noexcept
 {
     return impl->m_NbPoints;
 }
