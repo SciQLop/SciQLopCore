@@ -6,6 +6,7 @@
 #include <QMutex>
 #include <QReadWriteLock>
 #include <QThread>
+#include <Common/debug.h>
 
 Q_LOGGING_CATEGORY(LOG_Variable, "Variable")
 
@@ -106,12 +107,14 @@ struct Variable::VariablePrivate {
 };
 
 Variable::Variable(const QString &name, const QVariantHash &metadata)
-        : impl{spimpl::make_unique_impl<VariablePrivate>(name, metadata)}
+        : impl{spimpl::make_unique_impl<VariablePrivate>(name, metadata)},
+          _uuid{QUuid::createUuid()}
 {
 }
 
 Variable::Variable(const Variable &other)
-        : impl{spimpl::make_unique_impl<VariablePrivate>(*other.impl)}
+        : impl{spimpl::make_unique_impl<VariablePrivate>(*other.impl)},
+          _uuid{QUuid::createUuid()} //is a clone but must have a != uuid
 {
 }
 
@@ -197,6 +200,34 @@ void Variable::mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept
     }
     else {
         impl->m_DataSeries->merge(dataSeries.get());
+    }
+    impl->purgeDataSeries();
+    impl->unlock();
+
+    if (dataInit) {
+        emit dataInitialized();
+    }
+}
+
+void Variable::mergeDataSeries(IDataSeries *dataSeries) noexcept
+{
+    if (dataSeries==nullptr) {
+        SCIQLOP_ERROR("Given IDataSeries is nullptr");
+        return;
+    }
+
+    auto dataInit = false;
+    // @TODO move to impl to Pimpl this is what it stands for...
+    // Add or merge the data
+    impl->lockWrite();
+    if (!impl->m_DataSeries) {
+        //@TODO find a better way
+        impl->m_DataSeries = dataSeries->clone();
+        dataInit = true;
+        delete dataSeries;
+    }
+    else {
+        impl->m_DataSeries->merge(dataSeries);
     }
     impl->purgeDataSeries();
     impl->unlock();

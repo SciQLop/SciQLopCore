@@ -50,6 +50,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Common/Numeric.h
     ./include/Common/deprecate.h
     ./include/Common/containers.h
+    ./include/Common/debug.h
     ./include/Plugin/IPlugin.h
     ./include/Data/ArrayDataIterator.h
     ./include/Data/VariableRequest.h

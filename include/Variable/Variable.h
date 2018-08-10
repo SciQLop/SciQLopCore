@@ -9,7 +9,9 @@
 
 #include <QLoggingCategory>
 #include <QObject>
+#include <QUuid>
 
+#include <Common/deprecate.h>
 #include <Common/MetaTypes.h>
 #include <Common/spimpl.h>
 
@@ -70,7 +72,10 @@ public:
 
     QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &range) const noexcept;
     QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &range) const noexcept;
+DEPRECATE(
     void mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept;
+    )
+    void mergeDataSeries(IDataSeries* dataSeries) noexcept;
 
     static QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &oldRange,
                                                         const DateTimeRange &nextRange);
@@ -78,6 +83,7 @@ public:
     static QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &oldRange,
                                                      const DateTimeRange &nextRange);
 
+    QUuid ID(){return _uuid;}
 signals:
     void updated();
     /// Signal emitted when when the data series of the variable is loaded for the first time
@@ -86,6 +92,7 @@ signals:
 private:
     class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;
+    QUuid _uuid;
 };
 
 // Required for using shared_ptr in signals/slots

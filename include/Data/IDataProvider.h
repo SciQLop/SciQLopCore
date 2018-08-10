@@ -46,7 +46,12 @@ public:
               = 0;
     )
 
-    virtual QUuid getData(const DataProviderParameters &parameters){return QUuid::createUuid();}
+    // Synchronous call -> asyncGetData may be written for asynchronous get
+    virtual IDataSeries* getData(const DataProviderParameters &parameters)
+    {
+        Q_UNUSED(parameters);
+        return nullptr;
+    }
 
 
     DEPRECATE(
@@ -56,7 +61,7 @@ public:
             virtual void requestDataAborting(QUuid acqIdentifier) = 0;
     )
 
-    virtual void abort(QUuid requestID){}
+    virtual void abort(QUuid requestID){Q_UNUSED(requestID);}
 
 signals:
     DEPRECATE(
