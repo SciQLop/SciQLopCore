@@ -10,78 +10,17 @@
 #include <Data/DataProviderParameters.h>
 #include <Common/containers.h>
 
-template<int slope>
-class SimpleRange: public IDataProvider
-{
-public:
-    SimpleRange() = default;
+#include <TestUtils/TestProviders.h>
 
-    std::shared_ptr<IDataProvider> clone() const override{ return std::make_shared<SimpleRange>(); }
+#define TEST_VC2_FIXTURE(slope) \
+    VariableController2 vc; \
+    auto provider = std::make_shared<SimpleRange<slope>>();\
 
-    IDataSeries* getData(const DataProviderParameters &parameters) override
-    {
-        auto tstart = parameters.m_Times[0].m_TStart;
-        auto tend = parameters.m_Times[0].m_TEnd;
-        std::vector<double> x;
-        std::vector<double> y;
-        for(auto i = tstart;i<tend;i+=1.) //1 seconde data resolution
-        {
-            x.push_back(i);
-            y.push_back(i*slope);
-        }
-        auto serie = new ScalarSeries(std::move(x),std::move(y),Unit("Secondes",true),Unit("Volts",false));
-        return serie;
-    }
+#define TEST_VC2_CREATE_DEFAULT_VAR(name)\
+    auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),\
+                                          QDate(2018,8,7),QTime(16,00));\
+    auto name = vc.createVariable("name", {}, provider, range);\
 
-
-
-    void requestDataLoading(QUuid acqIdentifier, const DataProviderParameters &parameters) override
-    {
-        Q_UNUSED(acqIdentifier)
-        Q_UNUSED(parameters)
-    }
-
-    void requestDataAborting(QUuid acqIdentifier) override
-    {
-        Q_UNUSED(acqIdentifier)
-    }
-
-};
-
-
-template <class T>
-auto sumdiff(T begin, T end)
-{
-    std::vector<double> diff_vect(end-begin-1);
-    auto diff = [](auto next,auto item)
-    {
-        return  next.value() - item.value();
-    };
-    std::transform (begin+1, end, begin, diff_vect.begin(),diff);
-    return  std::accumulate(diff_vect.cbegin(), diff_vect.cend(), 0);
-}
-
-template <int slope=1>
-struct RangeType
-{
-    static void check_properties(std::shared_ptr<Variable> v, DateTimeRange r)
-    {
-        auto bounds = v->dataSeries()->valuesBounds(r.m_TStart, r.m_TEnd);
-        auto s = sumdiff(bounds.first, bounds.second) / slope;
-        auto nbpoints = bounds.second - bounds.first+1.;
-        QCOMPARE(nbpoints, int(s)+2);//<- @TODO weird has to be investigated why +2?
-        QCOMPARE(r.m_TStart, bounds.first->value()/slope);
-    }
-};
-
-template <class T>
-void check_variable_state(std::shared_ptr<Variable> v, DateTimeRange r)
-{
-    auto bounds = v->dataSeries()->valuesBounds(r.m_TStart, r.m_TEnd);
-    auto nbpoints = bounds.second - bounds.first+1.;
-    QCOMPARE(nbpoints, int(static_cast<double>(r.delta())));
-    T::check_properties(v,r);
-}
 
 class TestVariableController2 : public QObject
 {
@@ -96,10 +35,9 @@ private slots:
 
     void testCreateVariable()
     {
-        VariableController2 vc;
+        TEST_VC2_FIXTURE(2);
         bool callbackCalled = false;
         connect(&vc,&VariableController2::variableAdded, [&callbackCalled](std::shared_ptr<Variable>){callbackCalled=true;});
-        auto provider = std::make_shared<SimpleRange<1>>();
         QVERIFY(!callbackCalled);
         auto var1 = vc.createVariable("var1",{},provider,DateTimeRange());
         QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
@@ -108,10 +46,9 @@ private slots:
 
     void testDeleteVariable()
     {
-        VariableController2 vc;
+        TEST_VC2_FIXTURE(1);
         bool callbackCalled = false;
         connect(&vc,&VariableController2::variableDeleted, [&callbackCalled](std::shared_ptr<Variable>){callbackCalled=true;});
-        auto provider = std::make_shared<SimpleRange<1>>();
         auto var1 = vc.createVariable("var1",{},provider,DateTimeRange());
         QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
         QVERIFY(!callbackCalled);
@@ -122,41 +59,47 @@ private slots:
 
     void testGetData()
     {
-        VariableController2 vc;
-        auto provider = std::make_shared<SimpleRange<10>>();
-        auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),
-                                                  QDate(2018,8,7),QTime(16,00));
-
-        auto var1 = vc.createVariable("var1", {}, provider, range);
+        TEST_VC2_FIXTURE(10);
+        TEST_VC2_CREATE_DEFAULT_VAR(var1);
         check_variable_state<RangeType<10>>(var1, range);
     }
 
-    void testZoomOut()
+    void testZoom_data()
     {
-        VariableController2 vc;
-        auto provider = std::make_shared<SimpleRange<10>>();
-        auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),
-                                                  QDate(2018,8,7),QTime(16,00));
+        QTest::addColumn<double>("zoom");
+        QTest::newRow("Zoom IN 10x") << .1;
+        QTest::newRow("Zoom OUT 10x")  << 10.;
+        QTest::newRow("Zoom IN 1x")  << 1.;
+    }
+    void testZoom()
+    {
+        TEST_VC2_FIXTURE(100);
+        TEST_VC2_CREATE_DEFAULT_VAR(var1);
+        check_variable_state<RangeType<100>>(var1, range);
 
-        auto var1 = vc.createVariable("var1", {}, provider, range);
-        check_variable_state<RangeType<10>>(var1, range);
-
-        range *=2.;
+        QFETCH(double, zoom);
+        range *=zoom;
         vc.changeRange(var1, range);
-        check_variable_state<RangeType<10>>(var1, range);
+        check_variable_state<RangeType<100>>(var1, range);
     }
 
-    void testPanRight()
+    void testPan_data()
     {
-        VariableController2 vc;
-        auto provider = std::make_shared<SimpleRange<10>>();
-        auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),
-                                                  QDate(2018,8,7),QTime(16,00));
-
-        auto var1 = vc.createVariable("var1", {}, provider, range);
+        QTest::addColumn<double>("pan");
+        QTest::newRow("Right 1000 seconds") << 1000.;
+        QTest::newRow("Left 1000 seconds")  << -1000.;
+        QTest::newRow("Right 0.1 seconds") << .1;
+        QTest::newRow("Left 0.1 seconds")  << -.1;
+    }
+    void testPan()
+    {
+        TEST_VC2_FIXTURE(10);
+        TEST_VC2_CREATE_DEFAULT_VAR(var1);
         check_variable_state<RangeType<10>>(var1, range);
 
-        range += Seconds<double>{1000.};
+        QFETCH(double, pan);
+
+        range += Seconds<double>{pan};
         vc.changeRange(var1, range);
         check_variable_state<RangeType<10>>(var1, range);
     }

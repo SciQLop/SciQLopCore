@@ -1,5 +1,12 @@
 add_definitions(-DCORE_TESTS_RESOURCES_DIR="${CMAKE_CURRENT_LIST_DIR}/../tests-resources")
 
+FILE (GLOB_RECURSE  TestUtilsSources
+    TestUtils/TestProviders.h
+    TestUtils/TestProviders.cpp
+)
+
+add_library(TestUtils ${TestUtilsSources})
+target_link_libraries(TestUtils sciqlopcore Qt5::Test)
 
 declare_test(TestStringUtils TestStringUtils Common/TestStringUtils.cpp "sciqlopcore;Qt5::Test")
 
@@ -36,4 +43,4 @@ declare_test(TestVariableSync TestVariableSync Variable/TestVariableSync.cpp "sc
 declare_test(TestDownloader TestDownloader Network/TestDownloader.cpp "sciqlopcore;Qt5::Test")
 
 
-declare_test(TestVariableController2 TestVariableController2 Variable/TestVariableController2.cpp "sciqlopcore;Qt5::Test")
+declare_test(TestVariableController2 TestVariableController2 Variable/TestVariableController2.cpp "sciqlopcore;TestUtils;Qt5::Test")
