@@ -99,6 +99,54 @@ private slots:
         QCOMPARE(initial*zoom, expected);
     }
 
+    void testRangeContains_data()
+    {
+        QTest::addColumn<DateTimeRange>("range");
+        QTest::addColumn<DateTimeRange>("range2");
+        QTest::addColumn<bool>("contains");
+        auto now = QDateTime::currentDateTime();
+        auto yestd = QDateTime::currentDateTime().addDays(-1);
+        auto range = DateTimeRange::fromDateTime(yestd, now);
+        QTest::newRow("Same range") << range << range << true;
+        QTest::newRow("Smaller range") << range << range * 0.8 << true;
+        QTest::newRow("Bigger range") << range << range * 1.2 << false;
+        QTest::newRow("Shifted range with overlap") << range << range + Seconds<double>{1000.} << false;
+        QTest::newRow("Shifted range without overlap") << range << range + Seconds<double>{24.*60.*60.*10} << false;
+
+    }
+    void testRangeContains()
+    {
+        QFETCH(DateTimeRange,range);
+        QFETCH(DateTimeRange,range2);
+        QFETCH(bool,contains);
+        QCOMPARE(range.contains(range2), contains);
+    }
+
+    void testRangeIntersect_data()
+    {
+        QTest::addColumn<DateTimeRange>("range");
+        QTest::addColumn<DateTimeRange>("range2");
+        QTest::addColumn<bool>("contains");
+        auto now = QDateTime::currentDateTime();
+        auto yestd = QDateTime::currentDateTime().addDays(-1);
+        auto tomorrow = QDateTime::currentDateTime().addDays(1);
+        auto range = DateTimeRange::fromDateTime(yestd, now);
+        auto range2 = DateTimeRange::fromDateTime(now, tomorrow);
+        QTest::newRow("Same range") << range << range << true;
+        QTest::newRow("Smaller range") << range << range * 0.8 << true;
+        QTest::newRow("Bigger range") << range << range * 1.2 << true;
+        QTest::newRow("Shifted range with overlap") << range << range + Seconds<double>{1000.} << true;
+        QTest::newRow("Shifted range with overlaping boundary") << range << range2 << true;
+        QTest::newRow("Shifted range without overlap") << range << range + Seconds<double>{24.*60.*60.*10} << false;
+
+    }
+    void testRangeIntersect()
+    {
+        QFETCH(DateTimeRange,range);
+        QFETCH(DateTimeRange,range2);
+        QFETCH(bool,contains);
+        QCOMPARE(range.intersect(range2), contains);
+    }
 };
 QTEST_MAIN(TestDateTimeRange)
 
