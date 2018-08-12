@@ -1,7 +1,11 @@
+#ifndef NUMERIC_H
+#define NUMERIC_H
 #include <cmath>
 #include <limits>
 #include <type_traits>
 #include <algorithm>
+
+namespace SciQLop::numeric {
 
 /*
  taken from here https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
@@ -16,3 +20,7 @@ typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
     // unless the result is subnormal
            || std::abs(x-y) < std::numeric_limits<T>::min();
 }
+
+}
+
+#endif

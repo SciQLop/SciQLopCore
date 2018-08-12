@@ -1,15 +1,15 @@
 #ifndef SCIQLOP_SQPRANGE_H
 #define SCIQLOP_SQPRANGE_H
 
+#include <cmath>
 #include <QObject>
 
 #include <QDebug>
 
+#include <opaque/numeric_typedef.hpp>
 #include <Common/DateUtils.h>
 #include <Common/MetaTypes.h>
-#include <opaque/numeric_typedef.hpp>
-
-#include <cmath>
+#include <Common/Numeric.h>
 
 
 template <typename T>
@@ -22,6 +22,7 @@ struct Seconds : opaque::numeric_typedef<T, Seconds<T>> ,
 {
   using base  = opaque::numeric_typedef<T, Seconds<T>>;
   using base::base;
+  operator T () const {return this->value;}
 };
 
 /**
@@ -34,6 +35,12 @@ struct DateTimeRange {
     {
         return {DateUtils::secondsSinceEpoch(QDateTime{startDate, startTime, Qt::UTC}),
                 DateUtils::secondsSinceEpoch(QDateTime{endDate, endTime, Qt::UTC})};
+    }
+
+    static DateTimeRange fromDateTime(const QDateTime &start,  const QDateTime &end)
+    {
+        return {DateUtils::secondsSinceEpoch(start),
+                DateUtils::secondsSinceEpoch(end)};
     }
 
     /// Start time (UTC)
@@ -55,12 +62,10 @@ struct DateTimeRange {
 
     bool operator==(const DateTimeRange &other) const
     {
-        auto equals = [](const auto &v1, const auto &v2) {
-            return (std::isnan(v1) && std::isnan(v2)) || v1 == v2;
-        };
-
-        return equals(m_TStart, other.m_TStart) && equals(m_TEnd, other.m_TEnd);
+        return SciQLop::numeric::almost_equal(m_TStart, other.m_TStart, 1.) &&
+                SciQLop::numeric::almost_equal(m_TEnd, other.m_TEnd, 1.);
     }
+
     bool operator!=(const DateTimeRange &other) const { return !(*this == other); }
 
     void grow(double factor)

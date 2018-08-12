@@ -13,6 +13,8 @@ declare_test(TestStringUtils TestStringUtils Common/TestStringUtils.cpp "sciqlop
 declare_test(TestContainers TestContainers Common/TestContainers.cpp "sciqlopcore;Qt5::Test")
 declare_test(TestSyncGroup TestSyncGroup Variable/TestSyncGroup.cpp "sciqlopcore;Qt5::Test")
 
+declare_test(TestDateTimeRange TestDateTimeRange Data/TestDateTimeRange.cpp "sciqlopcore;Qt5::Test")
+
 
 declare_test(TestDataSeriesUtils TestDataSeriesUtils Data/TestDataSeriesUtils.cpp "sciqlopcore;Qt5::Test")
 declare_test(TestOptionalAxis TestOptionalAxis Data/TestOptionalAxis.cpp "sciqlopcore;Qt5::Test")

@@ -659,7 +659,7 @@ bool VariableController::hasPendingDownloads()
 
 AcquisitionZoomType VariableController::getZoomType(const DateTimeRange &range, const DateTimeRange &oldRange)
 {
-    if (almost_equal(static_cast<double>(range.delta()), static_cast<double>(oldRange.delta()), 1)) // same delta -> must be a pan or nothing
+    if (SciQLop::numeric::almost_equal<double>(range.delta(), oldRange.delta(), 1)) // same delta -> must be a pan or nothing
     {
         if(range.m_TStart > oldRange.m_TStart)
             return AcquisitionZoomType::PanRight;

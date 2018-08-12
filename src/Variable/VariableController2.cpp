@@ -1,4 +1,5 @@
 #include "Variable/VariableController2.h"
+#include "Variable/VariableSynchronizationGroup2.h"
 #include <Common/containers.h>
 #include <Common/debug.h>
 #include <Data/DataProviderParameters.h>
@@ -7,6 +8,7 @@ class VariableController2::VariableController2Private
 {
     std::set<std::shared_ptr<Variable>> _variables;
     QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
+    QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
 public:
     VariableController2Private(QObject* parent=Q_NULLPTR)
     {
@@ -20,6 +22,7 @@ public:
         auto newVar = std::make_shared<Variable>(name,metadata);
         this->_variables.insert(newVar);
         this->_providers[newVar->ID()] = provider;
+        this->_synchronizationGroups[newVar->ID()] = std::make_shared<VariableSynchronizationGroup2>(newVar->ID());
         return newVar;
     }
 

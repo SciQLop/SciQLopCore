@@ -107,7 +107,7 @@ PYBIND11_MODULE(pysciqlopcore,m){
 
 
     py::class_<DateTimeRange>(m,"SqpRange")
-            .def("fromDateTime", &DateTimeRange::fromDateTime, py::return_value_policy::move)
+            //.def("fromDateTime", &DateTimeRange::fromDateTime, py::return_value_policy::move)
             .def(py::init([](double start, double stop){return DateTimeRange{start, stop};}))
             .def(py::init([](system_clock::time_point start, system_clock::time_point stop)
     {
