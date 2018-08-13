@@ -56,6 +56,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Data/VariableRequest.h
     ./include/Data/VectorSeries.h
     ./include/Data/DateTimeRange.h
+    ./include/Data/DateTimeRangeHelper.h
     ./include/Data/ScalarSeries.h
     ./include/Data/DataSeriesMergeHelper.h
     ./include/Data/DataSeries.h

@@ -5,9 +5,11 @@
 
 
 #include <Data/DateTimeRange.h>
+#include <Data/DateTimeRangeHelper.h>
 #include <Common/Numeric.h>
 
 Q_DECLARE_METATYPE(Seconds<double>);
+Q_DECLARE_METATYPE(DateTimeRangeTransformation);
 
 DateTimeRange computeZoom(QDateTime start, QDateTime stop, double zoom)
 {
@@ -137,6 +139,7 @@ private slots:
         QTest::newRow("Bigger range") << range << range * 1.2 << true;
         QTest::newRow("Shifted range with overlap") << range << range + Seconds<double>{1000.} << true;
         QTest::newRow("Shifted range with overlaping boundary") << range << range2 << true;
+        QTest::newRow("Shifted range .1 seonds outside") << range << range2 + Seconds<double>{.1} << false;
         QTest::newRow("Shifted range without overlap") << range << range + Seconds<double>{24.*60.*60.*10} << false;
 
     }
@@ -146,6 +149,41 @@ private slots:
         QFETCH(DateTimeRange,range2);
         QFETCH(bool,contains);
         QCOMPARE(range.intersect(range2), contains);
+    }
+
+    void testRangeTransformations_data()
+    {
+        QTest::addColumn<DateTimeRange>("range1");
+        QTest::addColumn<DateTimeRange>("range2");
+        QTest::addColumn<DateTimeRangeTransformation>("transformation");
+        auto now = QDateTime::currentDateTime();
+        auto yestd = QDateTime::currentDateTime().addDays(-1);
+        auto range = DateTimeRange::fromDateTime(yestd, now);
+
+        QTest::newRow("Same range") << range << range << DateTimeRangeTransformation{1.,Seconds<double>{0.}};
+
+        QTest::newRow("Transformatio 1.1x + 10s") << range << range*1.1 + Seconds<double>{10.}
+                                                  << DateTimeRangeTransformation{1.1, Seconds<double>{10.}};
+
+        QTest::newRow("Transformatio 1.x + 10s") << range << range*1. + Seconds<double>{10.}
+                                                  << DateTimeRangeTransformation{1., Seconds<double>{10.}};
+
+        QTest::newRow("Transformatio 1.1x + 0s") << range << range*1.1 + Seconds<double>{0.}
+                                                  << DateTimeRangeTransformation{1.1,Seconds<double>{0.}};
+
+        QTest::newRow("Transformatio 0.9x - 10s") << range << range*0.9 + Seconds<double>{-10.}
+                                                  << DateTimeRangeTransformation{0.9, Seconds<double>{-10.}};
+
+    }
+    void testRangeTransformations()
+    {
+        QFETCH(DateTimeRange,range1);
+        QFETCH(DateTimeRange,range2);
+        QFETCH(DateTimeRangeTransformation, transformation);
+        auto computed_tr = DateTimeRangeHelper::computeTransformation(range1,range2);
+        QCOMPARE(computed_tr, transformation);
+        QCOMPARE(range1.transform(transformation),range2);
+        QCOMPARE(range1.transform(computed_tr),range2);
     }
 };
 QTEST_MAIN(TestDateTimeRange)

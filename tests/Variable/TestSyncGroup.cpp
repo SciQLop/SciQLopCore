@@ -24,6 +24,15 @@ private slots:
         }
     }
 
+    void testAddingTwiceAVar()
+    {
+        auto v = QUuid::createUuid();
+        VariableSynchronizationGroup2 group{v};
+        QVERIFY(group.contains(v));
+        group.addVariable(v);
+        QVERIFY(group.variables().size()==1);
+    }
+
     void testRemoveVariables()
     {
         auto v = QUuid::createUuid();

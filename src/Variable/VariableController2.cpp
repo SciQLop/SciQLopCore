@@ -9,6 +9,19 @@ class VariableController2::VariableController2Private
     std::set<std::shared_ptr<Variable>> _variables;
     QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
     QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
+
+    bool p_contains(std::shared_ptr<Variable> variable)
+    {
+        return _providers.contains(variable->ID());
+    }
+    bool v_contains(std::shared_ptr<Variable> variable)
+    {
+        return SciQLop::containers::contains(this->_variables, variable);
+    }
+    bool sg_contains(std::shared_ptr<Variable> variable)
+    {
+        return _synchronizationGroups.contains(variable->ID());
+    }
 public:
     VariableController2Private(QObject* parent=Q_NULLPTR)
     {
@@ -28,15 +41,21 @@ public:
 
     void deleteVariable(std::shared_ptr<Variable> variable)
     {
-        if(this->_providers.contains(variable->ID()))
-            this->_providers.remove(variable->ID());
-        if(SciQLop::containers::contains(this->_variables, variable))
+        /*
+         * Removing twice a var is ok but a var without provider has to be a hard error
+         * this means we got the var controller in an inconsistent state
+         */
+        if(v_contains(variable))
             this->_variables.erase(variable);
+        if(p_contains(variable))
+            this->_providers.remove(variable->ID());
+        else
+            SCIQLOP_ERROR("No provider found for given variable");
     }
 
     void changeRange(std::shared_ptr<Variable> variable, DateTimeRange r)
     {
-        if(_providers.contains(variable->ID()))
+        if(p_contains(variable))
         {
             auto provider = _providers[variable->ID()];
             auto data = provider->getData(DataProviderParameters{{r},variable->metadata()});
@@ -48,6 +67,27 @@ public:
         }
     }
 
+    void synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with)
+    {
+        if(v_contains(var) && v_contains(with))
+        {
+            if(sg_contains(var) && sg_contains(with))
+            {
+
+                auto dest_group = this->_synchronizationGroups[with->ID()];
+                this->_synchronizationGroups[var->ID()] = dest_group;
+                dest_group->addVariable(var->ID());
+            }
+            else
+            {
+                SCIQLOP_ERROR("At least one of the given variables isn't in a sync group");
+            }
+        }
+        else
+        {
+            SCIQLOP_ERROR("At least one of the given variables is not found");
+        }
+    }
 
     const std::set<std::shared_ptr<Variable>>& variables()
     {
@@ -82,5 +122,10 @@ void VariableController2::changeRange(std::shared_ptr<Variable> variable, DateTi
 const std::set<std::shared_ptr<Variable> > &VariableController2::variables()
 {
     return impl->variables();
+}
+
+void VariableController2::synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with)
+{
+    impl->synchronize(var, with);
 }
 

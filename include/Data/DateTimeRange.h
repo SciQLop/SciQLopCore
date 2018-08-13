@@ -1,5 +1,5 @@
-#ifndef SCIQLOP_SQPRANGE_H
-#define SCIQLOP_SQPRANGE_H
+#ifndef SCIQLOP_DATETIMERANGE_H
+#define SCIQLOP_DATETIMERANGE_H
 
 #include <cmath>
 #include <QObject>
@@ -25,6 +25,17 @@ struct Seconds : opaque::numeric_typedef<T, Seconds<T>> ,
   operator T () const {return this->value;}
 };
 
+struct DateTimeRangeTransformation
+{
+    double zoom;
+    Seconds<double> shift;
+    bool operator==(const DateTimeRangeTransformation& other) const
+    {
+        return SciQLop::numeric::almost_equal(zoom, other.zoom, 1.) &&
+                SciQLop::numeric::almost_equal<double>(shift, other.shift, 1.);
+    }
+};
+
 /**
  * @brief The SqpRange struct holds the information of time parameters
  */
@@ -48,17 +59,24 @@ struct DateTimeRange {
     /// End time (UTC)
     double m_TEnd;
 
-    Seconds<double> delta()const {return Seconds<double>{this->m_TEnd - this->m_TStart};}
+    Seconds<double> delta()const noexcept{return Seconds<double>{this->m_TEnd - this->m_TStart};}
 
     bool contains(const DateTimeRange &dateTime) const noexcept
     {
         return (m_TStart <= dateTime.m_TStart && m_TEnd >= dateTime.m_TEnd);
     }
 
+    Seconds<double> center() const noexcept
+    {
+        return Seconds<double>((m_TStart + m_TEnd) / 2.);
+    }
+
     bool intersect(const DateTimeRange &dateTime) const noexcept
     {
         return (m_TEnd >= dateTime.m_TStart && m_TStart <= dateTime.m_TEnd);
     }
+
+    inline DateTimeRange transform(const DateTimeRangeTransformation& tr)const noexcept;
 
     bool operator==(const DateTimeRange &other) const
     {
@@ -68,14 +86,14 @@ struct DateTimeRange {
 
     bool operator!=(const DateTimeRange &other) const { return !(*this == other); }
 
-    void grow(double factor)
+    void grow(double factor)noexcept
     {
         double grow_v{delta()*(factor - 1.)/2.};
         m_TStart -= grow_v;
         m_TEnd += grow_v;
     }
 
-    void shrink(double factor)
+    void shrink(double factor)noexcept
     {
         double shrink_v{this->delta()*(1. - factor)/2.};
         m_TStart += shrink_v;
@@ -158,7 +176,14 @@ inline QDebug operator<<(QDebug d, DateTimeRange obj)
     return d;
 }
 
+
+
+DateTimeRange DateTimeRange::transform(const DateTimeRangeTransformation &tr) const noexcept
+{
+    return DateTimeRange{*this} * tr.zoom + tr.shift;
+}
+
 // Required for using shared_ptr in signals/slots
 SCIQLOP_REGISTER_META_TYPE(SQPRANGE_REGISTRY, DateTimeRange)
 
-#endif // SCIQLOP_SQPRANGE_H
+#endif // SCIQLOP_DATETIMERANGE_H
