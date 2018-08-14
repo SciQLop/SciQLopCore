@@ -23,10 +23,12 @@ class SimpleRange: public IDataProvider
 public:
     SimpleRange() = default;
 
+    int callCounter = 0;
     std::shared_ptr<IDataProvider> clone() const override{ return std::make_shared<SimpleRange>(); }
 
     IDataSeries* getData(const DataProviderParameters &parameters) override
     {
+        callCounter+=1;
         auto tstart = parameters.m_Times[0].m_TStart;
         auto tend = parameters.m_Times[0].m_TEnd;
         std::vector<double> x;

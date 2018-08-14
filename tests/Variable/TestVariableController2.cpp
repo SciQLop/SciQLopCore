@@ -21,6 +21,8 @@
                                           QDate(2018,8,7),QTime(16,00));\
     auto name = vc.createVariable("name", {}, provider, range);\
 
+Q_DECLARE_METATYPE(DateTimeRangeTransformation);
+
 
 class TestVariableController2 : public QObject
 {
@@ -108,6 +110,29 @@ private slots:
         check_variable_state<RangeType<10>>(var1, range);
     }
 
+    void testCache_data()
+    {
+        QTest::addColumn<DateTimeRangeTransformation>("transformation");
+        QTest::addColumn<int>("expectedIncrement");
+        QTest::newRow("zoom in") << DateTimeRangeTransformation{0.8,Seconds<double>(0.)} << 0;
+        QTest::newRow("tiny zoom out")  << DateTimeRangeTransformation{1.01,Seconds<double>(0.)} << 0;
+        QTest::newRow("tiny pan left") << DateTimeRangeTransformation{1.,Seconds<double>(-100.)} << 0;
+        QTest::newRow("tiny pan right")  << DateTimeRangeTransformation{1.,Seconds<double>(100.)} << 0;
+    }
+    void testCache()
+    {
+        TEST_VC2_FIXTURE(10);
+        TEST_VC2_CREATE_DEFAULT_VAR(var1);
+        check_variable_state<RangeType<10>>(var1, range);
+
+        QFETCH(DateTimeRangeTransformation, transformation);
+        QFETCH(int, expectedIncrement);
+        auto initialCount = provider->callCounter;
+        range = range.transform(transformation);
+        vc.changeRange(var1, range);
+        check_variable_state<RangeType<10>>(var1, range);
+        QCOMPARE(provider->callCounter-initialCount, expectedIncrement);
+    }
 };
 
 
