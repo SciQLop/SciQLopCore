@@ -116,6 +116,8 @@ private slots:
         QTest::addColumn<int>("expectedIncrement");
         QTest::newRow("zoom in") << DateTimeRangeTransformation{0.8,Seconds<double>(0.)} << 0;
         QTest::newRow("tiny zoom out")  << DateTimeRangeTransformation{1.01,Seconds<double>(0.)} << 0;
+        QTest::newRow("just under cache zoom out")  << DateTimeRangeTransformation{2.0/1.1,Seconds<double>(0.)} << 0;
+        QTest::newRow("just over cache zoom out")  << DateTimeRangeTransformation{2.001/1.1, Seconds<double>(0.)} << 2;
         QTest::newRow("tiny pan left") << DateTimeRangeTransformation{1.,Seconds<double>(-100.)} << 0;
         QTest::newRow("tiny pan right")  << DateTimeRangeTransformation{1.,Seconds<double>(100.)} << 0;
     }
