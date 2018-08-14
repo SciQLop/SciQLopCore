@@ -15,6 +15,15 @@
 namespace DateTimeRangeHelper {
 
 
+    bool isnan(const DateTimeRange& range)
+    {
+        return std::isnan(range.m_TStart) && std::isnan(range.m_TEnd);
+    }
+
+    bool hasnan(const DateTimeRange& range)
+    {
+        return std::isnan(range.m_TStart) || std::isnan(range.m_TEnd);
+    }
 
     bool isPureShift(const DateTimeRange& range1, const DateTimeRange& range2)
     {

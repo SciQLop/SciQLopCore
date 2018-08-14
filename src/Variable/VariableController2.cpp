@@ -28,12 +28,24 @@ class VariableController2::VariableController2Private
     void _changeRange(std::shared_ptr<Variable> var, DateTimeRange r)
     {
         auto provider = _providers[var->ID()];
-        auto missingRanges = r - var->range();
+        DateTimeRange newCacheRange;
+        std::vector<DateTimeRange> missingRanges;
+        if(DateTimeRangeHelper::hasnan(var->cacheRange()))
+        {
+            newCacheRange = _cacheStrategy->computeRange(r,r);
+            missingRanges = {newCacheRange};
+        }
+        else
+        {
+            newCacheRange = _cacheStrategy->computeRange(var->cacheRange(),r);
+            missingRanges = newCacheRange - var->cacheRange();
+        }
         for(auto range:missingRanges)
         {
             auto data = provider->getData(DataProviderParameters{{range},var->metadata()});
             var->mergeDataSeries(data);
         }
+        var->setCacheRange(r);
         var->setRange(r);
     }
 public:
@@ -45,7 +57,7 @@ public:
 
     ~VariableController2Private() = default;
 
-    std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider, const DateTimeRange &range)
+    std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider)
     {
         auto newVar = std::make_shared<Variable>(name,metadata);
         this->_variables[newVar->ID()] = newVar;
@@ -72,7 +84,7 @@ public:
     {
         if(p_contains(variable))
         {
-            if(!std::isnan(r.m_TStart) && !std::isnan(r.m_TEnd))
+            if(!DateTimeRangeHelper::hasnan(r))
             {
                 auto transformation = DateTimeRangeHelper::computeTransformation(variable->range(),r);
                 auto group = _synchronizationGroups[variable->ID()];
@@ -146,9 +158,9 @@ VariableController2::VariableController2()
 
 std::shared_ptr<Variable> VariableController2::createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider, const DateTimeRange &range)
 {
-    auto var =  impl->createVariable(name, metadata, provider, range);
+    auto var =  impl->createVariable(name, metadata, provider);
     emit variableAdded(var);
-    if(!std::isnan(range.m_TStart) && !std::isnan(range.m_TEnd))
+    if(!DateTimeRangeHelper::hasnan(range))
         impl->changeRange(var,range);
     else
         SCIQLOP_ERROR(VariableController2, "Creating a variable with default constructed DateTimeRange is an error");

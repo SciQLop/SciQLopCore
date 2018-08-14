@@ -16,10 +16,7 @@ public:
         Q_UNUSED(currentCacheRange);
         auto toleranceFactor = SqpSettings::toleranceValue(
             GENERAL_TOLERANCE_AT_UPDATE_KEY, GENERAL_TOLERANCE_AT_UPDATE_DEFAULT_VALUE);
-        auto tolerance = toleranceFactor * (rangeRequested.m_TEnd - rangeRequested.m_TStart);
-
-        return  rangeRequested*(1.+tolerance);
-
+        return  rangeRequested*(1.+toleranceFactor);
     }
 };
 
