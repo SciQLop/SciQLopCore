@@ -42,7 +42,7 @@ public:
      */
     void removeVariable(QUuid variable) noexcept
     {
-        this->_variables.extract(variable);
+        this->_variables.erase(variable);
     }
 
     /**

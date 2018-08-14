@@ -2,6 +2,7 @@
 #define SCIQLOP_DATETIMERANGEHELPER_H
 
 #include <cmath>
+#include <variant>
 #include <QObject>
 
 #include <QDebug>

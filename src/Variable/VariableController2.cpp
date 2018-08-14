@@ -45,12 +45,12 @@ class VariableController2::VariableController2Private
             auto data = provider->getData(DataProviderParameters{{range},var->metadata()});
             var->mergeDataSeries(data);
         }
-        var->setCacheRange(r);
+        var->setCacheRange(newCacheRange);
         var->setRange(r);
     }
 public:
     VariableController2Private(QObject* parent=Q_NULLPTR)
-        :_cacheStrategy(VariableCacheStrategyFactory::createCacheStrategy(CacheStrategy::Proportional))
+        :_cacheStrategy(VariableCacheStrategyFactory::createCacheStrategy(CacheStrategy::SingleThreshold))
     {
         Q_UNUSED(parent);
     }

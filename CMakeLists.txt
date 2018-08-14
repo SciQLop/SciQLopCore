@@ -85,6 +85,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Variable/VariableSynchronizationGroup.h
     ./include/Variable/VariableSynchronizationGroup2.h
     ./include/Variable/ProportionalCacheStrategy.h
+    ./include/Variable/SingleThresholdCacheStrategy.h
     ./include/Variable/VariableCacheStrategyFactory.h
     ./include/Variable/Variable.h
     ./include/Variable/VariableCacheController.h

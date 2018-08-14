@@ -7,6 +7,7 @@
 
 #include "VariableCacheStrategy.h"
 #include "ProportionalCacheStrategy.h"
+#include "SingleThresholdCacheStrategy.h"
 
 #include <Common/debug.h>
 #include <QString>
@@ -27,8 +28,8 @@ public:
                 new ProportionalCacheStrategy{}};
         }
         case CacheStrategy::SingleThreshold: {
-            SCIQLOP_ERROR(VariableCacheStrategyFactory, "CacheStrategy::SingleThreshold not implemented yet");
-            break;
+            return std::unique_ptr<VariableCacheStrategy>{
+                new SingleThresholdCacheStrategy{}};
         }
         case CacheStrategy::TwoThreshold: {
             SCIQLOP_ERROR(VariableCacheStrategyFactory, "CacheStrategy::TwoThreshold not implemented yet");
