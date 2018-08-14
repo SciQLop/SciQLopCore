@@ -114,8 +114,8 @@ private slots:
         QTest::newRow("Bigger range") << range << range * 1.2 << false;
         QTest::newRow("Shifted range with overlap") << range << range + Seconds<double>{1000.} << false;
         QTest::newRow("Shifted range without overlap") << range << range + Seconds<double>{24.*60.*60.*10} << false;
-
     }
+
     void testRangeContains()
     {
         QFETCH(DateTimeRange,range);
@@ -141,8 +141,8 @@ private slots:
         QTest::newRow("Shifted range with overlaping boundary") << range << range2 << true;
         QTest::newRow("Shifted range .1 seonds outside") << range << range2 + Seconds<double>{.1} << false;
         QTest::newRow("Shifted range without overlap") << range << range + Seconds<double>{24.*60.*60.*10} << false;
-
     }
+
     void testRangeIntersect()
     {
         QFETCH(DateTimeRange,range);
@@ -180,10 +180,37 @@ private slots:
         QFETCH(DateTimeRange,range1);
         QFETCH(DateTimeRange,range2);
         QFETCH(DateTimeRangeTransformation, transformation);
-        auto computed_tr = DateTimeRangeHelper::computeTransformation(range1,range2);
+        auto computed_tr = std::get<DateTimeRangeTransformation>(DateTimeRangeHelper::computeTransformation(range1,range2));
         QCOMPARE(computed_tr, transformation);
         QCOMPARE(range1.transform(transformation),range2);
         QCOMPARE(range1.transform(computed_tr),range2);
+    }
+
+    void testRangeDiff_data()
+    {
+        QTest::addColumn<DateTimeRange>("source");
+        QTest::addColumn<DateTimeRange>("destination");
+        QTest::addColumn<int>("count");
+        auto now = QDateTime::currentDateTime();
+        auto yestd = QDateTime::currentDateTime().addDays(-1);
+        auto range = DateTimeRange::fromDateTime(yestd, now);
+        QTest::newRow("Same range") << range << range << 0;
+        QTest::newRow("No missing data (zoom in)") << range << range*0.9 << 0;
+        QTest::newRow("Missing data on both sides (zoom out)") << range << range*2. << 2;
+        QTest::newRow("Missing data on left side (pan left)") << range << range-Seconds<double>{1000.} << 1;
+        QTest::newRow("Missing data on right side (pan right)") << range << range+Seconds<double>{1000.} << 1;
+        QTest::newRow("Missing data on right side no intersect (big pan right)") << range << range+Seconds<double>{24.*60.*60.*2} << 1;
+        QTest::newRow("Missing data on left side no intersect (big pan left)") << range << range-Seconds<double>{24.*60.*60.*2} << 1;
+
+    }
+
+    void testRangeDiff()
+    {
+        QFETCH(DateTimeRange,source);
+        QFETCH(DateTimeRange,destination);
+        QFETCH(int, count);
+        auto diff = destination-source;
+        QCOMPARE(diff.size(),count);
     }
 };
 QTEST_MAIN(TestDateTimeRange)

@@ -146,12 +146,14 @@ DateTimeRange Variable::range() const noexcept
     return range;
 }
 
-void Variable::setRange(const DateTimeRange &range) noexcept
+void Variable::setRange(const DateTimeRange &range, bool notify) noexcept
 {
     impl->lockWrite();
     impl->m_Range = range;
     impl->updateRealRange();
     impl->unlock();
+    if(notify)
+        emit this->updated();
 }
 
 DateTimeRange Variable::cacheRange() const noexcept
@@ -209,15 +211,15 @@ void Variable::mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept
     }
 }
 
-void Variable::mergeDataSeries(IDataSeries *dataSeries) noexcept
+void Variable::mergeDataSeries(IDataSeries *dataSeries, bool notify) noexcept
 {
     if (dataSeries==nullptr) {
-        SCIQLOP_ERROR("Given IDataSeries is nullptr");
+        SCIQLOP_ERROR(Variable,"Given IDataSeries is nullptr");
         return;
     }
 
     auto dataInit = false;
-    // @TODO move to impl to Pimpl this is what it stands for...
+    // @TODO move impl to Pimpl this is what it stands for...
     // Add or merge the data
     impl->lockWrite();
     if (!impl->m_DataSeries) {
@@ -235,6 +237,8 @@ void Variable::mergeDataSeries(IDataSeries *dataSeries) noexcept
     if (dataInit) {
         emit dataInitialized();
     }
+    if(notify)
+        emit this->updated();
 }
 
 

@@ -27,7 +27,7 @@ public:
     void deleteVariable(std::shared_ptr<Variable> variable);
     void changeRange(std::shared_ptr<Variable> variable, DateTimeRange r);
     void asyncChangeRange(std::shared_ptr<Variable> variable, DateTimeRange r);
-    const std::set<std::shared_ptr<Variable> > &variables();
+    const std::set<std::shared_ptr<Variable>> variables();
 
     void synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with);
 

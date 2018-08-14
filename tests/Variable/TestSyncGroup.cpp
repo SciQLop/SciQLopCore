@@ -3,6 +3,7 @@
 #include <QUuid>
 
 #include <Variable/VariableSynchronizationGroup2.h>
+#include <Common/debug.h>
 
 class TestSyncGroup: public QObject {
     Q_OBJECT

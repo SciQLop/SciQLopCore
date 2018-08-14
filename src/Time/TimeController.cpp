@@ -34,9 +34,10 @@ DateTimeRange TimeController::timeRangeForMimeData(const QByteArray &mimeData)
 {
     QDataStream stream{mimeData};
 
-    DateTimeRange timeRange;
-    stream >> timeRange.m_TStart >> timeRange.m_TEnd;
-
+    double start;
+    double end;
+    stream >> start >> end;
+    DateTimeRange timeRange{start,end};
     return timeRange;
 }
 

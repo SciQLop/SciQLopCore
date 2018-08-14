@@ -84,7 +84,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Variable/VariableCacheStrategy.h
     ./include/Variable/VariableSynchronizationGroup.h
     ./include/Variable/VariableSynchronizationGroup2.h
-    ./include/Variable/VariableSingleThresholdCacheStrategy.h
+    ./include/Variable/ProportionalCacheStrategy.h
     ./include/Variable/VariableCacheStrategyFactory.h
     ./include/Variable/Variable.h
     ./include/Variable/VariableCacheController.h
@@ -140,6 +140,7 @@ ENDIF(Catalog)
 
 add_definitions(-DCORE_STATIC)
 #add_definitions(-DHIDE_DEPRECATED)
+add_definitions(-DSCIQLOP_CRASH_ON_ERROR)
 
 add_library(sciqlopcore ${core_SRCS} ${core_catalog_SRCS})
 SET_TARGET_PROPERTIES(sciqlopcore PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)

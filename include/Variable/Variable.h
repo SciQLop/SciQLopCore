@@ -38,7 +38,7 @@ public:
     QString name() const noexcept;
     void setName(const QString &name) noexcept;
     DateTimeRange range() const noexcept;
-    void setRange(const DateTimeRange &range) noexcept;
+    void setRange(const DateTimeRange &range, bool notify=false) noexcept;
     DateTimeRange cacheRange() const noexcept;
     void setCacheRange(const DateTimeRange &cacheRange) noexcept;
 
@@ -61,7 +61,7 @@ public:
     DataSeriesType type() const noexcept;
 
     QVariantHash metadata() const noexcept;
-
+DEPRECATE(
     bool contains(const DateTimeRange &range) const noexcept;
     bool intersect(const DateTimeRange &range) const noexcept;
     bool isInside(const DateTimeRange &range) const noexcept;
@@ -69,26 +69,31 @@ public:
     bool cacheContains(const DateTimeRange &range) const noexcept;
     bool cacheIntersect(const DateTimeRange &range) const noexcept;
     bool cacheIsInside(const DateTimeRange &range) const noexcept;
-
+)
+DEPRECATE(
     QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &range) const noexcept;
     QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &range) const noexcept;
+)
 DEPRECATE(
     void mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept;
     )
-    void mergeDataSeries(IDataSeries* dataSeries) noexcept;
+    void mergeDataSeries(IDataSeries* dataSeries, bool notify=false) noexcept;
 
+DEPRECATE(
     static QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &oldRange,
                                                         const DateTimeRange &nextRange);
 
     static QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &oldRange,
                                                      const DateTimeRange &nextRange);
+)
 
     QUuid ID(){return _uuid;}
 signals:
     void updated();
+DEPRECATE(
     /// Signal emitted when when the data series of the variable is loaded for the first time
     void dataInitialized();
-
+    )
 private:
     class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;

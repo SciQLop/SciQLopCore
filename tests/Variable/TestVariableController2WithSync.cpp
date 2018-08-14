@@ -16,17 +16,20 @@
     VariableController2 vc; \
     auto provider = std::make_shared<SimpleRange<slope>>();\
 
-#define TEST_VC2_CREATE_DEFAULT_VAR(name)\
+#define TEST_VC2_CREATE_DEFAULT_VARS(name1, name2, name3)\
     auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),\
                                           QDate(2018,8,7),QTime(16,00));\
-    auto name = vc.createVariable("name", {}, provider, range);\
+    auto name1 = vc.createVariable("name1", {}, provider, range);\
+    auto name2 = vc.createVariable("name1", {}, provider, range);\
+    auto name3 = vc.createVariable("name1", {}, provider, range);\
+    vc.synchronize(name1,name2);\
 
 
-class TestVariableController2 : public QObject
+class TestVariableController2WithSync : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestVariableController2(QObject *parent = nullptr) : QObject(parent){}
+    explicit TestVariableController2WithSync(QObject *parent = nullptr) : QObject(parent){}
 signals:
 
 private slots:
@@ -64,8 +67,13 @@ private slots:
     void testGetData()
     {
         TEST_VC2_FIXTURE(10);
-        TEST_VC2_CREATE_DEFAULT_VAR(var1);
+        TEST_VC2_CREATE_DEFAULT_VARS(var1,var2,var3);
         check_variable_state<RangeType<10>>(var1, range);
+        auto newRange = var2->range()*1.5 + Seconds<double>{1000.};
+        vc.changeRange(var2, newRange);
+        check_variable_state<RangeType<10>>(var1, newRange);
+        check_variable_state<RangeType<10>>(var2, newRange);
+        check_variable_state<RangeType<10>>(var3, range);
     }
 
     void testZoom_data()
@@ -78,13 +86,14 @@ private slots:
     void testZoom()
     {
         TEST_VC2_FIXTURE(100);
-        TEST_VC2_CREATE_DEFAULT_VAR(var1);
+        TEST_VC2_CREATE_DEFAULT_VARS(var1,var2,var3);
         check_variable_state<RangeType<100>>(var1, range);
 
         QFETCH(double, zoom);
         range *=zoom;
         vc.changeRange(var1, range);
         check_variable_state<RangeType<100>>(var1, range);
+        check_variable_state<RangeType<100>>(var2, range);
     }
 
     void testPan_data()
@@ -98,7 +107,7 @@ private slots:
     void testPan()
     {
         TEST_VC2_FIXTURE(10);
-        TEST_VC2_CREATE_DEFAULT_VAR(var1);
+        TEST_VC2_CREATE_DEFAULT_VARS(var1,var2,var3);
         check_variable_state<RangeType<10>>(var1, range);
 
         QFETCH(double, pan);
@@ -106,12 +115,13 @@ private slots:
         range += Seconds<double>{pan};
         vc.changeRange(var1, range);
         check_variable_state<RangeType<10>>(var1, range);
+        check_variable_state<RangeType<10>>(var2, range);
     }
 
 };
 
 
-QTEST_MAIN(TestVariableController2)
+QTEST_MAIN(TestVariableController2WithSync)
 
-#include "TestVariableController2.moc"
+#include "TestVariableController2WithSync.moc"
 

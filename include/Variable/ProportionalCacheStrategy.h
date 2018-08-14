@@ -6,25 +6,20 @@
 
 
 /// This class aims to hande the cache strategy.
-class SCIQLOP_CORE_EXPORT VariableSingleThresholdCacheStrategy : public VariableCacheStrategy {
+class SCIQLOP_CORE_EXPORT ProportionalCacheStrategy : public VariableCacheStrategy {
 public:
-    VariableSingleThresholdCacheStrategy() = default;
+    ProportionalCacheStrategy() = default;
 
-    std::pair<DateTimeRange, DateTimeRange> computeRange(const DateTimeRange &vRange,
+    DateTimeRange computeRange(const DateTimeRange &currentCacheRange,
                                                const DateTimeRange &rangeRequested) override
     {
-
-        auto varRanges = std::pair<DateTimeRange, DateTimeRange>{};
-
+        Q_UNUSED(currentCacheRange);
         auto toleranceFactor = SqpSettings::toleranceValue(
             GENERAL_TOLERANCE_AT_UPDATE_KEY, GENERAL_TOLERANCE_AT_UPDATE_DEFAULT_VALUE);
         auto tolerance = toleranceFactor * (rangeRequested.m_TEnd - rangeRequested.m_TStart);
 
-        varRanges.first = rangeRequested;
-        varRanges.second
-            = DateTimeRange{rangeRequested.m_TStart - tolerance, rangeRequested.m_TEnd + tolerance};
+        return  rangeRequested*(1.+tolerance);
 
-        return varRanges;
     }
 };
 

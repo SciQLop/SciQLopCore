@@ -706,10 +706,10 @@ void VariableController::VariableControllerPrivate::processRequest(std::shared_p
 
     auto varRequest = VariableRequest{};
     varRequest.m_VariableGroupId = varRequestId;
-    auto varStrategyRangesRequested
+    auto cacheRange
         = m_VariableCacheStrategy->computeRange(oldRange, rangeRequested);
-    varRequest.m_RangeRequested = varStrategyRangesRequested.first;
-    varRequest.m_CacheRangeRequested = varStrategyRangesRequested.second;
+    varRequest.m_RangeRequested = rangeRequested;
+    varRequest.m_CacheRangeRequested = cacheRange;
 
     switch (varHandler->m_State) {
         case VariableRequestHandlerState::OFF: {

@@ -25,14 +25,16 @@ struct Seconds : opaque::numeric_typedef<T, Seconds<T>> ,
   operator T () const {return this->value;}
 };
 
+struct InvalidDateTimeRangeTransformation{};
+
 struct DateTimeRangeTransformation
 {
     double zoom;
     Seconds<double> shift;
     bool operator==(const DateTimeRangeTransformation& other) const
     {
-        return SciQLop::numeric::almost_equal(zoom, other.zoom, 1.) &&
-                SciQLop::numeric::almost_equal<double>(shift, other.shift, 1.);
+        return SciQLop::numeric::almost_equal(zoom, other.zoom, 1) &&
+                SciQLop::numeric::almost_equal<double>(shift, other.shift, 1);
     }
 };
 
@@ -40,6 +42,12 @@ struct DateTimeRangeTransformation
  * @brief The SqpRange struct holds the information of time parameters
  */
 struct DateTimeRange {
+    DateTimeRange()
+        :m_TStart(std::nan("")), m_TEnd(std::nan(""))
+    {}
+    DateTimeRange(double TStart, double TEnd)
+        :m_TStart(TStart), m_TEnd(TEnd)
+    {}
     /// Creates SqpRange from dates and times
     static DateTimeRange fromDateTime(const QDate &startDate, const QTime &startTime,
                                  const QDate &endDate, const QTime &endTime)
@@ -80,8 +88,8 @@ struct DateTimeRange {
 
     bool operator==(const DateTimeRange &other) const
     {
-        return SciQLop::numeric::almost_equal(m_TStart, other.m_TStart, 1.) &&
-                SciQLop::numeric::almost_equal(m_TEnd, other.m_TEnd, 1.);
+        return SciQLop::numeric::almost_equal(m_TStart, other.m_TStart, 1) &&
+                SciQLop::numeric::almost_equal(m_TEnd, other.m_TEnd, 1);
     }
 
     bool operator!=(const DateTimeRange &other) const { return !(*this == other); }
@@ -110,6 +118,28 @@ struct DateTimeRange {
     {
         this->shrink(k);
         return *this;
+    }
+
+    // compute set difference
+    std::vector<DateTimeRange> operator-(const DateTimeRange& other)const
+    {
+        std::vector<DateTimeRange> result;
+        if(std::isnan(other.m_TStart)||std::isnan(other.m_TEnd)||!this->intersect(other))
+        {
+            result.push_back({m_TStart, m_TEnd});
+        }
+        else
+        {
+            if(this->m_TStart<other.m_TStart)
+            {
+                result.push_back({this->m_TStart, other.m_TStart});
+            }
+            if(this->m_TEnd>other.m_TEnd)
+            {
+                result.push_back({this->m_TEnd, other.m_TEnd});
+            }
+        }
+        return result;
     }
 
 };

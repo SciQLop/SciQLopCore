@@ -46,3 +46,4 @@ declare_test(TestDownloader TestDownloader Network/TestDownloader.cpp "sciqlopco
 
 
 declare_test(TestVariableController2 TestVariableController2 Variable/TestVariableController2.cpp "sciqlopcore;TestUtils;Qt5::Test")
+declare_test(TestVariableController2WithSync TestVariableController2WithSync Variable/TestVariableController2WithSync.cpp "sciqlopcore;TestUtils;Qt5::Test")
