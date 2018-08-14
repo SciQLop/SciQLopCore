@@ -39,6 +39,7 @@ class TestVariable : public QObject {
     Q_OBJECT
 
 private slots:
+    void initTestCase() { QSKIP("Skip it"); }
     void testClone_data();
     void testClone();
 

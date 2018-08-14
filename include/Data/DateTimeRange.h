@@ -126,17 +126,17 @@ struct DateTimeRange {
         std::vector<DateTimeRange> result;
         if(std::isnan(other.m_TStart)||std::isnan(other.m_TEnd)||!this->intersect(other))
         {
-            result.push_back({m_TStart, m_TEnd});
+            result.emplace_back(m_TStart, m_TEnd);
         }
         else
         {
             if(this->m_TStart<other.m_TStart)
             {
-                result.push_back({this->m_TStart, other.m_TStart});
+                result.emplace_back(this->m_TStart, other.m_TStart);
             }
             if(this->m_TEnd>other.m_TEnd)
             {
-                result.push_back({this->m_TEnd, other.m_TEnd});
+                result.emplace_back(this->m_TEnd, other.m_TEnd);
             }
         }
         return result;

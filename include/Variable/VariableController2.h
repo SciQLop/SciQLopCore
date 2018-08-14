@@ -22,18 +22,19 @@ class VariableController2: public QObject
 public:
     explicit VariableController2();
     std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata,
-                                             std::shared_ptr<IDataProvider> provider, const DateTimeRange &range);
+                                             const std::shared_ptr<IDataProvider>& provider,
+                                             const DateTimeRange &range);
 
-    void deleteVariable(std::shared_ptr<Variable> variable);
-    void changeRange(std::shared_ptr<Variable> variable, DateTimeRange r);
-    void asyncChangeRange(std::shared_ptr<Variable> variable, DateTimeRange r);
+    void deleteVariable(const std::shared_ptr<Variable>& variable);
+    void changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
+    void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
     const std::set<std::shared_ptr<Variable>> variables();
 
-    void synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with);
+    void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
 
 
 signals:
-    void variableAdded(std::shared_ptr<Variable>);
-    void variableDeleted(std::shared_ptr<Variable>);
+    void variableAdded(const std::shared_ptr<Variable>&);
+    void variableDeleted(const std::shared_ptr<Variable>&);
 
 };

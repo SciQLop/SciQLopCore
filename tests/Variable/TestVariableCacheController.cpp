@@ -10,6 +10,8 @@ class TestVariableCacheController : public QObject {
     Q_OBJECT
 
 private slots:
+    void initTestCase() { QSKIP("Skip it"); }
+
     void testProvideNotInCacheDateTimeList();
 
     void testAddDateTime();

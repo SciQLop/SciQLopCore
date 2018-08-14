@@ -12,20 +12,20 @@ class VariableController2::VariableController2Private
     QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
     QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
     std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
-    bool p_contains(std::shared_ptr<Variable> variable)
+    bool p_contains(const std::shared_ptr<Variable>& variable)
     {
         return _providers.contains(variable->ID());
     }
-    bool v_contains(std::shared_ptr<Variable> variable)
+    bool v_contains(const std::shared_ptr<Variable>& variable)
     {
         return SciQLop::containers::contains(this->_variables, variable);
     }
-    bool sg_contains(std::shared_ptr<Variable> variable)
+    bool sg_contains(const std::shared_ptr<Variable>& variable)
     {
         return _synchronizationGroups.contains(variable->ID());
     }
 
-    void _changeRange(std::shared_ptr<Variable> var, DateTimeRange r)
+    void _changeRange(const std::shared_ptr<Variable>& var, DateTimeRange r)
     {
         auto provider = _providers[var->ID()];
         DateTimeRange newCacheRange;
@@ -61,12 +61,12 @@ public:
     {
         auto newVar = std::make_shared<Variable>(name,metadata);
         this->_variables[newVar->ID()] = newVar;
-        this->_providers[newVar->ID()] = provider;
+        this->_providers[newVar->ID()] = std::move(provider);
         this->_synchronizationGroups[newVar->ID()] = std::make_shared<VariableSynchronizationGroup2>(newVar->ID());
         return newVar;
     }
 
-    void deleteVariable(std::shared_ptr<Variable> variable)
+    void deleteVariable(const std::shared_ptr<Variable>& variable)
     {
         /*
          * Removing twice a var is ok but a var without provider has to be a hard error
@@ -80,7 +80,7 @@ public:
             SCIQLOP_ERROR(VariableController2Private, "No provider found for given variable");
     }
 
-    void changeRange(std::shared_ptr<Variable> variable, DateTimeRange r)
+    void changeRange(const std::shared_ptr<Variable>& variable, DateTimeRange r)
     {
         if(p_contains(variable))
         {
@@ -118,7 +118,7 @@ public:
         }
     }
 
-    void synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with)
+    void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with)
     {
         if(v_contains(var) && v_contains(with))
         {
@@ -143,7 +143,7 @@ public:
     const std::set<std::shared_ptr<Variable>> variables()
     {
         std::set<std::shared_ptr<Variable>> vars;
-        for(auto var:_variables.values())
+        for(const auto  &var:_variables)
         {
             vars.insert(var);
         }
@@ -156,7 +156,7 @@ VariableController2::VariableController2()
     :impl{spimpl::make_unique_impl<VariableController2Private>()}
 {}
 
-std::shared_ptr<Variable> VariableController2::createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider, const DateTimeRange &range)
+std::shared_ptr<Variable> VariableController2::createVariable(const QString &name, const QVariantHash &metadata, const std::shared_ptr<IDataProvider>& provider, const DateTimeRange &range)
 {
     auto var =  impl->createVariable(name, metadata, provider);
     emit variableAdded(var);
@@ -167,13 +167,13 @@ std::shared_ptr<Variable> VariableController2::createVariable(const QString &nam
     return var;
 }
 
-void VariableController2::deleteVariable(std::shared_ptr<Variable> variable)
+void VariableController2::deleteVariable(const std::shared_ptr<Variable>& variable)
 {
     impl->deleteVariable(variable);
     emit variableDeleted(variable);
 }
 
-void VariableController2::changeRange(std::shared_ptr<Variable> variable, DateTimeRange r)
+void VariableController2::changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
 {
     impl->changeRange(variable, r);
 }
@@ -183,7 +183,7 @@ const std::set<std::shared_ptr<Variable> > VariableController2::variables()
     return impl->variables();
 }
 
-void VariableController2::synchronize(std::shared_ptr<Variable> var, std::shared_ptr<Variable> with)
+void VariableController2::synchronize(const std::shared_ptr<Variable> &var, const std::shared_ptr<Variable> &with)
 {
     impl->synchronize(var, with);
 }

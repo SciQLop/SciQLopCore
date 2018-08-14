@@ -16,23 +16,23 @@
 namespace DateTimeRangeHelper {
 
 
-    bool isnan(const DateTimeRange& range)
+    inline bool isnan(const DateTimeRange& range)
     {
         return std::isnan(range.m_TStart) && std::isnan(range.m_TEnd);
     }
 
-    bool hasnan(const DateTimeRange& range)
+    inline bool hasnan(const DateTimeRange& range)
     {
         return std::isnan(range.m_TStart) || std::isnan(range.m_TEnd);
     }
 
-    bool isPureShift(const DateTimeRange& range1, const DateTimeRange& range2)
+    inline bool isPureShift(const DateTimeRange& range1, const DateTimeRange& range2)
     {
         return SciQLop::numeric::almost_equal<double>(range1.delta(), range2.delta(), 1)
                 && !SciQLop::numeric::almost_equal(range1.m_TStart, range2.m_TStart, 1);
     }
 
-    bool isPureZoom(const DateTimeRange& range1, const DateTimeRange& range2)
+    inline bool isPureZoom(const DateTimeRange& range1, const DateTimeRange& range2)
     {
         return !SciQLop::numeric::almost_equal<double>(range1.delta(),range2.delta(),1)&&
                 SciQLop::numeric::almost_equal<double>(range1.center(), range2.center(),1);
@@ -45,7 +45,7 @@ namespace DateTimeRangeHelper {
      * @return trnaformation applied to range1 to get range2 or an object of type
      * InvalidDateTimeRangeTransformation if the transformation has NaN or forbiden values
      */
-    std::variant<DateTimeRangeTransformation, InvalidDateTimeRangeTransformation>
+    inline std::variant<DateTimeRangeTransformation, InvalidDateTimeRangeTransformation>
     computeTransformation(const DateTimeRange& range1, const DateTimeRange& range2)
     {
         double zoom = range2.delta()/range1.delta();
