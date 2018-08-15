@@ -36,6 +36,10 @@ struct DateTimeRangeTransformation
         return SciQLop::numeric::almost_equal(zoom, other.zoom, 1) &&
                 SciQLop::numeric::almost_equal<double>(shift, other.shift, 1);
     }
+    DateTimeRangeTransformation merge(const DateTimeRangeTransformation& other) const
+    {
+        return DateTimeRangeTransformation{zoom*other.zoom,shift+other.shift};
+    }
 };
 
 /**
@@ -155,6 +159,7 @@ template <class T>
 DateTimeRange&  operator-=(DateTimeRange&r, Seconds<T> offset)
 {
     shift(r,-offset);
+    return r;
 }
 
 template <class T>

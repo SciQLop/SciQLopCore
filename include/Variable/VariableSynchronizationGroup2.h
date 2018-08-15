@@ -64,8 +64,12 @@ public:
         return this->_variables;
     }
 
+    inline QUuid ID(){return _ID;}
+
+    operator QUuid() {return _ID;}
 private:
     std::set<QUuid> _variables;
+    QUuid _ID = QUuid::createUuid();
 };
 
 #endif // SCIQLOP_VARIABLESYNCHRONIZATIONGROUP2_H

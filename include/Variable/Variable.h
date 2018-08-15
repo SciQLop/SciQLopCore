@@ -62,7 +62,13 @@ public:
     DataSeriesType type() const noexcept;
 
     QVariantHash metadata() const noexcept;
+
+    void updateData(const std::vector<IDataSeries*>& dataSeries,
+                    const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
+                    bool notify=true);
+
 DEPRECATE(
+
     bool contains(const DateTimeRange &range) const noexcept;
     bool intersect(const DateTimeRange &range) const noexcept;
     bool isInside(const DateTimeRange &range) const noexcept;
@@ -70,36 +76,26 @@ DEPRECATE(
     bool cacheContains(const DateTimeRange &range) const noexcept;
     bool cacheIntersect(const DateTimeRange &range) const noexcept;
     bool cacheIsInside(const DateTimeRange &range) const noexcept;
-)
-DEPRECATE(
     QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &range) const noexcept;
     QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &range) const noexcept;
-)
-DEPRECATE(
     void mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept;
-    )
-
-    void updateData(const std::vector<IDataSeries*>& dataSeries,
-                    const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
-                    bool notify=true);
-
-DEPRECATE(
     static QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &oldRange,
-                                                        const DateTimeRange &nextRange);
+                                                             const DateTimeRange &nextRange);
 
     static QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &oldRange,
-                                                     const DateTimeRange &nextRange);
-)
+                                                          const DateTimeRange &nextRange);
+    )
 
+    operator QUuid() {return _uuid;}
     QUuid ID(){return _uuid;}
 signals:
     void updated();
-DEPRECATE(
-    /// Signal emitted when when the data series of the variable is loaded for the first time
-    void dataInitialized();
+    DEPRECATE(
+            /// Signal emitted when when the data series of the variable is loaded for the first time
+            void dataInitialized();
     )
-private:
-    class VariablePrivate;
+    private:
+        class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;
     QUuid _uuid;
     QReadWriteLock m_lock;

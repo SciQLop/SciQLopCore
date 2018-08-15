@@ -31,6 +31,8 @@ public:
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
     const std::set<std::shared_ptr<Variable>> variables();
 
+    bool isReady(const std::shared_ptr<Variable>& variable);
+
     void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
 
 

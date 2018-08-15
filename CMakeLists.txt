@@ -91,6 +91,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Variable/VariableCacheController.h
     ./include/Variable/VariableController.h
     ./include/Variable/VariableController2.h
+    ./include/Variable/private/VCTransaction.h
     ./include/Time/TimeController.h
     ./include/Settings/ISqpSettingsBindable.h
     ./include/Settings/SqpSettingsDefs.h
