@@ -45,16 +45,17 @@ namespace DateTimeRangeHelper {
      * @return trnaformation applied to range1 to get range2 or an object of type
      * InvalidDateTimeRangeTransformation if the transformation has NaN or forbiden values
      */
-    inline std::variant<DateTimeRangeTransformation, InvalidDateTimeRangeTransformation>
+    inline std::optional<DateTimeRangeTransformation>
     computeTransformation(const DateTimeRange& range1, const DateTimeRange& range2)
     {
+        std::optional<DateTimeRangeTransformation> transformation;
         double zoom = range2.delta()/range1.delta();
         Seconds<double> shift = range2.center() - (range1*zoom).center();
         bool zoomValid = zoom!=0. && !std::isnan(zoom) && !std::isinf(zoom);
         bool shiftValid = !std::isnan(shift.value) && !std::isinf(shift.value);
         if(zoomValid && shiftValid)
-            return DateTimeRangeTransformation{zoom, shift};
-        return InvalidDateTimeRangeTransformation{};
+            transformation = DateTimeRangeTransformation{zoom, shift};
+        return transformation;
     }
 
 }

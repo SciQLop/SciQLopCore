@@ -1,5 +1,6 @@
 #include <memory>
 #include <vector>
+#include <set>
 #include <QHash>
 #include <QObject>
 #include <QMutexLocker>
@@ -7,7 +8,7 @@
 #include <QItemSelectionModel>
 #include <Common/spimpl.h>
 #include <Variable/Variable.h>
-#include <Variable/VariableSynchronizationGroup.h>
+//#include <Variable/VariableSynchronizationGroup.h>
 #include <Variable/VariableModel.h>
 #include <Data/IDataProvider.h>
 #include "Data/DateTimeRange.h"

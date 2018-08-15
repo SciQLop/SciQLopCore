@@ -80,20 +80,25 @@ public:
             SCIQLOP_ERROR(VariableController2Private, "No provider found for given variable");
     }
 
+    void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
+    {
+
+    }
+
     void changeRange(const std::shared_ptr<Variable>& variable, DateTimeRange r)
     {
         if(p_contains(variable))
         {
             if(!DateTimeRangeHelper::hasnan(r))
             {
-                auto transformation = DateTimeRangeHelper::computeTransformation(variable->range(),r);
                 auto group = _synchronizationGroups[variable->ID()];
-                if(std::holds_alternative<DateTimeRangeTransformation>(transformation))
+                if(auto transformation = DateTimeRangeHelper::computeTransformation(variable->range(),r);
+                        transformation.has_value())
                 {
                     for(auto varId:group->variables())
                     {
                         auto var = _variables[varId];
-                        auto newRange = var->range().transform(std::get<DateTimeRangeTransformation>(transformation));
+                        auto newRange = var->range().transform(transformation.value());
                         _changeRange(var,newRange);
                     }
                 }
@@ -176,6 +181,11 @@ void VariableController2::deleteVariable(const std::shared_ptr<Variable>& variab
 void VariableController2::changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
 {
     impl->changeRange(variable, r);
+}
+
+void VariableController2::asyncChangeRange(const std::shared_ptr<Variable> &variable, const DateTimeRange &r)
+{
+    impl->asyncChangeRange(variable, r);
 }
 
 const std::set<std::shared_ptr<Variable> > VariableController2::variables()

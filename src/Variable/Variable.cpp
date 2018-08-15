@@ -1,11 +1,13 @@
+#include <optional>
+#include <QMutex>
+#include <QReadWriteLock>
+#include <QThread>
+
 #include "Variable/Variable.h"
 
 #include <Data/IDataSeries.h>
 #include <Data/DateTimeRange.h>
 
-#include <QMutex>
-#include <QReadWriteLock>
-#include <QThread>
 #include <Common/debug.h>
 
 Q_LOGGING_CATEGORY(LOG_Variable, "Variable")
@@ -32,6 +34,29 @@ DataSeriesType findDataSeriesType(const QVariantHash &metadata)
 }
 
 } // namespace
+
+#define VP_PROPERTY(property,getter,setter,type) \
+    type getter() noexcept\
+    {\
+        QReadLocker lock{&m_Lock};\
+        return property;\
+    }\
+    void setter(const type& getter) noexcept\
+    {\
+        QWriteLocker lock{&m_Lock};\
+        property = getter;\
+    }\
+    type property;\
+
+#define V_FW_GETTER_SETTER(getter,setter, type)\
+    type Variable::getter() const noexcept \
+    {\
+        return impl->getter();\
+    }\
+    void Variable::setter(const type& getter) noexcept \
+    {\
+        impl->setter(getter);\
+    }\
 
 struct Variable::VariablePrivate {
     explicit VariablePrivate(const QString &name, const QVariantHash &metadata)
@@ -89,20 +114,18 @@ struct Variable::VariablePrivate {
             m_DataSeries->unlock();
         }
         else {
-            m_RealRange = INVALID_RANGE;
+            m_RealRange = std::nullopt;
         }
     }
 
-    QString m_Name;
-
-    DateTimeRange m_Range;
-    DateTimeRange m_CacheRange;
-    QVariantHash m_Metadata;
-    std::shared_ptr<IDataSeries> m_DataSeries;
-    DateTimeRange m_RealRange;
+    VP_PROPERTY(m_Name, name, setName, QString)
+    VP_PROPERTY(m_Range, range, setRange, DateTimeRange)
+    VP_PROPERTY(m_CacheRange, cacheRange, setCacheRange, DateTimeRange)
+    VP_PROPERTY(m_Metadata, metadata, setMetadata, QVariantHash)
+    VP_PROPERTY(m_DataSeries, dataSeries, setDataSeries, std::shared_ptr<IDataSeries>)
+    VP_PROPERTY(m_RealRange, realRange, setRealRange, std::optional<DateTimeRange>)
     unsigned int m_NbPoints;
-    DataSeriesType m_Type;
-
+    VP_PROPERTY(m_Type, type, setType, DataSeriesType)
     QReadWriteLock m_Lock;
 };
 
@@ -123,64 +146,31 @@ std::shared_ptr<Variable> Variable::clone() const
     return std::make_shared<Variable>(*this);
 }
 
-QString Variable::name() const noexcept
-{
-    impl->lockRead();
-    auto name = impl->m_Name;
-    impl->unlock();
-    return name;
-}
-
-void Variable::setName(const QString &name) noexcept
-{
-    impl->lockWrite();
-    impl->m_Name = name;
-    impl->unlock();
-}
+V_FW_GETTER_SETTER(name,setName,QString)
 
 DateTimeRange Variable::range() const noexcept
 {
-    impl->lockRead();
-    auto range = impl->m_Range;
-    impl->unlock();
-    return range;
+    return impl->range();
 }
 
 void Variable::setRange(const DateTimeRange &range, bool notify) noexcept
 {
-    impl->lockWrite();
-    impl->m_Range = range;
+    impl->setRange(range);
     impl->updateRealRange();
-    impl->unlock();
     if(notify)
         emit this->updated();
 }
 
-DateTimeRange Variable::cacheRange() const noexcept
-{
-    impl->lockRead();
-    auto cacheRange = impl->m_CacheRange;
-    impl->unlock();
-    return cacheRange;
-}
-
-void Variable::setCacheRange(const DateTimeRange &cacheRange) noexcept
-{
-    impl->lockWrite();
-    if (cacheRange != impl->m_CacheRange) {
-        impl->m_CacheRange = cacheRange;
-    }
-    impl->unlock();
-}
+V_FW_GETTER_SETTER(cacheRange, setCacheRange, DateTimeRange)
 
 unsigned int Variable::nbPoints() const noexcept
 {
     return impl->m_NbPoints;
 }
 
-DateTimeRange Variable::realRange() const noexcept
+std::optional<DateTimeRange> Variable::realRange() const noexcept
 {
-    return impl->m_RealRange;
+    return impl->realRange();
 }
 
 void Variable::mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept
@@ -244,20 +234,12 @@ void Variable::mergeDataSeries(IDataSeries *dataSeries, bool notify) noexcept
 
 std::shared_ptr<IDataSeries> Variable::dataSeries() const noexcept
 {
-    impl->lockRead();
-    auto dataSeries = impl->m_DataSeries;
-    impl->unlock();
-
-    return dataSeries;
+    return impl->dataSeries();
 }
 
 DataSeriesType Variable::type() const noexcept
 {
-    impl->lockRead();
-    auto type = impl->m_Type;
-    impl->unlock();
-
-    return type;
+    return impl->type();
 }
 
 QVariantHash Variable::metadata() const noexcept

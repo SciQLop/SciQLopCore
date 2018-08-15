@@ -180,7 +180,7 @@ private slots:
         QFETCH(DateTimeRange,range1);
         QFETCH(DateTimeRange,range2);
         QFETCH(DateTimeRangeTransformation, transformation);
-        auto computed_tr = std::get<DateTimeRangeTransformation>(DateTimeRangeHelper::computeTransformation(range1,range2));
+        auto computed_tr = DateTimeRangeHelper::computeTransformation(range1,range2).value();
         QCOMPARE(computed_tr, transformation);
         QCOMPARE(range1.transform(transformation),range2);
         QCOMPARE(range1.transform(computed_tr),range2);

@@ -52,7 +52,7 @@ public:
     /// @return the real range, invalid range if the data series is null or empty
     /// @sa setDataSeries()
     /// @sa setRange()
-    DateTimeRange realRange() const noexcept;
+    std::optional<DateTimeRange> realRange() const noexcept;
 
     /// @return the data of the variable, nullptr if there is no data
     std::shared_ptr<IDataSeries> dataSeries() const noexcept;

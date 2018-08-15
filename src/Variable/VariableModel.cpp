@@ -196,16 +196,14 @@ QVariant VariableModel::data(const QModelIndex &index, int role) const
                 case NAME_COLUMN:
                     return variable->name();
                 case TSTART_COLUMN: {
-                    auto range = variable->realRange();
-                    return range != INVALID_RANGE
-                               ? DateUtils::dateTime(range.m_TStart).toString(DATETIME_FORMAT)
-                               : QVariant{};
+                    if(auto range = variable->realRange(); range.has_value())
+                        return  DateUtils::dateTime(range.value().m_TStart).toString(DATETIME_FORMAT);
+                    return QVariant{};
                 }
                 case TEND_COLUMN: {
-                    auto range = variable->realRange();
-                    return range != INVALID_RANGE
-                               ? DateUtils::dateTime(range.m_TEnd).toString(DATETIME_FORMAT)
-                               : QVariant{};
+                    if(auto range = variable->realRange(); range.has_value())
+                        return  DateUtils::dateTime(range.value().m_TEnd).toString(DATETIME_FORMAT);
+                    return QVariant{};
                 }
                 case NBPOINTS_COLUMN:
                     return variable->nbPoints();
