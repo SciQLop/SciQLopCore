@@ -207,7 +207,7 @@ class SCIQLOP_CORE_EXPORT DataSeries : public IDataSeries {
 public:
     /// @sa IDataSeries::xAxisData()
     std::shared_ptr<ArrayData<1> > xAxisData() override { return m_XAxisData; }
-    const std::shared_ptr<ArrayData<1> > xAxisData() const { return m_XAxisData; }
+    const std::shared_ptr<ArrayData<1> > xAxisData() const override { return m_XAxisData; }
 
     /// @sa IDataSeries::xAxisUnit()
     Unit xAxisUnit() const override { return m_XAxisUnit; }
@@ -415,9 +415,12 @@ public:
     // Mutexes //
     // /////// //
 
-    virtual void lockRead() { m_Lock.lockForRead(); }
-    virtual void lockWrite() { m_Lock.lockForWrite(); }
-    virtual void unlock() { m_Lock.unlock(); }
+    virtual QReadLocker getReadLock() override { return QReadLocker{&m_Lock}; }
+    virtual QWriteLocker getWriteLock() override { return QWriteLocker{&m_Lock}; }
+
+    virtual void lockRead() override { m_Lock.lockForRead(); }
+    virtual void lockWrite() override { m_Lock.lockForWrite(); }
+    virtual void unlock() override { m_Lock.unlock(); }
 
 protected:
     /// Protected ctor (DataSeries is abstract).

@@ -1,14 +1,17 @@
 #ifndef SCIQLOP_IDATASERIES_H
 #define SCIQLOP_IDATASERIES_H
 
+#include <memory>
+
+#include <QReadWriteLock>
+#include <QString>
+
 #include <Common/MetaTypes.h>
 #include <Data/DataSeriesIterator.h>
 #include <Data/DateTimeRange.h>
 #include <Data/Unit.h>
+#include <Common/deprecate.h>
 
-#include <memory>
-
-#include <QString>
 
 template <int Dim>
 class ArrayData;
@@ -90,10 +93,13 @@ public:
     // /////// //
     // Mutexes //
     // /////// //
-
+    virtual QReadLocker getReadLock() = 0;
+    virtual QWriteLocker getWriteLock() = 0;
+DEPRECATE(
     virtual void lockRead() = 0;
     virtual void lockWrite() = 0;
     virtual void unlock() = 0;
+    )
 };
 
 // Required for using shared_ptr in signals/slots

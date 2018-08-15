@@ -12,7 +12,6 @@
 
 Q_LOGGING_CATEGORY(LOG_Variable, "Variable")
 
-namespace {
 
 /**
  * Searches in metadata for a value that can be converted to DataSeriesType
@@ -20,7 +19,7 @@ namespace {
  * @return the value converted to a DataSeriesType if it was found, UNKNOWN type otherwise
  * @sa DataSeriesType
  */
-DataSeriesType findDataSeriesType(const QVariantHash &metadata)
+static DataSeriesType findDataSeriesType(const QVariantHash &metadata)
 {
     auto dataSeriesType = DataSeriesType::UNKNOWN;
 
@@ -33,7 +32,6 @@ DataSeriesType findDataSeriesType(const QVariantHash &metadata)
     return dataSeriesType;
 }
 
-} // namespace
 
 #define VP_PROPERTY(property,getter,setter,type) \
     type getter() noexcept\
@@ -95,23 +93,31 @@ struct Variable::VariablePrivate {
         updateRealRange();
         updateNbPoints();
     }
-
+    void mergeDataSeries(const std::vector<IDataSeries*>& dataseries)
+    {
+        QWriteLocker lock{&m_Lock};
+        for(auto ds:dataseries)
+        {
+            if(m_DataSeries)
+                m_DataSeries->merge(ds);
+            else
+                m_DataSeries = ds->clone();
+        }
+    }
     void updateNbPoints() { m_NbPoints = m_DataSeries ? m_DataSeries->nbPoints() : 0; }
 
     /// Updates real range according to current variable range and data series
     void updateRealRange()
     {
         if (m_DataSeries) {
-            m_DataSeries->lockRead();
+            auto lock = m_DataSeries->getReadLock();
             auto end = m_DataSeries->cend();
             auto minXAxisIt = m_DataSeries->minXAxisData(m_Range.m_TStart);
             auto maxXAxisIt = m_DataSeries->maxXAxisData(m_Range.m_TEnd);
-
-            m_RealRange
-                = (minXAxisIt != end && maxXAxisIt != end && minXAxisIt->x() <= maxXAxisIt->x())
-                      ? DateTimeRange{minXAxisIt->x(), maxXAxisIt->x()}
-                      : INVALID_RANGE;
-            m_DataSeries->unlock();
+            if(minXAxisIt != end && maxXAxisIt != end && minXAxisIt->x() <= maxXAxisIt->x())
+                m_RealRange = DateTimeRange{minXAxisIt->x(), maxXAxisIt->x()};
+            else
+                m_RealRange = std::nullopt;
         }
         else {
             m_RealRange = std::nullopt;
@@ -201,34 +207,17 @@ void Variable::mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept
     }
 }
 
-void Variable::mergeDataSeries(IDataSeries *dataSeries, bool notify) noexcept
+void Variable::updateData(const std::vector<IDataSeries *> &dataSeries, const DateTimeRange &newRange, const DateTimeRange &newCacheRange, bool notify)
 {
-    if (dataSeries==nullptr) {
-        SCIQLOP_ERROR(Variable,"Given IDataSeries is nullptr");
-        return;
-    }
-
-    auto dataInit = false;
-    // @TODO move impl to Pimpl this is what it stands for...
-    // Add or merge the data
-    impl->lockWrite();
-    if (!impl->m_DataSeries) {
-        //@TODO find a better way
-        impl->m_DataSeries = dataSeries->clone();
-        dataInit = true;
-        delete dataSeries;
-    }
-    else {
-        impl->m_DataSeries->merge(dataSeries);
-    }
-    impl->purgeDataSeries();
-    impl->unlock();
-
-    if (dataInit) {
-        emit dataInitialized();
+    {
+        QWriteLocker lock{&m_lock};
+        impl->mergeDataSeries(dataSeries);
+        impl->setRange(newRange);
+        impl->setCacheRange(newCacheRange);
+        impl->purgeDataSeries();
     }
     if(notify)
-        emit this->updated();
+        emit updated();
 }
 
 

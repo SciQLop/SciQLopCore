@@ -26,7 +26,7 @@ public:
     explicit VectorSeries(std::vector<double> xAxisData, std::vector<double> valuesData,
                           const Unit &xAxisUnit, const Unit &valuesUnit);
 
-    std::unique_ptr<IDataSeries> clone() const;
+    std::unique_ptr<IDataSeries> clone() const override;
 
     std::shared_ptr<IDataSeries> subDataSeries(const DateTimeRange &range) override;
 };

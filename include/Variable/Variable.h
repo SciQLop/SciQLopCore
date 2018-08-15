@@ -1,15 +1,16 @@
 #ifndef SCIQLOP_VARIABLE_H
 #define SCIQLOP_VARIABLE_H
 
-#include "CoreGlobal.h"
+#include <QLoggingCategory>
+#include <QObject>
+#include <QUuid>
+#include <QReadWriteLock>
 
+#include "CoreGlobal.h"
 #include <Data/DataSeriesIterator.h>
 #include <Data/DataSeriesType.h>
 #include <Data/DateTimeRange.h>
 
-#include <QLoggingCategory>
-#include <QObject>
-#include <QUuid>
 
 #include <Common/deprecate.h>
 #include <Common/MetaTypes.h>
@@ -77,7 +78,10 @@ DEPRECATE(
 DEPRECATE(
     void mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept;
     )
-    void mergeDataSeries(IDataSeries* dataSeries, bool notify=false) noexcept;
+
+    void updateData(const std::vector<IDataSeries*>& dataSeries,
+                    const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
+                    bool notify=true);
 
 DEPRECATE(
     static QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &oldRange,
@@ -98,6 +102,7 @@ private:
     class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;
     QUuid _uuid;
+    QReadWriteLock m_lock;
 };
 
 // Required for using shared_ptr in signals/slots

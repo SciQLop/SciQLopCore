@@ -40,13 +40,12 @@ class VariableController2::VariableController2Private
             newCacheRange = _cacheStrategy->computeRange(var->cacheRange(),r);
             missingRanges = newCacheRange - var->cacheRange();
         }
+        std::vector<IDataSeries*> data;
         for(auto range:missingRanges)
         {
-            auto data = provider->getData(DataProviderParameters{{range},var->metadata()});
-            var->mergeDataSeries(data);
+            data.push_back(provider->getData(DataProviderParameters{{range},var->metadata()}));
         }
-        var->setCacheRange(newCacheRange);
-        var->setRange(r);
+        var->updateData(data,r,newCacheRange,true);
     }
 public:
     VariableController2Private(QObject* parent=Q_NULLPTR)
