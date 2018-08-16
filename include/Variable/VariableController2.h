@@ -37,7 +37,13 @@ public:
 
     void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
 
+    //This should be somewhere else VC has nothing to do with MIMEData
     QByteArray mimeData(const std::vector<std::shared_ptr<Variable>> &variables) const;
+    const std::vector<std::shared_ptr<Variable>> variables(QByteArray mimeData);
+
+    const std::shared_ptr<Variable>& operator[] (int index) const;
+    std::shared_ptr<Variable> operator[] (int index);
+
 
 signals:
     void variableAdded(const std::shared_ptr<Variable>&);

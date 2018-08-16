@@ -61,6 +61,15 @@ class VariableController2::VariableController2Private
             return _variables[variable];
         }
 
+        inline std::shared_ptr<Variable> variable(int index)
+        {
+            QReadLocker lock{&_lock};
+            [[unlikely]]
+            if(!_variables.size() > index)
+                SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Index is out of bounds");
+            return _variables.values()[index];
+        }
+
         inline const std::vector<std::shared_ptr<Variable>> variables()
         {
             std::vector<std::shared_ptr<Variable>> vars;
@@ -239,6 +248,16 @@ public:
         return newVar;
     }
 
+    std::shared_ptr<Variable> variable(QUuid ID)
+    {
+        return _maps.variable(ID);
+    }
+
+    std::shared_ptr<Variable> variable(int index)
+    {
+        return _maps.variable(index);
+    }
+
     std::shared_ptr<Variable> cloneVariable(const std::shared_ptr<Variable>& variable)
     {
         auto newVar = variable->clone();
@@ -355,4 +374,30 @@ QByteArray VariableController2::mimeData(const std::vector<std::shared_ptr<Varia
         stream << var->ID().toByteArray();
     }
     return encodedData;
+}
+
+const std::vector<std::shared_ptr<Variable>> VariableController2::variables(QByteArray mimeData)
+{
+    std::vector<std::shared_ptr<Variable>> variables;
+    QDataStream stream{mimeData};
+
+    QVariantList ids;
+    stream >> ids;
+
+    for (const auto& id : ids) {
+        auto uuid = QUuid{id.toByteArray()};
+        variables.push_back (impl->variable(uuid));
+    }
+
+    return variables;
+}
+
+const std::shared_ptr<Variable> &VariableController2::operator[](int index) const
+{
+    return impl->variable (index);
+}
+
+std::shared_ptr<Variable> VariableController2::operator[](int index)
+{
+    return impl->variable (index);
 }

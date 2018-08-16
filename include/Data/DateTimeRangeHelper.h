@@ -15,6 +15,8 @@
 #include <Common/Numeric.h>
 #include <Data/DateTimeRange.h>
 
+enum class TransformationType { ZoomOut, ZoomIn, PanRight, PanLeft, Unknown };
+
 namespace DateTimeRangeHelper {
 
 
@@ -40,6 +42,7 @@ namespace DateTimeRangeHelper {
                 SciQLop::numeric::almost_equal<double>(range1.center(), range2.center(),1);
     }
 
+
     /**
      * @brief computeTransformation such as range2 = zoom*range1 + shift
      * @param range1
@@ -58,6 +61,24 @@ namespace DateTimeRangeHelper {
         if(zoomValid && shiftValid)
             transformation = DateTimeRangeTransformation{zoom, shift};
         return transformation;
+    }
+
+    inline TransformationType getTransformationType(const DateTimeRange& range1, const DateTimeRange& range2)
+    {
+        auto transformation = computeTransformation (range1,range2);
+        if(transformation.has_value ())
+        {
+            if(SciQLop::numeric::almost_equal(transformation->zoom,1.))
+            {
+                if(transformation->shift > 0.)
+                    return TransformationType::PanRight;
+                return TransformationType::PanLeft;
+            }
+            if(transformation->zoom > 0.)
+                return TransformationType::ZoomOut;
+            return TransformationType::ZoomIn;
+        }
+        return TransformationType::Unknown;
     }
 
 }
