@@ -12,6 +12,7 @@
 #include <Data/DateTimeRange.h>
 #include <Variable/VariableCacheStrategyFactory.h>
 #include <Variable/private/VCTransaction.h>
+#include <QCoreApplication>
 
 class Transactions
 {
@@ -68,7 +69,7 @@ public:
     bool active(QUuid id)
     {
         QReadLocker lock{&_mutex};
-        return _nextTransactions[id].has_value() && _pendingTransactions[id].has_value();
+        return _nextTransactions[id].has_value() || _pendingTransactions[id].has_value();
     }
 };
 
@@ -291,10 +292,10 @@ public:
 
     void changeRange(const std::shared_ptr<Variable>& variable, DateTimeRange r)
     {
-        auto ranges = _computeAllRangesInGroup(variable,r);
-        for( auto const& [ID, range] : ranges)
+        asyncChangeRange(variable,r);
+        while (hasPendingTransactions(variable))
         {
-            _changeRange(ID,range);
+            QCoreApplication::processEvents();
         }
     }
 
