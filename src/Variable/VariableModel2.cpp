@@ -145,10 +145,6 @@ QVariant VariableModel2::headerData(int section, Qt::Orientation orientation, in
                        ? QVariant{propertiesIt->m_Name}
                        : QVariant{QSize{propertiesIt->m_Width, propertiesIt->m_Height}};
         }
-        else {
-            qWarning(LOG_VariableModel())
-                << tr("Can't get header data (unknown column %1)").arg(section);
-        }
     }
 
     return QVariant{};

@@ -38,10 +38,6 @@ declare_test(TestDataSourceItem TestDataSourceItem
     "sciqlopcore;Qt5::Test")
 
 declare_test(TestVariable TestVariable Variable/TestVariable.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestVariableCacheController TestVariableCacheController Variable/TestVariableCacheController.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestVariableController TestVariableController Variable/TestVariableController.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestVariableSync TestVariableSync Variable/TestVariableSync.cpp "sciqlopcore;Qt5::Test")
-
 declare_test(TestDownloader TestDownloader Network/TestDownloader.cpp "sciqlopcore;Qt5::Test")
 
 

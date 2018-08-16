@@ -86,18 +86,13 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/CoreGlobal.h
     ./include/Visualization/VisualizationController.h
     ./include/PluginManager/PluginManager.h
-    ./include/Variable/VariableModel.h
     ./include/Variable/VariableModel2.h
-    ./include/Variable/VariableAcquisitionWorker.h
     ./include/Variable/VariableCacheStrategy.h
-    ./include/Variable/VariableSynchronizationGroup.h
     ./include/Variable/VariableSynchronizationGroup2.h
     ./include/Variable/ProportionalCacheStrategy.h
     ./include/Variable/SingleThresholdCacheStrategy.h
     ./include/Variable/VariableCacheStrategyFactory.h
     ./include/Variable/Variable.h
-    ./include/Variable/VariableCacheController.h
-    ./include/Variable/VariableController.h
     ./include/Variable/VariableController2.h
     ./include/Variable/private/VCTransaction.h
     ./include/Time/TimeController.h
@@ -123,15 +118,10 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Network/Downloader.cpp
     ./src/Visualization/VisualizationController.cpp
     ./src/PluginManager/PluginManager.cpp
-    ./src/Variable/VariableController.cpp
     ./src/Variable/VariableController2.cpp
-    ./src/Variable/VariableModel.cpp
     ./src/Variable/VariableModel2.cpp
-    ./src/Variable/VariableCacheController.cpp
-    ./src/Variable/VariableSynchronizationGroup.cpp
     ./src/Variable/VariableSynchronizationGroup2.cpp
     ./src/Variable/Variable.cpp
-    ./src/Variable/VariableAcquisitionWorker.cpp
     ./src/Version.cpp
     ./src/Time/TimeController.cpp
     ./src/Settings/SqpSettingsDefs.cpp

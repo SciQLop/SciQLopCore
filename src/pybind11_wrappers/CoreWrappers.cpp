@@ -17,7 +17,7 @@
 #include <Data/Unit.h>
 #include <Data/IDataProvider.h>
 
-#include <Variable/VariableController.h>
+#include <Variable/VariableController2.h>
 
 #include <Time/TimeController.h>
 

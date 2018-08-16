@@ -1,3 +1,5 @@
+#ifndef VARIABLECONTROLLER2_H
+#define VARIABLECONTROLLER2_H
 #include <memory>
 #include <vector>
 #include <set>
@@ -9,8 +11,6 @@
 #include <QItemSelectionModel>
 #include <Common/spimpl.h>
 #include <Variable/Variable.h>
-//#include <Variable/VariableSynchronizationGroup.h>
-#include <Variable/VariableModel.h>
 #include <Data/IDataProvider.h>
 #include "Data/DateTimeRange.h"
 
@@ -50,3 +50,5 @@ signals:
     void variableDeleted(const std::shared_ptr<Variable>&);
 
 };
+
+#endif //VARIABLECONTROLLER2_H

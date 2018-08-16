@@ -17,11 +17,12 @@ class IDataSeries;
 class Variable;
 class VariableController2;
 
+enum VariableRoles { ProgressRole = Qt::UserRole };
+
 /**
  * @brief The VariableModel class aims to hold the variables that have been created in SciQlop
  */
 class SCIQLOP_CORE_EXPORT VariableModel2 : public QAbstractTableModel {
-    enum VariableRoles { ProgressRole = Qt::UserRole };
     Q_OBJECT
     std::shared_ptr<VariableController2> _variableController;
 public:
