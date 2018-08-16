@@ -14,64 +14,6 @@
 #include <Variable/private/VCTransaction.h>
 #include <QCoreApplication>
 
-class Transactions
-{
-    QReadWriteLock _mutex{QReadWriteLock::Recursive};
-    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> _nextTransactions;
-    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> _pendingTransactions;
-public:
-    void addEntry(QUuid id)
-    {
-        QWriteLocker lock{&_mutex};
-        _nextTransactions[id] = std::nullopt;
-        _pendingTransactions[id] = std::nullopt;
-    }
-
-    void removeEntry(QUuid id)
-    {
-        QWriteLocker lock{&_mutex};
-        _nextTransactions.erase(id);
-        _pendingTransactions.erase(id);
-    }
-
-    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> pendingTransactions()
-    {
-        QReadLocker lock{&_mutex};
-        return _pendingTransactions;
-    }
-
-    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> nextTransactions()
-    {
-        QReadLocker lock{&_mutex};
-        return _nextTransactions;
-    }
-
-    std::optional<std::shared_ptr<VCTransaction>> start(QUuid id)
-    {
-        QWriteLocker lock{&_mutex};
-        _pendingTransactions[id] = _nextTransactions[id];
-        _nextTransactions[id] = std::nullopt;
-        return _pendingTransactions[id];
-    }
-
-    void enqueue(QUuid id, std::shared_ptr<VCTransaction> transaction)
-    {
-        QWriteLocker lock{&_mutex};
-        _nextTransactions[id] = transaction;
-    }
-
-    void complete(QUuid id)
-    {
-        QWriteLocker lock{&_mutex};
-        _pendingTransactions[id] = std::nullopt;
-    }
-
-    bool active(QUuid id)
-    {
-        QReadLocker lock{&_mutex};
-        return _nextTransactions[id].has_value() || _pendingTransactions[id].has_value();
-    }
-};
 
 
 class VariableController2::VariableController2Private
@@ -160,7 +102,7 @@ class VariableController2::VariableController2Private
         QReadWriteLock _lock{QReadWriteLock::Recursive};
     }_maps;
     QThreadPool _ThreadPool;
-    Transactions _transactions;
+    VCTransactionsQueues _transactions;
     std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
 
     void _transactionComplete(QUuid group, std::shared_ptr<VCTransaction> transaction)
@@ -277,7 +219,7 @@ public:
     /*
      * This dtor has to like this even if this is ugly, because default dtor would rely on
      * declaration order to destruct members and that would always lead to regressions when
-     * modifying with class members
+     * modifying class members
     */
     ~VariableController2Private()
     {
@@ -296,6 +238,15 @@ public:
         return newVar;
     }
 
+    std::shared_ptr<Variable> cloneVariable(const std::shared_ptr<Variable>& variable)
+    {
+        auto newVar = variable->clone();
+        _maps.synchronize(newVar,std::nullopt);
+        _maps.addVariable(newVar,_maps.provider(*variable),_maps.group(*newVar));
+        this->_transactions.addEntry(*_maps.group(*newVar));
+        return newVar;
+    }
+
     bool hasPendingTransactions(const std::shared_ptr<Variable>& variable)
     {
         return _transactions.active(*_maps.group(*variable));
@@ -303,10 +254,6 @@ public:
 
     void deleteVariable(const std::shared_ptr<Variable>& variable)
     {
-        /*
-         * Removing twice a var is ok but a var without provider has to be a hard error
-         * this means we got the var controller in an inconsistent state
-         */
         _maps.removeVariable(variable);
     }
 
@@ -361,6 +308,11 @@ std::shared_ptr<Variable> VariableController2::createVariable(const QString &nam
     else
         SCIQLOP_ERROR(VariableController2, "Creating a variable with default constructed DateTimeRange is an error");
     return var;
+}
+
+std::shared_ptr<Variable> VariableController2::cloneVariable(const std::shared_ptr<Variable> &variable)
+{
+    return impl->cloneVariable(variable);
 }
 
 void VariableController2::deleteVariable(const std::shared_ptr<Variable>& variable)

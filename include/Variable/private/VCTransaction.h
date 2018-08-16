@@ -65,3 +65,62 @@ public:
 signals:
     void transactionComplete();
 };
+
+class VCTransactionsQueues
+{
+    QReadWriteLock _mutex{QReadWriteLock::Recursive};
+    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> _nextTransactions;
+    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> _pendingTransactions;
+public:
+    void addEntry(QUuid id)
+    {
+        QWriteLocker lock{&_mutex};
+        _nextTransactions[id] = std::nullopt;
+        _pendingTransactions[id] = std::nullopt;
+    }
+
+    void removeEntry(QUuid id)
+    {
+        QWriteLocker lock{&_mutex};
+        _nextTransactions.erase(id);
+        _pendingTransactions.erase(id);
+    }
+
+    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> pendingTransactions()
+    {
+        QReadLocker lock{&_mutex};
+        return _pendingTransactions;
+    }
+
+    std::map<QUuid,std::optional<std::shared_ptr<VCTransaction>>> nextTransactions()
+    {
+        QReadLocker lock{&_mutex};
+        return _nextTransactions;
+    }
+
+    std::optional<std::shared_ptr<VCTransaction>> start(QUuid id)
+    {
+        QWriteLocker lock{&_mutex};
+        _pendingTransactions[id] = _nextTransactions[id];
+        _nextTransactions[id] = std::nullopt;
+        return _pendingTransactions[id];
+    }
+
+    void enqueue(QUuid id, std::shared_ptr<VCTransaction> transaction)
+    {
+        QWriteLocker lock{&_mutex};
+        _nextTransactions[id] = transaction;
+    }
+
+    void complete(QUuid id)
+    {
+        QWriteLocker lock{&_mutex};
+        _pendingTransactions[id] = std::nullopt;
+    }
+
+    bool active(QUuid id)
+    {
+        QReadLocker lock{&_mutex};
+        return _nextTransactions[id].has_value() || _pendingTransactions[id].has_value();
+    }
+};

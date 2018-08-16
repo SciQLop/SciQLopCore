@@ -20,8 +20,8 @@
     auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),\
                                           QDate(2018,8,7),QTime(16,00));\
     auto name1 = vc.createVariable("name1", {}, provider, range);\
-    auto name2 = vc.createVariable("name1", {}, provider, range);\
-    auto name3 = vc.createVariable("name1", {}, provider, range);\
+    auto name2 = vc.cloneVariable(name1);\
+    auto name3 = vc.cloneVariable(name2);\
     vc.synchronize(name1,name2);\
 
 

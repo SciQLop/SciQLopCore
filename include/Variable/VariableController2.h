@@ -26,6 +26,7 @@ public:
                                              const std::shared_ptr<IDataProvider>& provider,
                                              const DateTimeRange &range);
 
+    std::shared_ptr<Variable> cloneVariable(const std::shared_ptr<Variable>& variable);
     void deleteVariable(const std::shared_ptr<Variable>& variable);
     void changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
