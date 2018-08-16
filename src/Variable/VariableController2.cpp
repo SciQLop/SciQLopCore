@@ -2,6 +2,7 @@
 #include <QThreadPool>
 #include <QRunnable>
 #include <QObject>
+#include <QDataStream>
 
 #include "Variable/VariableController2.h"
 #include "Variable/VariableSynchronizationGroup2.h"
@@ -60,13 +61,13 @@ class VariableController2::VariableController2Private
             return _variables[variable];
         }
 
-        inline const std::set<std::shared_ptr<Variable>> variables()
+        inline const std::vector<std::shared_ptr<Variable>> variables()
         {
-            std::set<std::shared_ptr<Variable>> vars;
+            std::vector<std::shared_ptr<Variable>> vars;
             QReadLocker lock{&_lock};
             for(const auto  &var:_variables)
             {
-                vars.insert(var);
+                vars.push_back(var);
             }
             return  vars;
         }
@@ -288,7 +289,7 @@ public:
         _maps.synchronize(var, with);
     }
 
-    inline const std::set<std::shared_ptr<Variable>> variables()
+    inline const std::vector<std::shared_ptr<Variable>> variables()
     {
         return _maps.variables();
     }
@@ -331,7 +332,7 @@ void VariableController2::asyncChangeRange(const std::shared_ptr<Variable> &vari
     impl->asyncChangeRange(variable, r);
 }
 
-const std::set<std::shared_ptr<Variable> > VariableController2::variables()
+const std::vector<std::shared_ptr<Variable> > VariableController2::variables()
 {
     return impl->variables();
 }
@@ -344,4 +345,14 @@ bool VariableController2::isReady(const std::shared_ptr<Variable> &variable)
 void VariableController2::synchronize(const std::shared_ptr<Variable> &var, const std::shared_ptr<Variable> &with)
 {
     impl->synchronize(var, with);
+}
+
+QByteArray VariableController2::mimeData(const std::vector<std::shared_ptr<Variable> > &variables) const
+{
+    auto encodedData = QByteArray{};
+    QDataStream stream{&encodedData, QIODevice::WriteOnly};
+    for (auto &var : variables) {
+        stream << var->ID().toByteArray();
+    }
+    return encodedData;
 }

@@ -80,6 +80,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Visualization/VisualizationController.h
     ./include/PluginManager/PluginManager.h
     ./include/Variable/VariableModel.h
+    ./include/Variable/VariableModel2.h
     ./include/Variable/VariableAcquisitionWorker.h
     ./include/Variable/VariableCacheStrategy.h
     ./include/Variable/VariableSynchronizationGroup.h
@@ -118,6 +119,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Variable/VariableController.cpp
     ./src/Variable/VariableController2.cpp
     ./src/Variable/VariableModel.cpp
+    ./src/Variable/VariableModel2.cpp
     ./src/Variable/VariableCacheController.cpp
     ./src/Variable/VariableSynchronizationGroup.cpp
     ./src/Variable/VariableSynchronizationGroup2.cpp

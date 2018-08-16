@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QMutexLocker>
 #include <QUuid>
+#include <QByteArray>
 #include <QItemSelectionModel>
 #include <Common/spimpl.h>
 #include <Variable/Variable.h>
@@ -30,12 +31,13 @@ public:
     void deleteVariable(const std::shared_ptr<Variable>& variable);
     void changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
-    const std::set<std::shared_ptr<Variable>> variables();
+    const std::vector<std::shared_ptr<Variable>> variables();
 
     bool isReady(const std::shared_ptr<Variable>& variable);
 
     void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
 
+    QByteArray mimeData(const std::vector<std::shared_ptr<Variable>> &variables) const;
 
 signals:
     void variableAdded(const std::shared_ptr<Variable>&);
