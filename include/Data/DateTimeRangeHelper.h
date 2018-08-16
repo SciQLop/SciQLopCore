@@ -1,6 +1,8 @@
 #ifndef SCIQLOP_DATETIMERANGEHELPER_H
 #define SCIQLOP_DATETIMERANGEHELPER_H
 
+#include <optional>
+
 #include <cmath>
 #include <variant>
 #include <QObject>

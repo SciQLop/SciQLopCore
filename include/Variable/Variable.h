@@ -1,6 +1,8 @@
 #ifndef SCIQLOP_VARIABLE_H
 #define SCIQLOP_VARIABLE_H
 
+#include <optional>
+
 #include <QLoggingCategory>
 #include <QObject>
 #include <QUuid>
