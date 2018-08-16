@@ -5,7 +5,7 @@ OPTION (CPPCHECK "Analyzes the source code with cppcheck" OFF)
 OPTION (CLANG_TIDY "Analyzes the source code with Clang Tidy" OFF)
 OPTION (IWYU "Analyzes the source code with Include What You Use" OFF)
 
-OPTION (Catalog "builds catalog API" OFF)
+OPTION (Catalog "builds catalog API" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -25,6 +25,13 @@ if (NOT pybind11_FOUND)
     execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     add_subdirectory(external/pybind11)
+endif()
+
+find_package(catalogs CONFIG QUIET)
+if (NOT CatalogueAPI_FOUND)
+    execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    add_subdirectory(external/libcatalogs)
 endif()
 
 macro(declare_test testname testexe sources libraries)
