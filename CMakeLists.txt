@@ -28,7 +28,7 @@ if (NOT pybind11_FOUND)
 endif()
 
 find_package(libcatalogs CONFIG QUIET)
-if (NOT libcatalogs_FOUND)
+if (NOT catalogs_FOUND)
     execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     add_subdirectory(external/libcatalogs)
