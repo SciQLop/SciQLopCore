@@ -73,39 +73,99 @@ public:
     }
 };
 
+
 class VariableController2::VariableController2Private
 {
-    QThreadPool _ThreadPool;
-    QMap<QUuid,std::shared_ptr<Variable>> _variables;
-    QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
-    QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
-    Transactions _transactions;
-    QReadWriteLock _lock{QReadWriteLock::Recursive};
-    std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
+    struct threadSafeVaraiblesMaps
+    {
+        inline void addVariable(const std::shared_ptr<Variable>& variable, const std::shared_ptr<IDataProvider>& provider, const std::shared_ptr<VariableSynchronizationGroup2>& synchronizationGroup)
+        {
+            QWriteLocker lock{&_lock};
+            _variables[*variable] = variable;
+            _providers[*variable] = provider;
+            _synchronizationGroups[*variable] = synchronizationGroup;
+        }
 
-    bool p_contains(const std::shared_ptr<Variable>& variable)
-    {
-        QReadLocker lock{&_lock};
-        return _providers.contains(*variable);
-    }
-    bool v_contains(const std::shared_ptr<Variable>& variable)
-    {
-        QReadLocker lock{&_lock};
-        return SciQLop::containers::contains(this->_variables, variable);
-    }
-    bool sg_contains(const std::shared_ptr<Variable>& variable)
-    {
-        QReadLocker lock{&_lock};
-        return _synchronizationGroups.contains(*variable);
-    }
+        inline void removeVariable(const std::shared_ptr<Variable>& variable)
+        {
+            QWriteLocker lock{&_lock};
+            _variables.remove(*variable);
+            _providers.remove(*variable);
+            _synchronizationGroups.remove(*variable);
+        }
+
+        inline void synchronize(const std::shared_ptr<Variable>& variable, const std::optional<std::shared_ptr<Variable>>& with)
+        {
+            QWriteLocker lock{&_lock};
+            if(with.has_value())
+            {
+                auto newGroup = _synchronizationGroups[*with.value()];
+                newGroup->addVariable(*variable);
+                _synchronizationGroups[*variable] = newGroup;
+            }
+            else
+            {
+                _synchronizationGroups[*variable] = std::make_shared<VariableSynchronizationGroup2>(*variable);
+            }
+        }
+
+        inline std::shared_ptr<Variable> variable(QUuid variable)
+        {
+            QReadLocker lock{&_lock};
+            [[unlikely]]
+            if(!_variables.contains(variable))
+                SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Unknown Variable");
+            return _variables[variable];
+        }
+
+        inline const std::set<std::shared_ptr<Variable>> variables()
+        {
+            std::set<std::shared_ptr<Variable>> vars;
+            QReadLocker lock{&_lock};
+            for(const auto  &var:_variables)
+            {
+                vars.insert(var);
+            }
+            return  vars;
+        }
+
+        inline std::shared_ptr<IDataProvider> provider(QUuid variable)
+        {
+            QReadLocker lock{&_lock};
+            [[unlikely]]
+            if(!_providers.contains(variable))
+                SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Unknown Variable");
+            return _providers[variable];
+        }
+
+        inline std::shared_ptr<VariableSynchronizationGroup2> group(QUuid variable)
+        {
+            QReadLocker lock{&_lock};
+            [[unlikely]]
+            if(!_synchronizationGroups.contains(variable))
+                SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Unknown Variable");
+            return _synchronizationGroups[variable];
+        }
+
+        inline bool has(const std::shared_ptr<Variable>& variable)
+        {
+            QReadLocker lock{&_lock};
+            return _variables.contains(*variable);
+        }
+
+    private:
+        QMap<QUuid,std::shared_ptr<Variable>> _variables;
+        QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
+        QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
+        QReadWriteLock _lock{QReadWriteLock::Recursive};
+    }_maps;
+    QThreadPool _ThreadPool;
+    Transactions _transactions;
+    std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
 
     void _transactionComplete(QUuid group, std::shared_ptr<VCTransaction> transaction)
     {
-        {
-            QWriteLocker lock{&transaction->lock};
-            transaction->ready -=1;
-        }
-        if(transaction->ready==0)
+        if(transaction->done())
         {
             _transactions.complete(group);
         }
@@ -113,7 +173,6 @@ class VariableController2::VariableController2Private
     }
     void _processTransactions()
     {
-        QWriteLocker lock{&_lock};
         auto nextTransactions = _transactions.nextTransactions();
         auto pendingTransactions = _transactions.pendingTransactions();
         for( auto [groupID, newTransaction] : nextTransactions)
@@ -121,14 +180,14 @@ class VariableController2::VariableController2Private
             if(newTransaction.has_value() && !pendingTransactions[groupID].has_value())
             {
                 _transactions.start(groupID);
-                auto refVar = _variables[newTransaction.value()->refVar];
+                auto refVar = _maps.variable(newTransaction.value()->refVar);
                 auto ranges = _computeAllRangesInGroup(refVar,newTransaction.value()->range);
                 for( auto const& [ID, range] : ranges)
                 {
-                    auto provider = _providers[ID];
-                    auto variable = _variables[ID];
+                    auto provider = _maps.provider(ID);
+                    auto variable = _maps.variable(ID);
                     auto [missingRanges, newCacheRange] = _computeMissingRanges(variable,range);
-                    auto exe = new TransactionExe(_variables[ID], provider, missingRanges, range, newCacheRange);
+                    auto exe = new TransactionExe(variable, provider, missingRanges, range, newCacheRange);
                     QObject::connect(exe,
                             &TransactionExe::transactionComplete,
                             [groupID=groupID,transaction=newTransaction.value(),this]()
@@ -147,13 +206,13 @@ class VariableController2::VariableController2Private
         std::map<QUuid,DateTimeRange> ranges;
         if(!DateTimeRangeHelper::hasnan(r))
         {
-            auto group = _synchronizationGroups[*refVar];
+            auto group = _maps.group(*refVar);
             if(auto transformation = DateTimeRangeHelper::computeTransformation(refVar->range(),r);
                     transformation.has_value())
             {
                 for(auto varId:group->variables())
                 {
-                    auto var = _variables[varId];
+                    auto var = _maps.variable(varId);
                     auto newRange = var->range().transform(transformation.value());
                     ranges[varId] = newRange;
                 }
@@ -163,7 +222,7 @@ class VariableController2::VariableController2Private
             {
                 for(auto varId:group->variables())
                 {
-                    auto var = _variables[varId];
+                    auto var = _maps.variable(varId);
                     ranges[varId] = r;
                 }
             }
@@ -194,14 +253,11 @@ class VariableController2::VariableController2Private
 
     void _changeRange(QUuid id, DateTimeRange r)
     {
-        _lock.lockForRead();
-        auto var = _variables[id];
-        _lock.unlock();
-        _changeRange(var,r);
+        _changeRange(_maps.variable(id) ,r);
     }
     void _changeRange(const std::shared_ptr<Variable>& var, DateTimeRange r)
     {
-        auto provider = _providers[*var];
+        auto provider = _maps.provider(*var);
         auto [missingRanges, newCacheRange] = _computeMissingRanges(var,r);
         std::vector<IDataSeries*> data;
         for(auto range:missingRanges)
@@ -218,6 +274,11 @@ public:
         this->_ThreadPool.setMaxThreadCount(32);
     }
 
+    /*
+     * This dtor has to like this even if this is ugly, because default dtor would rely on
+     * declaration order to destruct members and that would always lead to regressions when
+     * modifying with class members
+    */
     ~VariableController2Private()
     {
         while (this->_ThreadPool.activeThreadCount())
@@ -228,21 +289,16 @@ public:
 
     std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider)
     {
-        QWriteLocker lock{&_lock};
         auto newVar = std::make_shared<Variable>(name,metadata);
-        this->_variables[*newVar] = newVar;
-        this->_providers[*newVar] = std::move(provider);
         auto group = std::make_shared<VariableSynchronizationGroup2>(newVar->ID());
-        this->_synchronizationGroups[*newVar] = group;
+        _maps.addVariable(newVar,std::move(provider),group);
         this->_transactions.addEntry(*group);
         return newVar;
     }
 
     bool hasPendingTransactions(const std::shared_ptr<Variable>& variable)
     {
-        QReadLocker lock{&_lock};
-        auto group = _synchronizationGroups[*variable];
-        return _transactions.active(*group);
+        return _transactions.active(*_maps.group(*variable));
     }
 
     void deleteVariable(const std::shared_ptr<Variable>& variable)
@@ -251,42 +307,23 @@ public:
          * Removing twice a var is ok but a var without provider has to be a hard error
          * this means we got the var controller in an inconsistent state
          */
-        if(v_contains(variable))
-        {
-            QWriteLocker lock{&_lock};
-            this->_variables.remove(*variable);
-        }
-        if(p_contains(variable))
-        {
-            QWriteLocker lock{&_lock};
-            this->_providers.remove(*variable);
-        }
-        else
-            SCIQLOP_ERROR(VariableController2Private, "No provider found for given variable");
+        _maps.removeVariable(variable);
     }
 
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
     {
-        if(p_contains(variable))
+        if(!DateTimeRangeHelper::hasnan(r))
         {
-            if(!DateTimeRangeHelper::hasnan(r))
+            auto group = _maps.group(*variable);
+            // Just overwrite next transaction
             {
-                auto group = _synchronizationGroups[*variable];
-                // Just overwrite next transaction
-                {
-                    QWriteLocker lock{&_lock};
-                    _transactions.enqueue(*group,std::make_shared<VCTransaction>(variable->ID(), r, static_cast<int>(group->variables().size())));
-                }
-                _processTransactions();
+                _transactions.enqueue(*group,std::make_shared<VCTransaction>(variable->ID(), r, static_cast<int>(group->variables().size())));
             }
-            else
-            {
-                SCIQLOP_ERROR(VariableController2Private, "Invalid range containing NaN");
-            }
+            _processTransactions();
         }
         else
         {
-            SCIQLOP_ERROR(VariableController2Private, "No provider found for given variable");
+            SCIQLOP_ERROR(VariableController2Private, "Invalid range containing NaN");
         }
     }
 
@@ -299,37 +336,14 @@ public:
         }
     }
 
-    void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with)
+    inline void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with)
     {
-        if(v_contains(var) && v_contains(with))
-        {
-            if(sg_contains(var) && sg_contains(with))
-            {
-                QWriteLocker lock{&_lock};
-                auto dest_group = this->_synchronizationGroups[with->ID()];
-                this->_synchronizationGroups[*var] = dest_group;
-                dest_group->addVariable(*var);
-            }
-            else
-            {
-                SCIQLOP_ERROR(VariableController2Private, "At least one of the given variables isn't in a sync group");
-            }
-        }
-        else
-        {
-            SCIQLOP_ERROR(VariableController2Private, "At least one of the given variables is not found");
-        }
+        _maps.synchronize(var, with);
     }
 
-    const std::set<std::shared_ptr<Variable>> variables()
+    inline const std::set<std::shared_ptr<Variable>> variables()
     {
-        std::set<std::shared_ptr<Variable>> vars;
-        QReadLocker lock{&_lock};
-        for(const auto  &var:_variables)
-        {
-            vars.insert(var);
-        }
-        return  vars;
+        return _maps.variables();
     }
 
 };

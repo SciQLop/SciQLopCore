@@ -64,6 +64,11 @@ public:
         return this->_variables;
     }
 
+    inline bool isEmpty()
+    {
+        return _variables.size()==0;
+    }
+
     inline QUuid ID(){return _ID;}
 
     operator QUuid() {return _ID;}

@@ -14,13 +14,27 @@
 
 struct VCTransaction
 {
-    VCTransaction(QUuid refVar, DateTimeRange range, int ready)
-        :refVar{refVar},range{range},ready{ready}
+    VCTransaction(QUuid refVar, DateTimeRange range, int varCount)
+        :refVar{refVar},range{range},_remainingVars{varCount}
     {}
+
     QUuid refVar;
     DateTimeRange range;
-    int ready;
-    QReadWriteLock lock;
+    bool ready()
+    {
+        QReadLocker lock{&_lock};
+        return _remainingVars == 0;
+    }
+
+    bool done()
+    {
+        QWriteLocker lock{&_lock};
+        _remainingVars-=1;
+        return _remainingVars == 0;
+    }
+private:
+    QReadWriteLock _lock;
+    int _remainingVars;
 };
 
 class TransactionExe:public QObject,public QRunnable
