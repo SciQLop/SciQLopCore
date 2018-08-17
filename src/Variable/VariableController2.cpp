@@ -32,7 +32,7 @@ class VariableController2::VariableController2Private
         inline void removeVariable(const std::shared_ptr<Variable>& variable)
         {
             QWriteLocker lock{&_lock};
-            _variables.remove(*variable);
+            _variables.erase(*variable);
             _providers.remove(*variable);
             _synchronizationGroups.remove(*variable);
         }
@@ -55,10 +55,11 @@ class VariableController2::VariableController2Private
         inline std::shared_ptr<Variable> variable(QUuid variable)
         {
             QReadLocker lock{&_lock};
+            auto it = _variables.find(variable);
             [[unlikely]]
-            if(!_variables.contains(variable))
+            if(it==_variables.end())
                 SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Unknown Variable");
-            return _variables[variable];
+            return (*it).second;
         }
 
         inline std::shared_ptr<Variable> variable(int index)
@@ -67,14 +68,19 @@ class VariableController2::VariableController2Private
             [[unlikely]]
             if(!_variables.size() > index)
                 SCIQLOP_ERROR(threadSafeVaraiblesMaps,"Index is out of bounds");
-            return _variables.values()[index];
+            auto it = _variables.cbegin();
+            while (index!=0) {
+                index-=1;
+                it++;
+            }
+            return (*it).second;
         }
 
         inline const std::vector<std::shared_ptr<Variable>> variables()
         {
             std::vector<std::shared_ptr<Variable>> vars;
             QReadLocker lock{&_lock};
-            for(const auto  &var:_variables)
+            for(const auto&[id, var]:_variables)
             {
                 vars.push_back(var);
             }
@@ -102,11 +108,11 @@ class VariableController2::VariableController2Private
         inline bool has(const std::shared_ptr<Variable>& variable)
         {
             QReadLocker lock{&_lock};
-            return _variables.contains(*variable);
+            return _variables.find(*variable)==_variables.end();
         }
 
     private:
-        QMap<QUuid,std::shared_ptr<Variable>> _variables;
+        std::map<QUuid,std::shared_ptr<Variable>> _variables;
         QMap<QUuid,std::shared_ptr<IDataProvider>> _providers;
         QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
         QReadWriteLock _lock{QReadWriteLock::Recursive};
@@ -366,29 +372,12 @@ void VariableController2::synchronize(const std::shared_ptr<Variable> &var, cons
     impl->synchronize(var, with);
 }
 
-QByteArray VariableController2::mimeData(const std::vector<std::shared_ptr<Variable> > &variables) const
-{
-    auto encodedData = QByteArray{};
-    QDataStream stream{&encodedData, QIODevice::WriteOnly};
-    for (auto &var : variables) {
-        stream << var->ID().toByteArray();
-    }
-    return encodedData;
-}
-
-const std::vector<std::shared_ptr<Variable>> VariableController2::variables(QByteArray mimeData)
+const std::vector<std::shared_ptr<Variable>> VariableController2::variables(const std::vector<QUuid> &ids)
 {
     std::vector<std::shared_ptr<Variable>> variables;
-    QDataStream stream{mimeData};
-
-    QVariantList ids;
-    stream >> ids;
-
     for (const auto& id : ids) {
-        auto uuid = QUuid{id.toByteArray()};
-        variables.push_back (impl->variable(uuid));
+        variables.push_back(impl->variable(id));
     }
-
     return variables;
 }
 

@@ -24,9 +24,10 @@ enum VariableRoles { ProgressRole = Qt::UserRole };
  */
 class SCIQLOP_CORE_EXPORT VariableModel2 : public QAbstractTableModel {
     Q_OBJECT
-    std::shared_ptr<VariableController2> _variableController;
+    // read only mirror of VariableController2 content
+    std::vector<std::shared_ptr<Variable>> _variables;
 public:
-    explicit VariableModel2(const std::shared_ptr<VariableController2>& variableController, QObject *parent = nullptr);
+    explicit VariableModel2(QObject *parent = nullptr);
 
     // /////////////////////////// //
     // QAbstractTableModel methods //
@@ -52,12 +53,14 @@ public:
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
                               const QModelIndex &parent) override;
 
-
 signals:
-
-private slots:
+    void createVariable(const QVariantHash &productData);
+    void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
+public slots:
     /// Slot called when data of a variable has been updated
     void variableUpdated() noexcept;
+    void variableAdded(const std::shared_ptr<Variable>&);
+    void variableDeleted(const std::shared_ptr<Variable>&);
 };
 
 #endif // SCIQLOP_VARIABLEMODEL2_H

@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QUuid>
 #include <QReadWriteLock>
+#include <QDataStream>
 
 #include "CoreGlobal.h"
 #include <Data/DataSeriesIterator.h>
@@ -68,6 +69,30 @@ public:
     void updateData(const std::vector<IDataSeries*>& dataSeries,
                     const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
                     bool notify=true);
+
+    static QByteArray mimeData(const std::vector<std::shared_ptr<Variable> > &variables)
+    {
+        auto encodedData = QByteArray{};
+        QDataStream stream{&encodedData, QIODevice::WriteOnly};
+        for (auto &var : variables) {
+            stream << var->ID().toByteArray();
+        }
+        return encodedData;
+    }
+
+    static std::vector<QUuid> variablesIDs(QByteArray mimeData)
+    {
+        std::vector<QUuid> variables;
+        QDataStream stream{mimeData};
+
+        QVariantList ids;
+        stream >> ids;
+
+        for (const auto& id : ids) {
+            variables.emplace_back (id.toByteArray());
+        }
+        return variables;
+    }
 
 DEPRECATE(
 

@@ -123,7 +123,7 @@ void DataSourceController::loadProductItem(const QUuid &dataSourceUid,
         auto it = impl->m_DataProviders.find(dataSourceUid);
         auto dataProvider = (it != impl->m_DataProviders.end()) ? it->second : nullptr;
 
-        emit variableCreationRequested(productItem.name(), productItem.data(), dataProvider);
+        emit createVariable(productItem.name(), productItem.data(), dataProvider);
     }
     else {
         qCWarning(LOG_DataSourceController()) << tr("Can't load an item that is not a product");

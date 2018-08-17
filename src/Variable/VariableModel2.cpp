@@ -1,3 +1,8 @@
+#include <QMimeData>
+#include <QSize>
+#include <QTimer>
+#include <unordered_map>
+
 #include <Variable/Variable.h>
 #include <Variable/VariableController2.h>
 #include <Variable/VariableModel2.h>
@@ -5,16 +10,12 @@
 #include <Common/DateUtils.h>
 #include <Common/MimeTypesDef.h>
 #include <Common/StringUtils.h>
+#include <Common/containers.h>
 
 #include <Data/IDataSeries.h>
 
 #include <DataSource/DataSourceController.h>
 #include <Time/TimeController.h>
-
-#include <QMimeData>
-#include <QSize>
-#include <QTimer>
-#include <unordered_map>
 
 namespace {
 
@@ -66,8 +67,8 @@ QString uniqueName(const QString &defaultName,
 
 
 
-VariableModel2::VariableModel2(const std::shared_ptr<VariableController2> &variableController, QObject *parent)
-    : QAbstractTableModel{parent}, _variableController{variableController}
+VariableModel2::VariableModel2(QObject *parent)
+    : QAbstractTableModel{parent}
 {
 }
 
@@ -82,7 +83,7 @@ int VariableModel2::columnCount(const QModelIndex &parent) const
 int VariableModel2::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return static_cast<int>(_variableController->variables().size());
+    return _variables.size();
 }
 
 QVariant VariableModel2::data(const QModelIndex &index, int role) const
@@ -96,7 +97,7 @@ QVariant VariableModel2::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole) {
-        if (auto variable = _variableController->variables()[index.row()]) {
+        if (auto variable = _variables[index.row()]) {
             switch (index.column()) {
                 case NAME_COLUMN:
                     return variable->name();
@@ -178,19 +179,19 @@ QMimeData *VariableModel2::mimeData(const QModelIndexList &indexes) const
     DateTimeRange firstTimeRange;
     for (const auto &index : indexes) {
         if (index.column() == 0) { // only the first column
-            auto variable = _variableController->variables()[index.row()];
+            auto variable = _variables[index.row()];
             if (variable.get() && index.isValid()) {
 
                 if (variables.size()==0) {
                     // Gets the range of the first variable
-                    firstTimeRange = std::move(variable->range());
+                    firstTimeRange = variable->range();
                 }
                 variables.push_back(variable);
             }
         }
     }
 
-    auto variablesEncodedData = _variableController->mimeData(variables);
+    auto variablesEncodedData = Variable::mimeData(variables);
     mimeData->setData(MIME_TYPE_VARIABLE_LIST, variablesEncodedData);
 
     if (variables.size() == 1) {
@@ -205,6 +206,7 @@ QMimeData *VariableModel2::mimeData(const QModelIndexList &indexes) const
 bool VariableModel2::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row,
                                     int column, const QModelIndex &parent) const
 {
+    Q_UNUSED(column);
     // drop of a product
     return data->hasFormat(MIME_TYPE_PRODUCT_LIST)
            || (data->hasFormat(MIME_TYPE_TIME_RANGE) && parent.isValid()
@@ -221,17 +223,16 @@ bool VariableModel2::dropMimeData(const QMimeData *data, Qt::DropAction action, 
             = DataSourceController::productsDataForMimeData(data->data(MIME_TYPE_PRODUCT_LIST));
 
         for (auto metaData : productList) {
-            //emit requestVariable(metaData.toHash());
-            //@TODO No idea what this does
+            emit createVariable(metaData.toHash());
         }
 
         dropDone = true;
     }
     else if (data->hasFormat(MIME_TYPE_TIME_RANGE) && parent.isValid()) {
-        auto variable = _variableController->variables()[parent.row()];
+        auto variable = _variables[parent.row()];
         auto range = TimeController::timeRangeForMimeData(data->data(MIME_TYPE_TIME_RANGE));
 
-        _variableController->asyncChangeRange(variable, range);
+        emit asyncChangeRange(variable, range);
 
         dropDone = true;
     }
@@ -241,6 +242,29 @@ bool VariableModel2::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 
 void VariableModel2::variableUpdated() noexcept
 {
+    emit dataChanged(QModelIndex(),QModelIndex());
+}
 
+void VariableModel2::variableAdded(const std::shared_ptr<Variable> & variable)
+{
+    if(!SciQLop::containers::contains(_variables,variable))
+    {
+        beginInsertRows(QModelIndex(), this->_variables.size(), this->_variables.size());
+        this->_variables.push_back(variable);
+        endInsertRows();
+        connect(variable.get(),&Variable::updated,this,&VariableModel2::variableUpdated);
+    }
+}
+
+void VariableModel2::variableDeleted(const std::shared_ptr<Variable> &variable)
+{
+    auto it = std::find(_variables.begin(), _variables.end(), variable);
+    if (it != _variables.end())
+    {
+      auto index = std::distance(_variables.begin(), it);
+      beginRemoveRows(QModelIndex(), index, index);
+      _variables.erase(it);
+      endRemoveRows();
+    }
 }
 

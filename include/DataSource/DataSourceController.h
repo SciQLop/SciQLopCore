@@ -92,7 +92,7 @@ signals:
      * @param variableProvider the provider that will be used to retrieve the data of the variable
      * (can be null)
      */
-    void variableCreationRequested(const QString &variableName,
+    void createVariable(const QString &variableName,
                                    const QVariantHash &variableMetadata,
                                    std::shared_ptr<IDataProvider> variableProvider);
 
