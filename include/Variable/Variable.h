@@ -94,33 +94,10 @@ public:
         return variables;
     }
 
-DEPRECATE(
-
-    bool contains(const DateTimeRange &range) const noexcept;
-    bool intersect(const DateTimeRange &range) const noexcept;
-    bool isInside(const DateTimeRange &range) const noexcept;
-
-    bool cacheContains(const DateTimeRange &range) const noexcept;
-    bool cacheIntersect(const DateTimeRange &range) const noexcept;
-    bool cacheIsInside(const DateTimeRange &range) const noexcept;
-    QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &range) const noexcept;
-    QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &range) const noexcept;
-    void mergeDataSeries(std::shared_ptr<IDataSeries> dataSeries) noexcept;
-    static QVector<DateTimeRange> provideNotInCacheRangeList(const DateTimeRange &oldRange,
-                                                             const DateTimeRange &nextRange);
-
-    static QVector<DateTimeRange> provideInCacheRangeList(const DateTimeRange &oldRange,
-                                                          const DateTimeRange &nextRange);
-    )
-
     operator QUuid() {return _uuid;}
     QUuid ID(){return _uuid;}
 signals:
     void updated();
-    DEPRECATE(
-            /// Signal emitted when when the data series of the variable is loaded for the first time
-            void dataInitialized();
-    )
     private:
         class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;
