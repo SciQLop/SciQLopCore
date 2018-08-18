@@ -42,19 +42,6 @@ public:
         return serie;
     }
 
-
-
-    void requestDataLoading(QUuid acqIdentifier, const DataProviderParameters &parameters) override
-    {
-        Q_UNUSED(acqIdentifier)
-        Q_UNUSED(parameters)
-    }
-
-    void requestDataAborting(QUuid acqIdentifier) override
-    {
-        Q_UNUSED(acqIdentifier)
-    }
-
 };
 
 

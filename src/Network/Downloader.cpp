@@ -10,6 +10,7 @@
 #include <QPair>
 #include <QCoreApplication>
 #include <QReadWriteLock>
+#include <QThread>
 
 class Downloader::p_Downloader
 {
@@ -56,7 +57,10 @@ public:
         QNetworkRequest request = buildRequest(url, user, passwd);
         QNetworkReply *reply = manager.get(request);
         while (!reply->isFinished())
+        {
             QCoreApplication::processEvents();
+            QThread::usleep(10000);
+        }
         QVariant status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
         Response resp = Response(reply->readAll(), status_code.toInt());
         delete reply;

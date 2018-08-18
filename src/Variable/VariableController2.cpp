@@ -117,7 +117,7 @@ class VariableController2::VariableController2Private
         QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
         QReadWriteLock _lock{QReadWriteLock::Recursive};
     }_maps;
-    QThreadPool _ThreadPool;
+    QThreadPool* _ThreadPool;
     VCTransactionsQueues _transactions;
     std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
 
@@ -153,7 +153,7 @@ class VariableController2::VariableController2Private
                                 this->_transactionComplete(groupID, transaction);
                             }
                     );
-                    _ThreadPool.start(exe);
+                    _ThreadPool->start(exe);
                 }
             }
         }
@@ -229,7 +229,8 @@ public:
         :_cacheStrategy(VariableCacheStrategyFactory::createCacheStrategy(CacheStrategy::SingleThreshold))
     {
         Q_UNUSED(parent);
-        this->_ThreadPool.setMaxThreadCount(32);
+        this->_ThreadPool = new QThreadPool();
+        this->_ThreadPool->setMaxThreadCount(32);
     }
 
     /*
@@ -239,10 +240,7 @@ public:
     */
     ~VariableController2Private()
     {
-        while (this->_ThreadPool.activeThreadCount())
-        {
-            this->_ThreadPool.waitForDone(100);
-        }
+        delete this->_ThreadPool;
     }
 
     std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata, std::shared_ptr<IDataProvider> provider)
@@ -330,7 +328,7 @@ std::shared_ptr<Variable> VariableController2::createVariable(const QString &nam
     auto var =  impl->createVariable(name, metadata, provider);
     emit variableAdded(var);
     if(!DateTimeRangeHelper::hasnan(range))
-        impl->changeRange(var,range);
+        impl->asyncChangeRange(var,range);
     else
         SCIQLOP_ERROR(VariableController2, "Creating a variable with default constructed DateTimeRange is an error");
     return var;

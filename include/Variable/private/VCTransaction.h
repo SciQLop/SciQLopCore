@@ -57,7 +57,9 @@ public:
         std::vector<IDataSeries*> data;
         for(auto range:_ranges)
         {
-            data.push_back(_provider->getData(DataProviderParameters{{range}, _variable->metadata()}));
+            auto ds = _provider->getData(DataProviderParameters{{range}, _variable->metadata()});
+            if(ds)
+                data.push_back(ds);
         }
         _variable->updateData(data, _range, _cacheRange, true);
         emit transactionComplete();
