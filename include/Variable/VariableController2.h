@@ -34,13 +34,12 @@ public:
     const std::vector<std::shared_ptr<Variable>> variables();
 
     bool isReady(const std::shared_ptr<Variable>& variable);
+    bool isReady();
+
 
     void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
 
     const std::vector<std::shared_ptr<Variable>> variables(const std::vector<QUuid>& ids);
-
-    const std::shared_ptr<Variable>& operator[] (int index) const;
-    std::shared_ptr<Variable> operator[] (int index);
 
 
 signals:

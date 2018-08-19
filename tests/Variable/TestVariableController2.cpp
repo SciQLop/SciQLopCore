@@ -20,6 +20,7 @@
     auto range = DateTimeRange::fromDateTime(QDate(2018,8,7),QTime(14,00),\
                                           QDate(2018,8,7),QTime(16,00));\
     auto name = vc.createVariable("name", {}, provider, range);\
+    while(!vc.isReady(name))QCoreApplication::processEvents();\
 
 Q_DECLARE_METATYPE(DateTimeRangeTransformation);
 
@@ -56,6 +57,7 @@ private slots:
         bool callbackCalled = false;
         connect(&vc,&VariableController2::variableDeleted, [&callbackCalled](std::shared_ptr<Variable>){callbackCalled=true;});
         auto var1 = vc.createVariable("var1", {}, provider, range);
+        while(!vc.isReady(var1))QCoreApplication::processEvents();
         QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
         QVERIFY(!callbackCalled);
         vc.deleteVariable(var1);

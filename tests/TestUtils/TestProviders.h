@@ -29,8 +29,8 @@ public:
     IDataSeries* getData(const DataProviderParameters &parameters) override
     {
         callCounter+=1;
-        auto tstart = parameters.m_Times[0].m_TStart;
-        auto tend = parameters.m_Times[0].m_TEnd;
+        auto tstart = parameters.m_Range.m_TStart;
+        auto tend = parameters.m_Range.m_TEnd;
         std::vector<double> x;
         std::vector<double> y;
         for(double i = ceil(tstart);i<=floor(tend);i+=1.) //1 seconde data resolution

@@ -52,6 +52,8 @@ public:
                                  const QModelIndex &parent) const override;
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
                               const QModelIndex &parent) override;
+    const std::vector<std::shared_ptr<Variable>>& variables() const
+    {return _variables;}
 
 signals:
     void createVariable(const QVariantHash &productData);

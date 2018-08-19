@@ -276,6 +276,16 @@ public:
         return _transactions.active(*_maps.group(*variable));
     }
 
+    bool hasPendingTransactions()
+    {
+        bool has = false;
+        for(const auto& var:_maps.variables())
+        {
+            has |= _transactions.active(*_maps.group(*var));
+        }
+        return has;
+    }
+
     void deleteVariable(const std::shared_ptr<Variable>& variable)
     {
         _maps.removeVariable(variable);
@@ -326,6 +336,7 @@ VariableController2::VariableController2()
 std::shared_ptr<Variable> VariableController2::createVariable(const QString &name, const QVariantHash &metadata, const std::shared_ptr<IDataProvider>& provider, const DateTimeRange &range)
 {
     auto var =  impl->createVariable(name, metadata, provider);
+    var->setRange(range); // even with no data this is it's range
     emit variableAdded(var);
     if(!DateTimeRangeHelper::hasnan(range))
         impl->asyncChangeRange(var,range);
@@ -362,7 +373,12 @@ const std::vector<std::shared_ptr<Variable> > VariableController2::variables()
 
 bool VariableController2::isReady(const std::shared_ptr<Variable> &variable)
 {
-    return impl->hasPendingTransactions(variable);
+    return !impl->hasPendingTransactions(variable);
+}
+
+bool VariableController2::isReady()
+{
+    return !impl->hasPendingTransactions();
 }
 
 void VariableController2::synchronize(const std::shared_ptr<Variable> &var, const std::shared_ptr<Variable> &with)
@@ -377,14 +393,4 @@ const std::vector<std::shared_ptr<Variable>> VariableController2::variables(cons
         variables.push_back(impl->variable(id));
     }
     return variables;
-}
-
-const std::shared_ptr<Variable> &VariableController2::operator[](int index) const
-{
-    return impl->variable (index);
-}
-
-std::shared_ptr<Variable> VariableController2::operator[](int index)
-{
-    return impl->variable (index);
 }
