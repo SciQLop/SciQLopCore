@@ -22,15 +22,21 @@ find_package(Qt5 COMPONENTS Core Widgets Network PrintSupport Svg Test REQUIRED)
 
 find_package(pybind11 CONFIG QUIET)
 if (NOT pybind11_FOUND)
-    execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/external/pybind11)
+        message("Init submodule pybind11")
+        execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
     add_subdirectory(external/pybind11)
 endif()
 
 find_package(libcatalogs CONFIG QUIET)
 if (NOT catalogs_FOUND)
-    execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/external/libcatalogs)
+        message("Init submodule libcatalogs")
+        execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
     add_subdirectory(external/libcatalogs)
 endif()
 
@@ -67,9 +73,9 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Data/ScalarSeries.h
     ./include/Data/DataSeriesMergeHelper.h
     ./include/Data/DataSeries.h
-    ./include/Data/AcquisitionDataPacket.h
+    #./include/Data/AcquisitionDataPacket.h
     ./include/Data/DataSeriesType.h
-    ./include/Data/AcquisitionRequest.h
+    #./include/Data/AcquisitionRequest.h
     ./include/Data/SqpIterator.h
     ./include/Data/ArrayData.h
     ./include/Data/DataSeriesIterator.h
