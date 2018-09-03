@@ -240,7 +240,7 @@ bool VariableModel2::dropMimeData(const QMimeData *data, Qt::DropAction action, 
     return dropDone;
 }
 
-void VariableModel2::variableUpdated() noexcept
+void VariableModel2::variableUpdated(QUuid id) noexcept
 {
     emit dataChanged(QModelIndex(),QModelIndex());
 }

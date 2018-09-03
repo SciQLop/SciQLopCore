@@ -54,7 +54,7 @@ static DataSeriesType findDataSeriesType(const QVariantHash &metadata)
     void Variable::setter(const type& getter) noexcept \
     {\
         impl->setter(getter);\
-        emit updated();\
+        emit updated(this->ID());\
     }\
 
 struct Variable::VariablePrivate {
@@ -165,7 +165,7 @@ void Variable::setRange(const DateTimeRange &range, bool notify) noexcept
     impl->setRange(range);
     impl->updateRealRange();
     if(notify)
-        emit this->updated();
+        emit this->updated(this->ID());
 }
 
 V_FW_GETTER_SETTER(cacheRange, setCacheRange, DateTimeRange)
@@ -190,9 +190,8 @@ void Variable::updateData(const std::vector<IDataSeries *> &dataSeries, const Da
         impl->purgeDataSeries();
     }
     if(notify)
-        emit updated();
+        emit updated(this->ID());
 }
-
 
 std::shared_ptr<IDataSeries> Variable::dataSeries() const noexcept
 {
@@ -211,4 +210,3 @@ QVariantHash Variable::metadata() const noexcept
     impl->unlock();
     return metadata;
 }
-

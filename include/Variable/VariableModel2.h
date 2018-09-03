@@ -60,7 +60,7 @@ signals:
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
 public slots:
     /// Slot called when data of a variable has been updated
-    void variableUpdated() noexcept;
+    void variableUpdated(QUuid id) noexcept;
     void variableAdded(const std::shared_ptr<Variable>&);
     void variableDeleted(const std::shared_ptr<Variable>&);
 };

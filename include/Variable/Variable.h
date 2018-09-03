@@ -97,9 +97,10 @@ public:
     operator QUuid() {return _uuid;}
     QUuid ID(){return _uuid;}
 signals:
-    void updated();
-    private:
-        class VariablePrivate;
+    void updated(QUuid ID);
+
+private:
+    class VariablePrivate;
     spimpl::unique_impl_ptr<VariablePrivate> impl;
     QUuid _uuid;
     QReadWriteLock m_lock;
