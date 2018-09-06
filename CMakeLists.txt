@@ -18,7 +18,7 @@ endif()
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5 COMPONENTS Core Widgets Network PrintSupport Svg Test REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Concurrent Network PrintSupport Svg Test REQUIRED)
 
 find_package(pybind11 CONFIG QUIET)
 if (NOT pybind11_FOUND)

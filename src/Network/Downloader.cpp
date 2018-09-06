@@ -7,15 +7,20 @@
 #include <QAuthenticator>
 #include <QVariant>
 #include <QHash>
-#include <QPair>
 #include <QCoreApplication>
 #include <QReadWriteLock>
+#include <QMutex>
 #include <QThread>
+#include <QObject>
+#include <QtConcurrent/QtConcurrent>
 
-class Downloader::p_Downloader
+class Downloader::p_Downloader : public QObject
 {
+    Q_OBJECT
     using login_pair=QPair<QString,QString>;
     QNetworkAccessManager manager;
+    QMutex manager_lock;
+    QReadWriteLock auth_lock;
     QHash<QString,login_pair> auth;
     QReadWriteLock pending_requests_lock;
     QHash<QUuid,QNetworkReply*> pending_requests;
@@ -34,13 +39,21 @@ class Downloader::p_Downloader
         }
         return request;
     }
+signals:
+    void _get_sig(const QNetworkRequest& request,std::function<void (QNetworkReply* reply)> callback);
+private slots:
+    void _get(const QNetworkRequest& request,std::function<void (QNetworkReply* reply)> callback)
+    {
+        QNetworkReply *reply = manager.get(request);
+        QObject::connect(reply, &QNetworkReply::finished, [reply=reply,callback=callback](){callback(reply);});
+    }
 
 public:
     explicit p_Downloader()
     {
-
         auto login_bambda = [this](QNetworkReply * reply, QAuthenticator * authenticator)
         {
+            QWriteLocker loc{&auth_lock};
             if(auth.contains(reply->url().toString()))
             {
                 auto login = auth[reply->url().toString()];
@@ -50,22 +63,28 @@ public:
         };
 
         QObject::connect(&manager, &QNetworkAccessManager::authenticationRequired, login_bambda);
+        QObject::connect(this, &p_Downloader::_get_sig, this,  &p_Downloader::_get, Qt::QueuedConnection);
     }
 
     Response get(const QString& url, const QString &user="", const QString &passwd="")
     {
+        QNetworkAccessManager manager;
+        auto login_bambda = [user=user,passwd=passwd](QNetworkReply * reply, QAuthenticator * authenticator)
+        {
+            authenticator->setUser(user);
+            authenticator->setPassword(passwd);
+        };
+        QObject::connect(&manager, &QNetworkAccessManager::authenticationRequired, login_bambda);
+        Response resp;
         QNetworkRequest request = buildRequest(url, user, passwd);
-        QNetworkReply *reply = manager.get(request);
-        while (!reply->isFinished())
+        auto reply = manager.get(request);
+        while (reply->isRunning())
         {
             QCoreApplication::processEvents();
-            QThread::usleep(10000);
+            QThread::usleep(1000);
         }
         QVariant status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-        Response resp = Response(reply->readAll(), status_code.toInt());
-        delete reply;
-        if(user!="" and passwd!="")
-            auth.remove(url);
+        resp = Response(reply->readAll(), status_code.toInt());
         return resp;
     }
 
@@ -73,7 +92,9 @@ public:
     {
         auto uuid = QUuid::createUuid();
         QNetworkRequest request = buildRequest(url, user, passwd);
+        manager_lock.lock();
         QNetworkReply *reply = manager.get(request);
+        manager_lock.unlock();
         auto callback_wrapper = [url, uuid, callback, this](){
             QNetworkReply* reply;
             {
@@ -82,7 +103,10 @@ public:
             }
             QVariant status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
             Response resp = Response(reply->readAll(), status_code.toInt());
-            auth.remove(url);
+            {
+                QWriteLocker loc{&auth_lock};
+                auth.remove(url);
+            }
             delete reply;
             callback(uuid, resp);
         };
@@ -125,3 +149,4 @@ Downloader::Downloader()
 {
 }
 
+#include "Downloader.moc"

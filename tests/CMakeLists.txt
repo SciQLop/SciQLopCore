@@ -38,7 +38,7 @@ declare_test(TestDataSourceItem TestDataSourceItem
     "sciqlopcore;Qt5::Test")
 
 declare_test(TestVariable TestVariable Variable/TestVariable.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestDownloader TestDownloader Network/TestDownloader.cpp "sciqlopcore;Qt5::Test")
+declare_test(TestDownloader TestDownloader Network/TestDownloader.cpp "sciqlopcore;Qt5::Test;Qt5::Concurrent")
 
 
 declare_test(TestVariableController2 TestVariableController2 Variable/TestVariableController2.cpp "sciqlopcore;TestUtils;Qt5::Test")

@@ -1,7 +1,12 @@
 #include <Network/Downloader.h>
 #include <QtTest>
 #include <QObject>
+#include <QtConcurrent/QtConcurrent>
 
+Response get(const QString& url)
+{
+    return Downloader::get(url);
+}
 
 class TestDownloader : public QObject
 
@@ -20,6 +25,22 @@ private slots:
         auto resp = Downloader::get("https://httpbin.org/user-agent");
         QCOMPARE(resp.status_code(), 200);
         QCOMPARE(resp.data(), QString("{\n  \"user-agent\": \"SciQLop 1.0\"\n}\n"));
+    }
+
+    void multipleGetThreaded()
+    {
+
+        QList<QString> urls;
+        for(int i=0;i<32;i++)
+        {
+            urls.append("https://httpbin.org/user-agent");
+        }
+        QList<Response> responses = QtConcurrent::blockingMapped(urls, get);
+        for(auto &resp:responses)
+        {
+            QCOMPARE(resp.status_code(), 200);
+            QCOMPARE(resp.data(), QString("{\n  \"user-agent\": \"SciQLop 1.0\"\n}\n"));
+        }
     }
 
     void simpleAsyncGet()

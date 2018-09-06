@@ -19,7 +19,7 @@ public:
     {
 
     }
-    int status_code(){return _status_code;}
+    int status_code() const{return _status_code;}
     QByteArray& data(){return _data;}
 };
 #endif // RESPONSE_H

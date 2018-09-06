@@ -129,6 +129,7 @@ class VariableController2::VariableController2Private
         }
         this->_processTransactions();
     }
+
     void _processTransactions()
     {
         auto nextTransactions = _transactions.nextTransactions();
@@ -145,6 +146,7 @@ class VariableController2::VariableController2Private
                     auto provider = _maps.provider(ID);
                     auto variable = _maps.variable(ID);
                     auto [missingRanges, newCacheRange] = _computeMissingRanges(variable,range);
+
                     auto exe = new TransactionExe(variable, provider, missingRanges, range, newCacheRange);
                     QObject::connect(exe,
                             &TransactionExe::transactionComplete,
@@ -154,6 +156,7 @@ class VariableController2::VariableController2Private
                             }
                     );
                     _ThreadPool->start(exe);
+
                 }
             }
         }
