@@ -211,6 +211,10 @@ private slots:
         QFETCH(int, count);
         auto diff = destination-source;
         QCOMPARE(diff.size(),count);
+        for(const auto& range:diff)
+        {
+            QVERIFY(range.delta().value>0.);
+        }
     }
 };
 QTEST_MAIN(TestDateTimeRange)

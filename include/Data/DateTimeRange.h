@@ -140,7 +140,7 @@ struct DateTimeRange {
             }
             if(this->m_TEnd>other.m_TEnd)
             {
-                result.emplace_back(this->m_TEnd, other.m_TEnd);
+                result.emplace_back(other.m_TEnd, this->m_TEnd);
             }
         }
         return result;
