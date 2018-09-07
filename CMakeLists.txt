@@ -22,7 +22,7 @@ find_package(Qt5 COMPONENTS Core Widgets Concurrent Network PrintSupport Svg Tes
 
 find_package(pybind11 CONFIG QUIET)
 if (NOT pybind11_FOUND)
-    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/external/pybind11)
+    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/pybind11/CMakeLists.txt)
         message("Init submodule pybind11")
         execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -32,7 +32,7 @@ endif()
 
 find_package(libcatalogs CONFIG QUIET)
 if (NOT catalogs_FOUND)
-    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/external/libcatalogs)
+    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/libcatalogs/CMakeLists.txt)
         message("Init submodule libcatalogs")
         execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
         execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
