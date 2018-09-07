@@ -2,6 +2,7 @@
 #define SCIQLOP_VARIABLEMODEL2_H
 
 #include "CoreGlobal.h"
+#include <QUuid>
 
 #include <Data/DateTimeRange.h>
 

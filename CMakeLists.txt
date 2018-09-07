@@ -73,9 +73,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Data/ScalarSeries.h
     ./include/Data/DataSeriesMergeHelper.h
     ./include/Data/DataSeries.h
-    #./include/Data/AcquisitionDataPacket.h
     ./include/Data/DataSeriesType.h
-    #./include/Data/AcquisitionRequest.h
     ./include/Data/SqpIterator.h
     ./include/Data/ArrayData.h
     ./include/Data/DataSeriesIterator.h
