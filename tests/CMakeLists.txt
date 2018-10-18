@@ -7,6 +7,9 @@ FILE (GLOB_RECURSE  TestUtilsSources
 
 add_library(TestUtils ${TestUtilsSources})
 target_link_libraries(TestUtils sciqlopcore Qt5::Test)
+target_include_directories(TestUtils PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/TestUtils
+)
 
 declare_test(TestStringUtils TestStringUtils Common/TestStringUtils.cpp "sciqlopcore;Qt5::Test")
 
