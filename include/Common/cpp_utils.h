@@ -17,5 +17,13 @@ struct _has_##method<T, void_t<std::is_member_function_pointer<decltype(&T::meth
 template< class T>\
 static inline constexpr bool has_##method = _has_##method<T>::value;
 
+//taken from here https://www.fluentcpp.com/2017/10/27/function-aliases-cpp/
+#define ALIAS_TEMPLATE_FUNCTION(highLevelF, lowLevelF)                                             \
+    template <typename... Args>                                                                    \
+    inline auto highLevelF(Args &&... args)->decltype(lowLevelF(std::forward<Args>(args)...))      \
+    {                                                                                              \
+        return lowLevelF(std::forward<Args>(args)...);                                             \
+    }
+
 
 #endif // CPP_UTILS_H
