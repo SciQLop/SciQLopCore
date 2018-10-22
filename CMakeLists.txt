@@ -64,6 +64,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Common/deprecate.h
     ./include/Common/containers.h
     ./include/Common/debug.h
+    ./include/Common/cpp_utils.h
     ./include/Plugin/IPlugin.h
     ./include/Data/ArrayDataIterator.h
     ./include/Data/VariableRequest.h
