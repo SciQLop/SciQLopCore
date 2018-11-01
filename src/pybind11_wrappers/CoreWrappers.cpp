@@ -14,7 +14,9 @@
 #include <Data/DataSeriesType.h>
 #include <Data/ScalarSeries.h>
 #include <Data/VectorSeries.h>
+#include <Data/SpectrogramSeries.h>
 #include <Data/Unit.h>
+#include <Data/OptionalAxis.h>
 #include <Data/IDataProvider.h>
 
 #include <Variable/VariableController2.h>
@@ -33,6 +35,7 @@ PYBIND11_MODULE(pysciqlopcore,m){
     py::enum_<DataSeriesType>(m, "DataSeriesType")
             .value("SCALAR", DataSeriesType::SCALAR)
             .value("SPECTROGRAM", DataSeriesType::SPECTROGRAM)
+            .value("VECTOR", DataSeriesType::VECTOR)
             .value("UNKNOWN", DataSeriesType::UNKNOWN)
             .export_values();
 
@@ -50,6 +53,19 @@ PYBIND11_MODULE(pysciqlopcore,m){
             .def_static("get", Downloader::get)
             .def_static("getAsync", Downloader::getAsync)
             .def_static("downloadFinished", Downloader::downloadFinished);
+
+    py::class_<ArrayDataIteratorValue>(m, "ArrayDataIteratorValue")
+            .def_property_readonly("value", &ArrayDataIteratorValue::first);
+
+    py::class_<OptionalAxis>(m, "OptionalAxis")
+            .def("__len__", &OptionalAxis::size)
+            .def_property_readonly("size", &OptionalAxis::size)
+            .def("__getitem__", [](OptionalAxis& ax, int key) {
+                    return (*(ax.begin()+key)).first();
+                }, py::is_operator())
+            .def("__iter__", [](OptionalAxis& ax) {
+                    return py::make_iterator(ax.begin(), ax.end());
+                }, py::keep_alive<0, 1>());
 
     py::class_<DataSeriesIteratorValue>(m,"DataSeriesIteratorValue")
             .def_property_readonly("x", &DataSeriesIteratorValue::x)
@@ -76,6 +92,12 @@ PYBIND11_MODULE(pysciqlopcore,m){
 
     py::class_<VectorSeries, std::shared_ptr<VectorSeries>, IDataSeries>(m, "VectorSeries")
             .def("nbPoints", &VectorSeries::nbPoints);
+
+    py::class_<DataSeries<2>, std::shared_ptr<DataSeries<2>>, IDataSeries>(m,"DataSeries2d")
+            .def_property_readonly("yAxis", py::overload_cast<>(&DataSeries<2>::yAxis, py::const_));
+
+    py::class_<SpectrogramSeries, std::shared_ptr<SpectrogramSeries>, DataSeries<2>>(m, "SpectrogramSeries")
+            .def("nbPoints", &SpectrogramSeries::nbPoints);
 
 
     py::class_<IDataProvider, std::shared_ptr<IDataProvider>>(m, "IDataProvider");
