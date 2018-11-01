@@ -54,7 +54,8 @@ PYBIND11_MODULE(pysciqlopcore,m){
     py::class_<DataSeriesIteratorValue>(m,"DataSeriesIteratorValue")
             .def_property_readonly("x", &DataSeriesIteratorValue::x)
             .def("value", py::overload_cast<>(&DataSeriesIteratorValue::value, py::const_))
-            .def("value", py::overload_cast<int>(&DataSeriesIteratorValue::value, py::const_));
+            .def("value", py::overload_cast<int>(&DataSeriesIteratorValue::value, py::const_))
+            .def("values", &DataSeriesIteratorValue::values);
 
     py::class_<IDataSeries, std::shared_ptr<IDataSeries>>(m, "IDataSeries")
             .def("nbPoints", &IDataSeries::nbPoints)
