@@ -33,7 +33,26 @@ public:
 
     inline double xResolution() const noexcept { return m_XResolution; }
 
+    void erase(DataSeriesIterator first, DataSeriesIterator last) override
+    {
+        DataSeries<2>::erase(first,last);
+        updateResolution();
+    }
+
+    void insert(DataSeriesIterator first, DataSeriesIterator last, bool prepend = false) override
+    {
+        DataSeries<2>::insert(first,last, prepend);
+        updateResolution();
+    }
+
+    void merge(IDataSeries *dataSeries) override
+    {
+        DataSeries<2>::merge(dataSeries);
+        updateResolution();
+    }
+
 private:
+    void updateResolution();
     double m_XResolution; ///< Resolution used on x-axis to build the spectrogram
 };
 

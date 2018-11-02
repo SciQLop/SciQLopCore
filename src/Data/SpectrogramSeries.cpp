@@ -25,7 +25,7 @@ SpectrogramSeries::SpectrogramSeries(std::shared_ptr<ArrayData<1> > xAxisData,
 {
     if(std::isnan(m_XResolution))
     {
-        //m_XResolution = DataSeriesUtils::resolution(xAxisData->begin(), xAxisData->end()).m_Val;
+        updateResolution();
     }
 }
 
@@ -52,4 +52,10 @@ std::shared_ptr<IDataSeries> SpectrogramSeries::subDataSeries(const DateTimeRang
         std::make_shared<ArrayData<1> >(std::move(subXAxisData)), this->xAxisUnit(),
         std::make_shared<ArrayData<2> >(subValuesData.toStdVector(), yAxis.size()),
         this->valuesUnit(), std::move(yAxis));
+}
+
+void SpectrogramSeries::updateResolution()
+{
+    auto xAxisData = this->xAxisData()->cdata();
+    m_XResolution = DataSeriesUtils::resolution(xAxisData.begin(), xAxisData.end()).m_Val;
 }

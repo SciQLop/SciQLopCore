@@ -319,7 +319,7 @@ public:
             std::make_unique<dataseries_detail::IteratorValue<Dim, true> >(*this, false)}};
     }
 
-    void erase(DataSeriesIterator first, DataSeriesIterator last)
+    virtual void erase(DataSeriesIterator first, DataSeriesIterator last)
     {
         auto firstImpl
             = dynamic_cast<dataseries_detail::IteratorValue<Dim, false> *>(first->impl());
@@ -331,7 +331,7 @@ public:
         }
     }
 
-    void insert(DataSeriesIterator first, DataSeriesIterator last, bool prepend = false)
+    virtual void insert(DataSeriesIterator first, DataSeriesIterator last, bool prepend = false)
     {
         auto firstImpl = dynamic_cast<dataseries_detail::IteratorValue<Dim, true> *>(first->impl());
         auto lastImpl = dynamic_cast<dataseries_detail::IteratorValue<Dim, true> *>(last->impl());

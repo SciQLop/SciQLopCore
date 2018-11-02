@@ -90,6 +90,9 @@ PYBIND11_MODULE(pysciqlopcore,m){
     }, py::keep_alive<0, 1>())
             .def("__repr__",__repr__<IDataSeries>);
 
+    py::class_<ArrayData<1>, std::shared_ptr<ArrayData<1>> >(m,"ArrayData1d")
+            .def("cdata", [](ArrayData<1>& array) {return array.cdata();});
+
     py::class_<ScalarSeries, std::shared_ptr<ScalarSeries>, IDataSeries>(m, "ScalarSeries")
             .def("nbPoints", &ScalarSeries::nbPoints);
 
@@ -97,10 +100,12 @@ PYBIND11_MODULE(pysciqlopcore,m){
             .def("nbPoints", &VectorSeries::nbPoints);
 
     py::class_<DataSeries<2>, std::shared_ptr<DataSeries<2>>, IDataSeries>(m,"DataSeries2d")
+            .def_property_readonly("xAxis", py::overload_cast<>(&DataSeries<2>::xAxisData, py::const_))
             .def_property_readonly("yAxis", py::overload_cast<>(&DataSeries<2>::yAxis, py::const_));
 
     py::class_<SpectrogramSeries, std::shared_ptr<SpectrogramSeries>, DataSeries<2>>(m, "SpectrogramSeries")
-            .def("nbPoints", &SpectrogramSeries::nbPoints);
+            .def("nbPoints", &SpectrogramSeries::nbPoints)
+            .def("xRes", &SpectrogramSeries::xResolution);
 
 
     py::class_<IDataProvider, std::shared_ptr<IDataProvider>>(m, "IDataProvider");
