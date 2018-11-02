@@ -1,4 +1,5 @@
 #include <Data/SpectrogramSeries.h>
+#include <Data/DataSeriesUtils.h>
 
 SpectrogramSeries::SpectrogramSeries(std::vector<double> xAxisData, std::vector<double> yAxisData,
                                      std::vector<double> valuesData, const Unit &xAxisUnit,
@@ -22,6 +23,10 @@ SpectrogramSeries::SpectrogramSeries(std::shared_ptr<ArrayData<1> > xAxisData,
                      std::move(yAxis)},
           m_XResolution{resolution}
 {
+    if(std::isnan(m_XResolution))
+    {
+        //m_XResolution = DataSeriesUtils::resolution(xAxisData->begin(), xAxisData->end()).m_Val;
+    }
 }
 
 std::unique_ptr<IDataSeries> SpectrogramSeries::clone() const

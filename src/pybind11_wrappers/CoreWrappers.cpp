@@ -4,6 +4,8 @@
 #include <pybind11/numpy.h>
 #include <pybind11/chrono.h>
 #include <pybind11/functional.h>
+#include <pybind11/stl.h>
+
 
 #include <string>
 #include <sstream>
@@ -69,6 +71,7 @@ PYBIND11_MODULE(pysciqlopcore,m){
 
     py::class_<DataSeriesIteratorValue>(m,"DataSeriesIteratorValue")
             .def_property_readonly("x", &DataSeriesIteratorValue::x)
+            .def_property_readonly("y", &DataSeriesIteratorValue::y)
             .def("value", py::overload_cast<>(&DataSeriesIteratorValue::value, py::const_))
             .def("value", py::overload_cast<int>(&DataSeriesIteratorValue::value, py::const_))
             .def("values", &DataSeriesIteratorValue::values);

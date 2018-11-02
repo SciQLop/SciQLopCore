@@ -9,11 +9,11 @@
  * @tparam T the type of object handled in iterator
  * @sa http://www.cplusplus.com/reference/iterator/
  */
-template <typename T>
+template <typename T, bool isConst=false>
 class SCIQLOP_CORE_EXPORT SqpIterator {
 public:
     using iterator_category = std::random_access_iterator_tag;
-    using value_type = const T;
+    using value_type = typename std::conditional<isConst, const T, T>::type;
     using difference_type = std::ptrdiff_t;
     using pointer = value_type *;
     using reference = value_type &;
