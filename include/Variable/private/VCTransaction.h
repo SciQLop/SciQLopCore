@@ -45,10 +45,12 @@ class TransactionExe:public QObject,public QRunnable
     std::vector<DateTimeRange> _ranges;
     DateTimeRange _range;
     DateTimeRange _cacheRange;
+    bool _overwrite;
 public:
     TransactionExe(const std::shared_ptr<Variable>& variable, const std::shared_ptr<IDataProvider>& provider,
-                   const std::vector<DateTimeRange>& ranges, DateTimeRange range, DateTimeRange cacheRange)
-        :_variable{variable}, _provider{provider},_ranges{ranges},_range{range},_cacheRange{cacheRange}
+                   const std::vector<DateTimeRange>& ranges, DateTimeRange range, DateTimeRange cacheRange,
+                   bool overwrite=true)
+        :_variable{variable}, _provider{provider},_ranges{ranges},_range{range},_cacheRange{cacheRange}, _overwrite{overwrite}
     {
         setAutoDelete(true);
     }
@@ -61,7 +63,10 @@ public:
             if(ds)
                 data.push_back(ds);
         }
-        _variable->updateData(data, _range, _cacheRange, true);
+        if(_overwrite)
+            _variable->setData(data,_range, _cacheRange, true);
+        else
+            _variable->updateData(data, _range, _cacheRange, true);
         emit transactionComplete();
     }
 signals:

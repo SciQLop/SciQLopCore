@@ -94,12 +94,12 @@ struct Variable::VariablePrivate {
         updateRealRange();
         updateNbPoints();
     }
-    void mergeDataSeries(const std::vector<IDataSeries*>& dataseries)
+    void mergeDataSeries(const std::vector<IDataSeries*>& dataseries, bool overwrite=false)
     {
         QWriteLocker lock{&m_Lock};
         for(auto ds:dataseries)
         {
-            if(m_DataSeries)
+            if(!overwrite & bool(m_DataSeries))
                 m_DataSeries->merge(ds);
             else
                 m_DataSeries = ds->clone();
@@ -185,6 +185,19 @@ void Variable::updateData(const std::vector<IDataSeries *> &dataSeries, const Da
     {
         QWriteLocker lock{&m_lock};
         impl->mergeDataSeries(dataSeries);
+        impl->setRange(newRange);
+        impl->setCacheRange(newCacheRange);
+        impl->purgeDataSeries();
+    }
+    if(notify)
+        emit updated(this->ID());
+}
+
+void Variable::setData(const std::vector<IDataSeries *> &dataSeries, const DateTimeRange &newRange, const DateTimeRange &newCacheRange, bool notify)
+{
+    {
+        QWriteLocker lock{&m_lock};
+        impl->mergeDataSeries(dataSeries, true);
         impl->setRange(newRange);
         impl->setCacheRange(newCacheRange);
         impl->purgeDataSeries();

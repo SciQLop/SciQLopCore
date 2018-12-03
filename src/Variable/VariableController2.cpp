@@ -16,7 +16,6 @@
 #include <QCoreApplication>
 
 
-
 class VariableController2::VariableController2Private
 {
     struct threadSafeVaraiblesMaps
@@ -130,7 +129,7 @@ class VariableController2::VariableController2Private
         this->_processTransactions();
     }
 
-    void _processTransactions()
+    void _processTransactions(bool fragmented=false)
     {
         auto nextTransactions = _transactions.nextTransactions();
         auto pendingTransactions = _transactions.pendingTransactions();
@@ -145,18 +144,32 @@ class VariableController2::VariableController2Private
                 {
                     auto provider = _maps.provider(ID);
                     auto variable = _maps.variable(ID);
-                    auto [missingRanges, newCacheRange] = _computeMissingRanges(variable,range);
+                    if(fragmented)
+                    {
+                        auto [missingRanges, newCacheRange] = _computeMissingRanges(variable,range);
 
-                    auto exe = new TransactionExe(variable, provider, missingRanges, range, newCacheRange);
-                    QObject::connect(exe,
-                            &TransactionExe::transactionComplete,
-                            [groupID=groupID,transaction=newTransaction.value(),this]()
-                            {
-                                this->_transactionComplete(groupID, transaction);
-                            }
-                    );
-                    _ThreadPool->start(exe);
-
+                        auto exe = new TransactionExe(variable, provider, missingRanges, range, newCacheRange);
+                        QObject::connect(exe,
+                                &TransactionExe::transactionComplete,
+                                [groupID=groupID,transaction=newTransaction.value(),this]()
+                                {
+                                    this->_transactionComplete(groupID, transaction);
+                                }
+                        );
+                        _ThreadPool->start(exe);
+                    }
+                    else
+                    {
+                            auto exe = new TransactionExe(variable, provider, {range}, range, range);
+                            QObject::connect(exe,
+                                    &TransactionExe::transactionComplete,
+                                    [groupID=groupID,transaction=newTransaction.value(),this]()
+                                    {
+                                        this->_transactionComplete(groupID, transaction);
+                                    }
+                            );
+                            _ThreadPool->start(exe);
+                    }
                 }
             }
         }

@@ -70,6 +70,10 @@ public:
                     const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
                     bool notify=true);
 
+    void setData(const std::vector<IDataSeries*>& dataSeries,
+                    const DateTimeRange& newRange, const DateTimeRange& newCacheRange,
+                    bool notify=true);
+
     static QByteArray mimeData(const std::vector<std::shared_ptr<Variable> > &variables)
     {
         auto encodedData = QByteArray{};
