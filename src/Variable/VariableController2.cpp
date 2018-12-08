@@ -353,11 +353,11 @@ std::shared_ptr<Variable> VariableController2::createVariable(const QString &nam
 {
     auto var =  impl->createVariable(name, metadata, provider);
     var->setRange(range); // even with no data this is it's range
-    emit variableAdded(var);
     if(!DateTimeRangeHelper::hasnan(range))
         impl->asyncChangeRange(var,range);
     else
         SCIQLOP_ERROR(VariableController2, "Creating a variable with default constructed DateTimeRange is an error");
+    emit variableAdded(var);
     return var;
 }
 
