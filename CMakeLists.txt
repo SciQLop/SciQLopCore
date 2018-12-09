@@ -4,6 +4,7 @@ project(SciQLOPCore CXX)
 OPTION (CPPCHECK "Analyzes the source code with cppcheck" OFF)
 OPTION (CLANG_TIDY "Analyzes the source code with Clang Tidy" OFF)
 OPTION (IWYU "Analyzes the source code with Include What You Use" OFF)
+OPTION (PyWrappers "Enables Python 3 wrappers" ON)
 
 OPTION (Catalog "builds catalog API" ON)
 
@@ -20,14 +21,16 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5 COMPONENTS Core Widgets Concurrent Network PrintSupport Svg Test REQUIRED)
 
-find_package(pybind11 CONFIG QUIET)
-if (NOT pybind11_FOUND)
-    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/pybind11/CMakeLists.txt)
-        message("Init submodule pybind11")
-        execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-        execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+if(PyWrappers)
+    find_package(pybind11 CONFIG QUIET)
+    if (NOT pybind11_FOUND)
+        if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/pybind11/CMakeLists.txt)
+            message("Init submodule pybind11")
+            execute_process(COMMAND git submodule init external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+            execute_process(COMMAND git submodule update external/pybind11 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        endif()
+        add_subdirectory(external/pybind11)
     endif()
-    add_subdirectory(external/pybind11)
 endif()
 
 find_package(libcatalogs CONFIG QUIET)
@@ -168,18 +171,20 @@ if(Catalog)
 endif()
 
 
-pybind11_add_module(sciqlopqt src/pybind11_wrappers/QtWrappers.cpp)
-target_link_libraries(sciqlopqt PUBLIC Qt5::Core)
+if(PyWrappers)
+    pybind11_add_module(sciqlopqt src/pybind11_wrappers/QtWrappers.cpp)
+    target_link_libraries(sciqlopqt PUBLIC Qt5::Core)
 
-pybind11_add_module(pysciqlopcore src/pybind11_wrappers/CoreWrappers.cpp)
-target_link_libraries(pysciqlopcore PUBLIC sciqlopcore)
+    pybind11_add_module(pysciqlopcore src/pybind11_wrappers/CoreWrappers.cpp)
+    target_link_libraries(pysciqlopcore PUBLIC sciqlopcore)
 
-add_library(pysciqlop src/pybind11_wrappers/pywrappers_common.h)
-target_link_libraries(pysciqlop PUBLIC Qt5::Core)
-target_include_directories(pysciqlop PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pybind11_wrappers/>
-    $<INSTALL_INTERFACE:include/SciQLOP/py_wrappers>
-)
+    add_library(pysciqlop src/pybind11_wrappers/pywrappers_common.h)
+    target_link_libraries(pysciqlop PUBLIC Qt5::Core)
+    target_include_directories(pysciqlop PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pybind11_wrappers/>
+        $<INSTALL_INTERFACE:include/SciQLOP/py_wrappers>
+    )
+endif()
 
 SET_PROPERTY(GLOBAL PROPERTY CORE_PYTHON_PATH  ${CMAKE_CURRENT_BINARY_DIR})
 
