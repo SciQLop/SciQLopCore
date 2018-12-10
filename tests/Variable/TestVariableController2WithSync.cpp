@@ -61,6 +61,7 @@ private slots:
         auto var1 = vc.createVariable("var1", {}, provider, range);
         QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
         QVERIFY(!callbackCalled);
+        while (!vc.isReady(var1)) {qApp->processEvents();}
         vc.deleteVariable(var1);
         QVERIFY(!SciQLop::containers::contains(vc.variables(), var1));
         QVERIFY(callbackCalled);

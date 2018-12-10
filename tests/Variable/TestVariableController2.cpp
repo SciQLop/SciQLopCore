@@ -125,6 +125,7 @@ private slots:
     }
     void testCache()
     {
+        QSKIP("The cache is disabled for now");
         TEST_VC2_FIXTURE(10);
         TEST_VC2_CREATE_DEFAULT_VAR(var1);
         check_variable_state<RangeType<10>>(var1, range);

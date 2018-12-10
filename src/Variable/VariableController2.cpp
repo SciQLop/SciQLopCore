@@ -116,6 +116,7 @@ class VariableController2::VariableController2Private
         QMap<QUuid,std::shared_ptr<VariableSynchronizationGroup2>> _synchronizationGroups;
         QReadWriteLock _lock{QReadWriteLock::Recursive};
     }_maps;
+    std::vector<QUuid> _variablesToRemove;
     QThreadPool* _ThreadPool;
     VCTransactionsQueues _transactions;
     std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
@@ -127,6 +128,19 @@ class VariableController2::VariableController2Private
             _transactions.complete(group);
         }
         this->_processTransactions();
+    }
+
+    void _cleanupVariables()
+    {
+        for(auto id:_variablesToRemove)
+        {
+            auto v = this->variable(id);
+            if(!hasPendingTransactions(v))
+            {
+                _variablesToRemove.erase(std::remove(_variablesToRemove.begin(), _variablesToRemove.end(), id), _variablesToRemove.end());
+                this->deleteVariable(v);
+            }
+        }
     }
 
     void _processTransactions(bool fragmented=false)
@@ -173,6 +187,9 @@ class VariableController2::VariableController2Private
                 }
             }
         }
+        //after each transaction update we get a new distribution of idle and working variables
+        //so we can delete variables which are waiting to be deleted if they are now idle
+        _cleanupVariables();
     }
 
     std::map<QUuid,DateTimeRange> _computeAllRangesInGroup(const std::shared_ptr<Variable>& refVar, DateTimeRange r)
@@ -304,7 +321,10 @@ public:
 
     void deleteVariable(const std::shared_ptr<Variable>& variable)
     {
-        _maps.removeVariable(variable);
+        if(!hasPendingTransactions(variable))
+            _maps.removeVariable(variable);
+        else
+            _variablesToRemove.push_back(variable->ID());
     }
 
     void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
