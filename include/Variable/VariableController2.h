@@ -14,7 +14,7 @@
 #include <Data/IDataProvider.h>
 #include "Data/DateTimeRange.h"
 
-class VariableController2: public QObject
+class SCIQLOP_CORE_EXPORT VariableController2: public QObject
 {
     class VariableController2Private;
     Q_OBJECT

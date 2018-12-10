@@ -153,6 +153,7 @@ add_definitions(-DSCIQLOP_CRASH_ON_ERROR)
 
 add_library(sciqlopcore ${core_SRCS} ${core_catalog_SRCS})
 SET_TARGET_PROPERTIES(sciqlopcore PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+add_definitions(-DCORE_LIB)
 
 target_include_directories(sciqlopcore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
