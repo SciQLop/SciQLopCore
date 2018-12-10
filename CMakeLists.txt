@@ -178,6 +178,9 @@ if(PyWrappers)
     pybind11_add_module(pysciqlopcore src/pybind11_wrappers/CoreWrappers.cpp)
     target_link_libraries(pysciqlopcore PUBLIC sciqlopcore)
 
+    pybind11_add_module(pysciqlopcatalogs src/pybind11_wrappers/CatalogWrappers.cpp)
+    target_link_libraries(pysciqlopcatalogs PUBLIC sciqlopcore)
+
     add_library(pysciqlop src/pybind11_wrappers/pywrappers_common.h)
     target_link_libraries(pysciqlop PUBLIC Qt5::Core)
     target_include_directories(pysciqlop PUBLIC
