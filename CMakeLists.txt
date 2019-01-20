@@ -173,6 +173,9 @@ endif()
 
 
 if(PyWrappers)
+    if(MINGW)
+        add_definitions(-D_hypot=hypot)
+    endif()
     pybind11_add_module(sciqlopqt src/pybind11_wrappers/QtWrappers.cpp)
     target_link_libraries(sciqlopqt PUBLIC Qt5::Core)
 
