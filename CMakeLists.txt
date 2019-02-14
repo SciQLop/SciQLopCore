@@ -43,6 +43,16 @@ if (NOT catalogs_FOUND)
     add_subdirectory(external/libcatalogs)
 endif()
 
+find_package(catalogicpp CONFIG QUIET)
+if (NOT catalogicpp_FOUND)
+    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/catalogicpp/CMakeLists.txt)
+        message("Init submodule catalogicpp")
+        execute_process(COMMAND git submodule init external/catalogicpp WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        execute_process(COMMAND git submodule update external/catalogicpp WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+    add_subdirectory(external/catalogicpp)
+endif()
+
 macro(declare_test testname testexe sources libraries)
     add_executable(${testexe} ${sources})
     target_link_libraries(${testexe} ${libraries})
@@ -168,6 +178,7 @@ target_link_libraries(sciqlopcore PUBLIC
 if(Catalog)
     target_link_libraries(sciqlopcore PUBLIC
       catalogs
+      CatalogiCpp
     )
 endif()
 

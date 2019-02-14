@@ -4,3 +4,6 @@
 [submodule "external/libcatalogs"]
 	path = external/libcatalogs
 	url = https://hephaistos.lpp.polytechnique.fr/rhodecode/HG_REPOSITORIES/LPP/SciQLOP_Repos/libcatalogs
+[submodule "external/catalogicpp"]
+	path = external/catalogicpp
+	url = https://github.com/jeandet/catalogicpp
