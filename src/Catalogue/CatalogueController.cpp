@@ -47,7 +47,7 @@ CatalogueController::CatalogueController(QObject* parent)
 
 CatalogueController::~CatalogueController() {}
 
-QStringList CatalogueController::getRepositories() const
+QStringList CatalogueController::repositories() const
 {
   QStringList repos;
   std::transform(std::begin(_currentRepos), std::end(_currentRepos),
@@ -208,6 +208,26 @@ void CatalogueController::save(const QString& repository)
     SCIQLOP_ERROR(CatalogueController, "Trying to save an unknown repository");
   }
 }
+
+void CatalogueController::add(const QString& repository)
+{
+  if(!contains(_currentRepos, repository))
+  { _currentRepos[repository] = Repository_t{}; }
+}
+
+void CatalogueController::add(const QString& catalogue,
+                              const QString& repository)
+{
+  if(!contains(_currentRepos, repository))
+  { _currentRepos[repository] = Repository_t{}; }
+  auto new_catalogue  = make_catalogue_ptr();
+  new_catalogue->name = catalogue.toStdString();
+  _currentRepos[repository].add(std::move(new_catalogue));
+}
+
+void CatalogueController::add(CatalogueController::Event_ptr event,
+                              const QString& repository)
+{}
 
 // void CatalogueController::saveDB(const QString& destinationPath, const
 // QString& repositoryName)

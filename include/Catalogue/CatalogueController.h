@@ -21,29 +21,40 @@ Q_DECLARE_LOGGING_CATEGORY(LOG_CatalogueController)
 class DataSourceItem;
 class Variable;
 
+constexpr auto default_repo = "default";
+
 /**
  * @brief The CatalogueController class aims to handle catalogues and event
  * using the CatalogueAPI library.
  */
 class SCIQLOP_CORE_EXPORT CatalogueController : public QObject
 {
+  Q_OBJECT
+public:
   using time_t        = double;
+  using Product_t     = CatalogiCpp::Product<time_t>;
   using Repository_t  = CatalogiCpp::Repository<time_t>;
   using Event_t       = Repository_t::Event_t;
   using Event_ptr     = Repository_t::Event_ptr;
   using Catalogue_t   = Repository_t::Catalogue_t;
   using Catalogue_ptr = typename Repository_t::Catalogue_ptr;
   using uuid_t        = Repository_t::uuid_t;
+  template<typename... _Args>
+  static inline Catalogue_ptr make_catalogue_ptr(_Args&&... __args)
+  {
+    return Repository_t::make_catalogue_ptr(std::forward<_Args>(__args)...);
+  }
 
-  std::map<QString, CatalogiCpp::Repository<time_t>> _lastSavedRepos;
-  std::map<QString, CatalogiCpp::Repository<time_t>> _currentRepos;
+  template<typename... _Args>
+  static inline Event_ptr make_event_ptr(_Args&&... __args)
+  {
+    return Catalogue_t::make_event_ptr(std::forward<_Args>(__args)...);
+  }
 
-  Q_OBJECT
-public:
   explicit CatalogueController(QObject* parent = nullptr);
   virtual ~CatalogueController();
 
-  QStringList getRepositories() const;
+  QStringList repositories() const;
   void loadRepository(const QString& path, const QString& name);
   void saveRepository(const QString& path, const QString& name);
 
@@ -61,6 +72,11 @@ public:
   void save(Event_ptr event);
   void save(Catalogue_ptr catalogue);
   void save(const QString& repository);
+
+  void add(const QString& repository);
+  void add(const QString& catalogue, const QString& repository);
+  void add(Event_ptr event, Catalogue_ptr catalogue);
+  void add(Event_ptr event, const QString& repository = default_repo);
 
   //    // Event
   //    /// retrieveEvents with empty repository retrieve them from the default
@@ -116,6 +132,9 @@ public:
   //    void initialize();
 
 private:
+  std::map<QString, CatalogiCpp::Repository<time_t>> _lastSavedRepos;
+  std::map<QString, CatalogiCpp::Repository<time_t>> _currentRepos;
+
   //    class CatalogueControllerPrivate;
   //    spimpl::unique_impl_ptr<CatalogueControllerPrivate> impl;
 };
