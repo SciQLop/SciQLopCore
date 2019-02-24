@@ -88,6 +88,15 @@ std::vector<CatalogueController::Event_ptr> CatalogueController::events()
   return e_list;
 }
 
+std::vector<CatalogueController::Event_ptr>
+CatalogueController::events(const CatalogueController::Catalogue_ptr& catalogue)
+{
+  std::vector<CatalogueController::Event_ptr> e_list;
+  for(auto& [_, event] : catalogue->events())
+    e_list.push_back(event);
+  return e_list;
+}
+
 std::vector<std::shared_ptr<CatalogueController::Event_t>>
 CatalogueController::events(const QString& repository)
 {
@@ -212,17 +221,28 @@ void CatalogueController::save(const QString& repository)
 void CatalogueController::add(const QString& repository)
 {
   if(!contains(_currentRepos, repository))
-  { _currentRepos[repository] = Repository_t{}; }
+  {
+    _currentRepos[repository] = Repository_t{};
+    emit repositoryAdded(repository);
+  }
 }
 
-void CatalogueController::add(const QString& catalogue,
-                              const QString& repository)
+CatalogueController::Catalogue_ptr
+CatalogueController::add(const QString& catalogue, const QString& repository)
 {
-  if(!contains(_currentRepos, repository))
-  { _currentRepos[repository] = Repository_t{}; }
+  if(!contains(_currentRepos, repository)) { add(repository); }
   auto new_catalogue  = make_catalogue_ptr();
   new_catalogue->name = catalogue.toStdString();
-  _currentRepos[repository].add(std::move(new_catalogue));
+  _currentRepos[repository].add(new_catalogue);
+  emit catalogueAdded(new_catalogue, repository);
+  return new_catalogue;
+}
+
+void CatalogueController::add(CatalogueController::Event_ptr event,
+                              CatalogueController::Catalogue_ptr catalogue)
+{
+  catalogue->add(event);
+  emit this->catalogueChanged(catalogue);
 }
 
 void CatalogueController::add(CatalogueController::Event_ptr event,

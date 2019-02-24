@@ -60,6 +60,7 @@ public:
 
   std::vector<Event_ptr> events();
   std::vector<Event_ptr> events(const QString& repository);
+  std::vector<Event_ptr> events(const Catalogue_ptr& catalogue);
 
   std::vector<Catalogue_ptr> catalogues();
   std::vector<Catalogue_ptr> catalogues(const QString& repository);
@@ -74,9 +75,14 @@ public:
   void save(const QString& repository);
 
   void add(const QString& repository);
-  void add(const QString& catalogue, const QString& repository);
+  Catalogue_ptr add(const QString& catalogue, const QString& repository);
   void add(Event_ptr event, Catalogue_ptr catalogue);
   void add(Event_ptr event, const QString& repository = default_repo);
+
+signals:
+  void repositoryAdded(const QString& repository);
+  void catalogueAdded(const Catalogue_ptr& catalogue, const QString& repository);
+  void catalogueChanged(const Catalogue_ptr& catalogue);
 
   //    // Event
   //    /// retrieveEvents with empty repository retrieve them from the default
