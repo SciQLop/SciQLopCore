@@ -33,16 +33,6 @@ if(PyWrappers)
     endif()
 endif()
 
-find_package(libcatalogs CONFIG QUIET)
-if (NOT catalogs_FOUND)
-    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/libcatalogs/CMakeLists.txt)
-        message("Init submodule libcatalogs")
-        execute_process(COMMAND git submodule init external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-        execute_process(COMMAND git submodule update external/libcatalogs WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    endif()
-    add_subdirectory(external/libcatalogs)
-endif()
-
 find_package(catalogicpp CONFIG QUIET)
 if (NOT catalogicpp_FOUND)
     if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/catalogicpp/CMakeLists.txt)
@@ -51,6 +41,16 @@ if (NOT catalogicpp_FOUND)
         execute_process(COMMAND git submodule update external/catalogicpp WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
     add_subdirectory(external/catalogicpp)
+endif()
+
+find_package(TimeSeries CONFIG QUIET)
+if (NOT TimeSeries_FOUND)
+    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/TimeSeries/CMakeLists.txt)
+        message("Init submodule TimeSeries")
+        execute_process(COMMAND git submodule init external/TimeSeries WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        execute_process(COMMAND git submodule update external/TimeSeries WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+    add_subdirectory(external/TimeSeries)
 endif()
 
 macro(declare_test testname testexe sources libraries)
@@ -177,7 +177,6 @@ target_link_libraries(sciqlopcore PUBLIC
 
 if(Catalog)
     target_link_libraries(sciqlopcore PUBLIC
-      catalogs
       CatalogiCpp
     )
 endif()

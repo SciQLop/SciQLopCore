@@ -10,18 +10,18 @@
 #include <string>
 
 #include <Catalogue/CatalogueController.h>
-#include <DBCatalogue.h>
-#include <DBEvent.h>
-#include <DBEventProduct.h>
+//#include <DBCatalogue.h>
+//#include <DBEvent.h>
+//#include <DBEventProduct.h>
 
 
 namespace py = pybind11;
 
-std::ostream& operator<<(std::ostream& os, const DBEvent& e)
-{
-    os << std::endl;
-    return os;
-}
+//std::ostream& operator<<(std::ostream& os, const DBEvent& e)
+//{
+//    os << std::endl;
+//    return os;
+//}
 
 #define JAVA_LIKE_PROPERTY(name, className)                                                        \
     .def_property("##name", &className::get##name, &className::set##name)
