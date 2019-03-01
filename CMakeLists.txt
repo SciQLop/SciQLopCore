@@ -80,7 +80,6 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Common/cpp_utils.h
     ./include/Plugin/IPlugin.h
     ./include/Data/ArrayDataIterator.h
-    ./include/Data/VariableRequest.h
     ./include/Data/VectorSeries.h
     ./include/Data/DateTimeRange.h
     ./include/Data/DateTimeRangeHelper.h
