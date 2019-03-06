@@ -81,9 +81,11 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Plugin/IPlugin.h
     ./include/Data/ArrayDataIterator.h
     ./include/Data/VectorSeries.h
+    ./include/Data/VectorTimeSerie.h
     ./include/Data/DateTimeRange.h
     ./include/Data/DateTimeRangeHelper.h
     ./include/Data/ScalarSeries.h
+    ./include/Data/ScalarTimeSerie.h
     ./include/Data/DataSeriesMergeHelper.h
     ./include/Data/DataSeries.h
     ./include/Data/DataSeriesType.h
@@ -125,12 +127,14 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Common/StringUtils.cpp
     ./src/Common/SignalWaiter.cpp
     ./src/Data/ScalarSeries.cpp
+    ./src/Data/ScalarTimeSerie.cpp
     ./src/Data/DataSeriesIterator.cpp
     ./src/Data/OptionalAxis.cpp
     ./src/Data/ArrayDataIterator.cpp
     ./src/Data/SpectrogramSeries.cpp
     ./src/Data/DataSeriesUtils.cpp
     ./src/Data/VectorSeries.cpp
+    ./src/Data/VectorTimeSerie.cpp
     ./src/Network/NetworkController.cpp
     ./src/Network/Downloader.cpp
     ./src/Visualization/VisualizationController.cpp
@@ -172,6 +176,7 @@ target_include_directories(sciqlopcore PUBLIC
 target_link_libraries(sciqlopcore PUBLIC
   Qt5::Core
   Qt5::Network
+  TimeSeries
 )
 
 if(Catalog)

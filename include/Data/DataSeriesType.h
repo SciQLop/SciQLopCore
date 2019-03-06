@@ -3,24 +3,33 @@
 
 #include <QString>
 
-enum class DataSeriesType { SCALAR, SPECTROGRAM, VECTOR, UNKNOWN };
+enum class DataSeriesType
+{
+  SCALAR,
+  SPECTROGRAM,
+  VECTOR,
+  UNKNOWN
+};
 
-struct DataSeriesTypeUtils {
-    static DataSeriesType fromString(const QString &type)
+struct DataSeriesTypeUtils
+{
+  static DataSeriesType fromString(const QString& type)
+  {
+    if(type.toLower() == QStringLiteral("scalar"))
+    { return DataSeriesType::SCALAR; }
+    else if(type.toLower() == QStringLiteral("spectrogram"))
     {
-        if (type == QStringLiteral("scalar")) {
-            return DataSeriesType::SCALAR;
-        }
-        else if (type == QStringLiteral("spectrogram")) {
-            return DataSeriesType::SPECTROGRAM;
-        }
-        else if (type == QStringLiteral("vector")) {
-            return DataSeriesType::VECTOR;
-        }
-        else {
-            return DataSeriesType::UNKNOWN;
-        }
+      return DataSeriesType::SPECTROGRAM;
     }
+    else if(type.toLower() == QStringLiteral("vector"))
+    {
+      return DataSeriesType::VECTOR;
+    }
+    else
+    {
+      return DataSeriesType::UNKNOWN;
+    }
+  }
 };
 
 #endif // SCIQLOP_DATASERIESTYPE_H
