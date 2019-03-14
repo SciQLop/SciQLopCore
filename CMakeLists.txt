@@ -78,6 +78,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Common/containers.h
     ./include/Common/debug.h
     ./include/Common/cpp_utils.h
+    ./include/Common/variant_with_base.h
     ./include/Plugin/IPlugin.h
     ./include/Data/ArrayDataIterator.h
     ./include/Data/VectorSeries.h
@@ -112,6 +113,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Variable/SingleThresholdCacheStrategy.h
     ./include/Variable/VariableCacheStrategyFactory.h
     ./include/Variable/Variable.h
+    ./include/Variable/Variable2.h
     ./include/Variable/VariableController2.h
     ./include/Variable/private/VCTransaction.h
     ./include/Time/TimeController.h
@@ -143,6 +145,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Variable/VariableModel2.cpp
     ./src/Variable/VariableSynchronizationGroup2.cpp
     ./src/Variable/Variable.cpp
+    ./src/Variable/Variable2.cpp
     ./src/Version.cpp
     ./src/Time/TimeController.cpp
     ./src/Settings/SqpSettingsDefs.cpp

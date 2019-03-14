@@ -62,7 +62,10 @@ class VariableController2::VariableController2Private
     {
       QReadLocker lock{&_lock};
       auto it = _variables.find(variable);
-      [[unlikely]] if(it == _variables.end())
+#if __cplusplus > 201703L
+      [[unlikely]]
+#endif
+      if(it == _variables.end())
           SCIQLOP_ERROR(threadSafeVaraiblesMaps, "Unknown Variable");
       return (*it).second;
     }
@@ -70,7 +73,10 @@ class VariableController2::VariableController2Private
     inline std::shared_ptr<Variable> variable(int index)
     {
       QReadLocker lock{&_lock};
-      [[unlikely]] if(!_variables.size() > index)
+#if __cplusplus > 201703L
+      [[unlikely]]
+#endif
+      if(!_variables.size() > index)
           SCIQLOP_ERROR(threadSafeVaraiblesMaps, "Index is out of bounds");
       auto it = _variables.cbegin();
       while(index != 0)
@@ -95,7 +101,10 @@ class VariableController2::VariableController2Private
     inline std::shared_ptr<IDataProvider> provider(QUuid variable)
     {
       QReadLocker lock{&_lock};
-      [[unlikely]] if(!_providers.contains(variable))
+#if __cplusplus > 201703L
+      [[unlikely]]
+#endif
+      if(!_providers.contains(variable))
           SCIQLOP_ERROR(threadSafeVaraiblesMaps, "Unknown Variable");
       return _providers[variable];
     }
@@ -103,7 +112,10 @@ class VariableController2::VariableController2Private
     inline std::shared_ptr<VariableSynchronizationGroup2> group(QUuid variable)
     {
       QReadLocker lock{&_lock};
-      [[unlikely]] if(!_synchronizationGroups.contains(variable))
+#if __cplusplus > 201703L
+      [[unlikely]]
+#endif
+      if(!_synchronizationGroups.contains(variable))
           SCIQLOP_ERROR(threadSafeVaraiblesMaps, "Unknown Variable");
       return _synchronizationGroups[variable];
     }

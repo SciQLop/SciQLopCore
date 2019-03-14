@@ -11,6 +11,7 @@
 #include <Data/VectorSeries.h>
 #include <Network/Downloader.h>
 #include <Time/TimeController.h>
+#include <Variable/Variable2.h>
 #include <Variable/VariableController2.h>
 #include <pybind11/chrono.h>
 #include <pybind11/embed.h>
@@ -19,6 +20,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 #include <sstream>
 #include <string>
 
@@ -27,11 +29,13 @@ using namespace std::chrono;
 
 PYBIND11_MODULE(pysciqlopcore, m)
 {
+  pybind11::bind_vector<std::vector<double>>(m, "VectorDouble");
+
   py::enum_<DataSeriesType>(m, "DataSeriesType")
       .value("SCALAR", DataSeriesType::SCALAR)
       .value("SPECTROGRAM", DataSeriesType::SPECTROGRAM)
       .value("VECTOR", DataSeriesType::VECTOR)
-      .value("UNKNOWN", DataSeriesType::UNKNOWN)
+      .value("NONE", DataSeriesType::NONE)
       .export_values();
 
   py::class_<Unit>(m, "Unit")
@@ -149,9 +153,58 @@ PYBIND11_MODULE(pysciqlopcore, m)
            })
       .def("__repr__", __repr__<Variable>);
 
+  py::class_<TimeSeries::ITimeSerie>(m, "ITimeSerie")
+      .def_property_readonly(
+          "size", [](const TimeSeries::ITimeSerie& ts) { return ts.size(); })
+      .def_property_readonly(
+          "t",
+          [](TimeSeries::ITimeSerie& ts) -> decltype(ts.axis(0))& {
+            return ts.axis(0);
+          },
+          py::return_value_policy::reference);
+
+  py::class_<ScalarTimeSerie, TimeSeries::ITimeSerie>(m, "ScalarTimeSerie")
+      .def(py::init<>())
+      .def(py::init<std::size_t>())
+      .def("__getitem__",
+           [](ScalarTimeSerie& ts, std::size_t key) { return ts[key]; })
+      .def("__setitem__", [](ScalarTimeSerie& ts, std::size_t key,
+                             double value) { *(ts.begin() + key) = value; });
+
+  py::class_<VectorTimeSerie::raw_value_type>(m, "vector")
+      .def(py::init<>())
+      .def(py::init<double, double, double>())
+      .def("__repr__", __repr__<VectorTimeSerie::raw_value_type>)
+      .def_readwrite("x", &VectorTimeSerie::raw_value_type::x)
+      .def_readwrite("y", &VectorTimeSerie::raw_value_type::y)
+      .def_readwrite("z", &VectorTimeSerie::raw_value_type::z);
+
+  py::class_<VectorTimeSerie, TimeSeries::ITimeSerie>(m, "VectorTimeSerie")
+      .def(py::init<>())
+      .def(py::init<std::size_t>())
+      .def("__getitem__",
+           [](VectorTimeSerie& ts, std::size_t key)
+               -> VectorTimeSerie::raw_value_type& { return ts[key]; },
+           py::return_value_policy::reference)
+      .def("__setitem__", [](VectorTimeSerie& ts, std::size_t key,
+                             VectorTimeSerie::raw_value_type value) {
+        *(ts.begin() + key) = value;
+      });
+
+  py::class_<Variable2, std::shared_ptr<Variable2>>(m, "Variable2")
+      .def(py::init<const QString&>())
+      .def_property("name", &Variable2::name, &Variable2::setName)
+      .def_property_readonly("range", &Variable2::range)
+      .def_property_readonly("nbPoints", &Variable2::nbPoints)
+      .def_property_readonly(
+          "dataSeries", [](const Variable2& var) { return var.data()->base(); })
+      .def("set_data", &Variable2::setData)
+      .def("__len__", &Variable2::nbPoints)
+      .def("__repr__", __repr__<Variable2>);
+
   py::class_<DateTimeRange>(m, "SqpRange")
       //.def("fromDateTime", &DateTimeRange::fromDateTime,
-      //py::return_value_policy::move)
+      // py::return_value_policy::move)
       .def(py::init([](double start, double stop) {
         return DateTimeRange{start, stop};
       }))

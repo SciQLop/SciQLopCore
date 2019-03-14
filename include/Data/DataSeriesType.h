@@ -5,10 +5,10 @@
 
 enum class DataSeriesType
 {
+  NONE,
   SCALAR,
-  SPECTROGRAM,
   VECTOR,
-  UNKNOWN
+  SPECTROGRAM
 };
 
 struct DataSeriesTypeUtils
@@ -27,7 +27,7 @@ struct DataSeriesTypeUtils
     }
     else
     {
-      return DataSeriesType::UNKNOWN;
+      return DataSeriesType::NONE;
     }
   }
 };
