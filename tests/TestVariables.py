@@ -37,5 +37,8 @@ class TimeSeriesData(unittest.TestCase):
     def test_build_ScalarTimeSerie_from_np_arrays(self):
         ts = pysciqlopcore.ScalarTimeSerie(np.arange(10),np.zeros(10))
 
+    def test_build_VectorTimeSerie_from_np_arrays(self):
+        ts = pysciqlopcore.VectorTimeSerie(np.arange(10),np.zeros((3,10)))
+
 if __name__ == '__main__':
     unittest.main()

@@ -174,7 +174,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
         ScalarTimeSerie::axis_t _values(t.size());
         auto t_vew      = t.unchecked<1>();
         auto values_vew = values.unchecked<1>();
-        for(int i = 0; i < t.size(); i++)
+        for(std::size_t i = 0; i < t.size(); i++)
         {
           _t[i]      = t_vew[i];
           _values[i] = values_vew[i];
@@ -197,6 +197,21 @@ PYBIND11_MODULE(pysciqlopcore, m)
   py::class_<VectorTimeSerie, TimeSeries::ITimeSerie>(m, "VectorTimeSerie")
       .def(py::init<>())
       .def(py::init<std::size_t>())
+      .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
+        assert(t.size() * 3 == values.size());
+        VectorTimeSerie::axis_t _t(t.size());
+        VectorTimeSerie::container_type<VectorTimeSerie::raw_value_type>
+            _values(t.size());
+        auto t_vew      = t.unchecked<1>();
+        auto values_vew = values.unchecked<2>();
+        for(std::size_t i = 0; i < t.size(); i++)
+        {
+          _t[i]      = t_vew[i];
+          _values[i] = VectorTimeSerie::raw_value_type{
+              values_vew(0, i), values_vew(1, i), values_vew(2, i)};
+        }
+        return VectorTimeSerie(_t, _values);
+      }))
       .def("__getitem__",
            [](VectorTimeSerie& ts, std::size_t key)
                -> VectorTimeSerie::raw_value_type& { return ts[key]; },
