@@ -42,7 +42,7 @@ struct Variable2::VariablePrivate
   PROPERTY_(m_Name, name, setName, QString)
   PROPERTY_(m_Range, range, setRange, DateTimeRange)
   PROPERTY_(m_Metadata, metadata, setMetadata, QVariantHash)
-  AnyTimeSerie& dataSeries() { return *m_TimeSerie.get(); }
+  AnyTimeSerie* dataSeries() { return m_TimeSerie.get(); }
   void setDataSeries(std::unique_ptr<AnyTimeSerie>&& timeSerie)
   {
     QWriteLocker lock{&m_Lock};
@@ -73,45 +73,87 @@ DateTimeRange Variable2::range() const noexcept { return impl->range(); }
 
 std::size_t Variable2::nbPoints() const noexcept { return impl->nbPoints(); }
 
-AnyTimeSerie* Variable2::data() const noexcept {}
+AnyTimeSerie* Variable2::data() const noexcept { return impl->dataSeries(); }
 
 DataSeriesType Variable2::type() const noexcept { return impl->type(); }
 
 QVariantHash Variable2::metadata() const noexcept {}
 
+// template<typename T>
+// std::unique_ptr<AnyTimeSerie> _merge(std::vector<AnyTimeSerie*> source)
+//{
+//  std::unique_ptr<AnyTimeSerie> dest = std::make_unique<AnyTimeSerie>();
+//  std::sort(std::begin(source), std::end(source),
+//            [](AnyTimeSerie* a, AnyTimeSerie* b) {
+//              return a->get<T>().front().t() < b->get<T>().front().t();
+//            });
+//  *dest = std::move(*source.front());
+//  std::for_each(
+//      std::begin(source) + 1, std::end(source), [&dest](AnyTimeSerie* serie) {
+//        std::copy(std::begin(serie->get<T>()), std::end(serie->get<T>()),
+//                  std::back_inserter(dest->get<T>()));
+//      });
+//  return dest;
+//}
+
 template<typename T>
-void _merge(const std::vector<AnyTimeSerie*>& source, AnyTimeSerie* dest)
+std::unique_ptr<AnyTimeSerie>
+_merge(std::vector<TimeSeries::ITimeSerie*> source)
 {
-  //  std::for_each(
-  //      std::cbegin(source) + 1, std::cend(source), [dest](AnyTimeSerie*
-  //      serie) {
-  //        std::copy(std::begin(serie->get<T>()), std::end(serie->get<T>()),
-  //                  std::back_inserter(dest->get<T>()));
-  //      });
+  std::unique_ptr<AnyTimeSerie> dest = std::make_unique<AnyTimeSerie>();
+  std::sort(std::begin(source), std::end(source),
+            [](TimeSeries::ITimeSerie* a, TimeSeries::ITimeSerie* b) {
+              if(a->size() && b->size()) return a->t(0) < b->t(0);
+              return false;
+            });
+  *dest = std::move(*static_cast<T*>(source.front()));
+  std::for_each(std::begin(source) + 1, std::end(source),
+                [&dest](TimeSeries::ITimeSerie* serie) {
+                  std::copy(std::begin(*static_cast<T*>(serie)),
+                            std::end(*static_cast<T*>(serie)),
+                            std::back_inserter(dest->get<T>()));
+                });
+  return dest;
 }
+
+// std::unique_ptr<AnyTimeSerie>
+// merge(const std::vector<AnyTimeSerie*>& dataSeries)
+//{
+//  switch(DataSeriesType(dataSeries.front()->index()))
+//  {
+//    case DataSeriesType::NONE: break;
+//    case DataSeriesType::SCALAR: return _merge<ScalarTimeSerie>(dataSeries);
+//    case DataSeriesType::VECTOR: return _merge<VectorTimeSerie>(dataSeries);
+//    case DataSeriesType::SPECTROGRAM:
+//      return _merge<SpectrogramTimeSerie>(dataSeries);
+//  }
+//  return std::unique_ptr<AnyTimeSerie>{};
+//}
 
 std::unique_ptr<AnyTimeSerie>
-merge(const std::vector<AnyTimeSerie*>& dataSeries)
+merge(const std::vector<TimeSeries::ITimeSerie*>& dataSeries)
 {
-  std::unique_ptr<AnyTimeSerie> ts;
-  *ts = *dataSeries.front();
-  switch(DataSeriesType(ts->index()))
-  {
-    case DataSeriesType::NONE: break;
-    case DataSeriesType::SCALAR:
-      _merge<ScalarTimeSerie>(dataSeries, ts.get());
-      break;
-    case DataSeriesType::VECTOR:
-      _merge<VectorTimeSerie>(dataSeries, ts.get());
-      break;
-    case DataSeriesType::SPECTROGRAM:
-      // merge<Spe>(dataSeries, ts.get());
-      break;
-  }
-  return ts;
+  if(dynamic_cast<ScalarTimeSerie*>(dataSeries.front()))
+    return _merge<ScalarTimeSerie>(dataSeries);
+  if(dynamic_cast<VectorTimeSerie*>(dataSeries.front()))
+    return _merge<VectorTimeSerie>(dataSeries);
+  if(dynamic_cast<SpectrogramTimeSerie*>(dataSeries.front()))
+    return _merge<SpectrogramTimeSerie>(dataSeries);
+  return std::unique_ptr<AnyTimeSerie>{};
 }
 
-void Variable2::setData(const std::vector<AnyTimeSerie*>& dataSeries,
+// void Variable2::setData(const std::vector<AnyTimeSerie*>& dataSeries,
+//                        const DateTimeRange& range, bool notify)
+//{
+//  if(dataSeries.size())
+//  {
+//    impl->setDataSeries(merge(dataSeries));
+//    impl->setRange(range);
+//    if(notify) emit this->updated(this->ID());
+//  }
+//}
+
+void Variable2::setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
                         const DateTimeRange& range, bool notify)
 {
   if(dataSeries.size())

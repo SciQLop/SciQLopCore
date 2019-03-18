@@ -95,6 +95,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Data/DataSeriesIterator.h
     ./include/Data/DataSeriesUtils.h
     ./include/Data/SpectrogramSeries.h
+    ./include/Data/SpectrogramTimeSerie.h
     ./include/Data/Unit.h
     ./include/Data/DataProviderParameters.h
     ./include/Data/OptionalAxis.h

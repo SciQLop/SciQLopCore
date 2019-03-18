@@ -157,6 +157,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def_property_readonly(
           "size", [](const TimeSeries::ITimeSerie& ts) { return ts.size(); })
       .def_property_readonly(
+          "shape", [](const TimeSeries::ITimeSerie& ts) { return ts.shape(); })
+      .def_property_readonly(
           "t",
           [](TimeSeries::ITimeSerie& ts) -> decltype(ts.axis(0))& {
             return ts.axis(0);
@@ -166,6 +168,19 @@ PYBIND11_MODULE(pysciqlopcore, m)
   py::class_<ScalarTimeSerie, TimeSeries::ITimeSerie>(m, "ScalarTimeSerie")
       .def(py::init<>())
       .def(py::init<std::size_t>())
+      .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
+        assert(t.size() == values.size());
+        ScalarTimeSerie::axis_t _t(t.size());
+        ScalarTimeSerie::axis_t _values(t.size());
+        auto t_vew      = t.unchecked<1>();
+        auto values_vew = values.unchecked<1>();
+        for(int i = 0; i < t.size(); i++)
+        {
+          _t[i]      = t_vew[i];
+          _values[i] = values_vew[i];
+        }
+        return ScalarTimeSerie(_t, _values);
+      }))
       .def("__getitem__",
            [](ScalarTimeSerie& ts, std::size_t key) { return ts[key]; })
       .def("__setitem__", [](ScalarTimeSerie& ts, std::size_t key,
@@ -191,14 +206,26 @@ PYBIND11_MODULE(pysciqlopcore, m)
         *(ts.begin() + key) = value;
       });
 
+  py::class_<SpectrogramTimeSerie, TimeSeries::ITimeSerie>(
+      m, "SpectrogramTimeSerie")
+      .def(py::init<>())
+      .def(py::init<const std::vector<std::size_t>>());
+
   py::class_<Variable2, std::shared_ptr<Variable2>>(m, "Variable2")
       .def(py::init<const QString&>())
       .def_property("name", &Variable2::name, &Variable2::setName)
       .def_property_readonly("range", &Variable2::range)
       .def_property_readonly("nbPoints", &Variable2::nbPoints)
       .def_property_readonly(
-          "dataSeries", [](const Variable2& var) { return var.data()->base(); })
-      .def("set_data", &Variable2::setData)
+          "data",
+          [](const Variable2& var) -> TimeSeries::ITimeSerie* {
+            auto data = var.data();
+            if(data) return data->base();
+            return nullptr;
+          })
+      .def("set_data",
+           [](Variable2& var, std::vector<TimeSeries::ITimeSerie*> ts_list,
+              const DateTimeRange& range) { var.setData(ts_list, range); })
       .def("__len__", &Variable2::nbPoints)
       .def("__repr__", __repr__<Variable2>);
 

@@ -49,3 +49,12 @@ declare_test(TestVariableController2Async TestVariableController2Async Variable/
 declare_test(TestVariableController2WithSync TestVariableController2WithSync Variable/TestVariableController2WithSync.cpp "sciqlopcore;TestUtils;Qt5::Test")
 
 declare_test(TestCatalogueController TestCatalogueController CatalogueController/TestCatalogueController.cpp "sciqlopcore;TestUtils;Qt5::Test")
+
+
+find_package(PythonInterp 3 REQUIRED)
+
+add_test(NAME TestVariables
+  COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_LIST_DIR}/TestVariables.py
+    TestVariables)
+set_tests_properties(TestVariables  PROPERTIES ENVIRONMENT PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../)

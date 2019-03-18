@@ -10,6 +10,7 @@
 #include <Data/DataSeriesType.h>
 #include <Data/DateTimeRange.h>
 #include <Data/ScalarTimeSerie.h>
+#include <Data/SpectrogramTimeSerie.h>
 #include <Data/VectorTimeSerie.h>
 #include <QDataStream>
 #include <QObject>
@@ -18,9 +19,10 @@
 #include <TimeSeries.h>
 #include <optional>
 
-using AnyTimeSerie = variant_w_base<
-    TimeSeries::ITimeSerie,
-    std::variant<std::monostate, ScalarTimeSerie, VectorTimeSerie>>;
+using AnyTimeSerie =
+    variant_w_base<TimeSeries::ITimeSerie,
+                   std::variant<std::monostate, ScalarTimeSerie,
+                                VectorTimeSerie, SpectrogramTimeSerie>>;
 
 class SCIQLOP_CORE_EXPORT Variable2 : public QObject
 {
@@ -50,6 +52,9 @@ public:
   QVariantHash metadata() const noexcept;
 
   void setData(const std::vector<AnyTimeSerie*>& dataSeries,
+               const DateTimeRange& range, bool notify = true);
+
+  void setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
                const DateTimeRange& range, bool notify = true);
 
   static QByteArray
