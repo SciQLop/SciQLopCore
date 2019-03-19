@@ -50,6 +50,11 @@ declare_test(TestVariableController2WithSync TestVariableController2WithSync Var
 
 declare_test(TestCatalogueController TestCatalogueController CatalogueController/TestCatalogueController.cpp "sciqlopcore;TestUtils;Qt5::Test")
 
+add_executable(TestVariablesEmbed TestUtils/PyTestWrapperExe.cpp)
+target_link_libraries(TestVariablesEmbed PRIVATE pybind11::embed)
+add_test(NAME TestTestVariablesEmbed COMMAND TestVariablesEmbed)
+target_compile_definitions(TestVariablesEmbed PRIVATE -DPYTEST_SCRIPT="${CMAKE_CURRENT_LIST_DIR}/TestVariables.py")
+set_tests_properties(TestTestVariablesEmbed  PROPERTIES ENVIRONMENT PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../)
 
 find_package(PythonInterp 3 REQUIRED)
 
