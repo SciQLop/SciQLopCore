@@ -8,6 +8,7 @@
 #include <Data/DateTimeRange.h>
 #include <QObject>
 #include <QUuid>
+#include <TimeSeries.h>
 #include <functional>
 #include <memory>
 
@@ -33,7 +34,8 @@ public:
   virtual std::shared_ptr<IDataProvider> clone() const = 0;
 
   // Synchronous call -> asyncGetData may be written for asynchronous get
-  virtual IDataSeries* getData(const DataProviderParameters& parameters) = 0;
+  virtual TimeSeries::ITimeSerie*
+  getData(const DataProviderParameters& parameters) = 0;
 
 signals:
 

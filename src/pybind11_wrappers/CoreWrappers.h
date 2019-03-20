@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& os, const Variable& variable)
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Variable2& variable)
+std::ostream& operator<<(std::ostream& os, Variable2& variable)
 {
   os << "=========================" << std::endl
      << "Variable:" << std::endl

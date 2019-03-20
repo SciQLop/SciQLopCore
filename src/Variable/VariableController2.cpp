@@ -21,7 +21,7 @@ class VariableController2::VariableController2Private
   struct threadSafeVaraiblesMaps
   {
     inline void
-    addVariable(const std::shared_ptr<Variable>& variable,
+    addVariable(const std::shared_ptr<Variable2>& variable,
                 const std::shared_ptr<IDataProvider>& provider,
                 const std::shared_ptr<VariableSynchronizationGroup2>&
                     synchronizationGroup)
@@ -32,7 +32,7 @@ class VariableController2::VariableController2Private
       _synchronizationGroups[*variable] = synchronizationGroup;
     }
 
-    inline void removeVariable(const std::shared_ptr<Variable>& variable)
+    inline void removeVariable(const std::shared_ptr<Variable2>& variable)
     {
       QWriteLocker lock{&_lock};
       _variables.erase(*variable);
@@ -41,8 +41,8 @@ class VariableController2::VariableController2Private
     }
 
     inline void
-    synchronize(const std::shared_ptr<Variable>& variable,
-                const std::optional<std::shared_ptr<Variable>>& with)
+    synchronize(const std::shared_ptr<Variable2>& variable,
+                const std::optional<std::shared_ptr<Variable2>>& with)
     {
       QWriteLocker lock{&_lock};
       if(with.has_value())
@@ -58,7 +58,7 @@ class VariableController2::VariableController2Private
       }
     }
 
-    inline std::shared_ptr<Variable> variable(QUuid variable)
+    inline std::shared_ptr<Variable2> variable(QUuid variable)
     {
       QReadLocker lock{&_lock};
       auto it = _variables.find(variable);
@@ -70,7 +70,7 @@ class VariableController2::VariableController2Private
       return (*it).second;
     }
 
-    inline std::shared_ptr<Variable> variable(int index)
+    inline std::shared_ptr<Variable2> variable(int index)
     {
       QReadLocker lock{&_lock};
 #if __cplusplus > 201703L
@@ -87,9 +87,9 @@ class VariableController2::VariableController2Private
       return (*(it)).second;
     }
 
-    inline const std::vector<std::shared_ptr<Variable>> variables()
+    inline const std::vector<std::shared_ptr<Variable2>> variables()
     {
-      std::vector<std::shared_ptr<Variable>> vars;
+      std::vector<std::shared_ptr<Variable2>> vars;
       QReadLocker lock{&_lock};
       for(const auto& [id, var] : _variables)
       {
@@ -120,14 +120,14 @@ class VariableController2::VariableController2Private
       return _synchronizationGroups[variable];
     }
 
-    inline bool has(const std::shared_ptr<Variable>& variable)
+    inline bool has(const std::shared_ptr<Variable2>& variable)
     {
       QReadLocker lock{&_lock};
       return _variables.find(*variable) == _variables.end();
     }
 
   private:
-    std::map<QUuid, std::shared_ptr<Variable>> _variables;
+    std::map<QUuid, std::shared_ptr<Variable2>> _variables;
     QMap<QUuid, std::shared_ptr<IDataProvider>> _providers;
     QMap<QUuid, std::shared_ptr<VariableSynchronizationGroup2>>
         _synchronizationGroups;
@@ -179,11 +179,10 @@ class VariableController2::VariableController2Private
           auto variable = _maps.variable(ID);
           if(fragmented)
           {
-            auto [missingRanges, newCacheRange] =
-                _computeMissingRanges(variable, range);
+            auto missingRanges = _computeMissingRanges(variable, range);
 
-            auto exe = new TransactionExe(variable, provider, missingRanges,
-                                          range, newCacheRange);
+            auto exe =
+                new TransactionExe(variable, provider, missingRanges, range);
             QObject::connect(
                 exe, &TransactionExe::transactionComplete,
                 [groupID = groupID, transaction = newTransaction.value(),
@@ -192,8 +191,7 @@ class VariableController2::VariableController2Private
           }
           else
           {
-            auto exe =
-                new TransactionExe(variable, provider, {range}, range, range);
+            auto exe = new TransactionExe(variable, provider, {range}, range);
             QObject::connect(
                 exe, &TransactionExe::transactionComplete,
                 [groupID = groupID, transaction = newTransaction.value(),
@@ -210,7 +208,7 @@ class VariableController2::VariableController2Private
   }
 
   std::map<QUuid, DateTimeRange>
-  _computeAllRangesInGroup(const std::shared_ptr<Variable>& refVar,
+  _computeAllRangesInGroup(const std::shared_ptr<Variable2>& refVar,
                            DateTimeRange r)
   {
     std::map<QUuid, DateTimeRange> ranges;
@@ -246,39 +244,28 @@ class VariableController2::VariableController2Private
     return ranges;
   }
 
-  std::pair<std::vector<DateTimeRange>, DateTimeRange>
-  _computeMissingRanges(const std::shared_ptr<Variable>& var, DateTimeRange r)
+  std::vector<DateTimeRange>
+  _computeMissingRanges(const std::shared_ptr<Variable2>& var, DateTimeRange r)
   {
-    DateTimeRange newCacheRange;
-    std::vector<DateTimeRange> missingRanges;
-    if(DateTimeRangeHelper::hasnan(var->cacheRange()))
-    {
-      newCacheRange = _cacheStrategy->computeRange(r, r);
-      missingRanges = {newCacheRange};
-    }
-    else
-    {
-      newCacheRange = _cacheStrategy->computeRange(var->cacheRange(), r);
-      missingRanges = newCacheRange - var->cacheRange();
-    }
-    return {missingRanges, newCacheRange};
+    return r - var->range();
   }
 
   void _changeRange(QUuid id, DateTimeRange r)
   {
     _changeRange(_maps.variable(id), r);
   }
-  void _changeRange(const std::shared_ptr<Variable>& var, DateTimeRange r)
+  void _changeRange(const std::shared_ptr<Variable2>& var, DateTimeRange r)
   {
-    auto provider                       = _maps.provider(*var);
-    auto [missingRanges, newCacheRange] = _computeMissingRanges(var, r);
-    std::vector<IDataSeries*> data;
+    auto provider      = _maps.provider(*var);
+    auto missingRanges = _computeMissingRanges(var, r);
+    std::vector<TimeSeries::ITimeSerie*> data;
     for(auto range : missingRanges)
     {
       data.push_back(
           provider->getData(DataProviderParameters{{range}, var->metadata()}));
     }
-    var->updateData(data, r, newCacheRange, true);
+    data.push_back(var->data()->base()); // might be smarter
+    var->setData(data, r, true);
   }
 
 public:
@@ -298,26 +285,26 @@ public:
    */
   ~VariableController2Private() { delete this->_ThreadPool; }
 
-  std::shared_ptr<Variable>
+  std::shared_ptr<Variable2>
   createVariable(const QString& name, const QVariantHash& metadata,
                  std::shared_ptr<IDataProvider> provider)
   {
-    auto newVar = std::make_shared<Variable>(name, metadata);
+    auto newVar = std::make_shared<Variable2>(name, metadata);
     auto group  = std::make_shared<VariableSynchronizationGroup2>(newVar->ID());
     _maps.addVariable(newVar, std::move(provider), group);
     this->_transactions.addEntry(*group);
     return newVar;
   }
 
-  std::shared_ptr<Variable> variable(QUuid ID) { return _maps.variable(ID); }
+  std::shared_ptr<Variable2> variable(QUuid ID) { return _maps.variable(ID); }
 
-  std::shared_ptr<Variable> variable(int index)
+  std::shared_ptr<Variable2> variable(int index)
   {
     return _maps.variable(index);
   }
 
-  std::shared_ptr<Variable>
-  cloneVariable(const std::shared_ptr<Variable>& variable)
+  std::shared_ptr<Variable2>
+  cloneVariable(const std::shared_ptr<Variable2>& variable)
   {
     auto newVar = variable->clone();
     _maps.synchronize(newVar, std::nullopt);
@@ -326,7 +313,7 @@ public:
     return newVar;
   }
 
-  bool hasPendingTransactions(const std::shared_ptr<Variable>& variable)
+  bool hasPendingTransactions(const std::shared_ptr<Variable2>& variable)
   {
     return _transactions.active(*_maps.group(*variable));
   }
@@ -341,7 +328,7 @@ public:
     return has;
   }
 
-  void deleteVariable(const std::shared_ptr<Variable>& variable)
+  void deleteVariable(const std::shared_ptr<Variable2>& variable)
   {
     if(!hasPendingTransactions(variable))
       _maps.removeVariable(variable);
@@ -349,7 +336,7 @@ public:
       _variablesToRemove.push_back(variable->ID());
   }
 
-  void asyncChangeRange(const std::shared_ptr<Variable>& variable,
+  void asyncChangeRange(const std::shared_ptr<Variable2>& variable,
                         const DateTimeRange& r)
   {
     if(!DateTimeRangeHelper::hasnan(r))
@@ -370,7 +357,7 @@ public:
     }
   }
 
-  void changeRange(const std::shared_ptr<Variable>& variable, DateTimeRange r)
+  void changeRange(const std::shared_ptr<Variable2>& variable, DateTimeRange r)
   {
     asyncChangeRange(variable, r);
     while(hasPendingTransactions(variable))
@@ -379,13 +366,13 @@ public:
     }
   }
 
-  inline void synchronize(const std::shared_ptr<Variable>& var,
-                          const std::shared_ptr<Variable>& with)
+  inline void synchronize(const std::shared_ptr<Variable2>& var,
+                          const std::shared_ptr<Variable2>& with)
   {
     _maps.synchronize(var, with);
   }
 
-  inline const std::vector<std::shared_ptr<Variable>> variables()
+  inline const std::vector<std::shared_ptr<Variable2>> variables()
   {
     return _maps.variables();
   }
@@ -395,7 +382,7 @@ VariableController2::VariableController2()
     : impl{spimpl::make_unique_impl<VariableController2Private>()}
 {}
 
-std::shared_ptr<Variable> VariableController2::createVariable(
+std::shared_ptr<Variable2> VariableController2::createVariable(
     const QString& name, const QVariantHash& metadata,
     const std::shared_ptr<IDataProvider>& provider, const DateTimeRange& range)
 {
@@ -410,53 +397,53 @@ std::shared_ptr<Variable> VariableController2::createVariable(
   return var;
 }
 
-std::shared_ptr<Variable>
-VariableController2::cloneVariable(const std::shared_ptr<Variable>& variable)
+std::shared_ptr<Variable2>
+VariableController2::cloneVariable(const std::shared_ptr<Variable2>& variable)
 {
   return impl->cloneVariable(variable);
 }
 
 void VariableController2::deleteVariable(
-    const std::shared_ptr<Variable>& variable)
+    const std::shared_ptr<Variable2>& variable)
 {
   impl->deleteVariable(variable);
   emit variableDeleted(variable);
 }
 
-void VariableController2::changeRange(const std::shared_ptr<Variable>& variable,
-                                      const DateTimeRange& r)
+void VariableController2::changeRange(
+    const std::shared_ptr<Variable2>& variable, const DateTimeRange& r)
 {
   impl->changeRange(variable, r);
 }
 
 void VariableController2::asyncChangeRange(
-    const std::shared_ptr<Variable>& variable, const DateTimeRange& r)
+    const std::shared_ptr<Variable2>& variable, const DateTimeRange& r)
 {
   impl->asyncChangeRange(variable, r);
 }
 
-const std::vector<std::shared_ptr<Variable>> VariableController2::variables()
+const std::vector<std::shared_ptr<Variable2>> VariableController2::variables()
 {
   return impl->variables();
 }
 
-bool VariableController2::isReady(const std::shared_ptr<Variable>& variable)
+bool VariableController2::isReady(const std::shared_ptr<Variable2>& variable)
 {
   return !impl->hasPendingTransactions(variable);
 }
 
 bool VariableController2::isReady() { return !impl->hasPendingTransactions(); }
 
-void VariableController2::synchronize(const std::shared_ptr<Variable>& var,
-                                      const std::shared_ptr<Variable>& with)
+void VariableController2::synchronize(const std::shared_ptr<Variable2>& var,
+                                      const std::shared_ptr<Variable2>& with)
 {
   impl->synchronize(var, with);
 }
 
-const std::vector<std::shared_ptr<Variable>>
+const std::vector<std::shared_ptr<Variable2>>
 VariableController2::variables(const std::vector<QUuid>& ids)
 {
-  std::vector<std::shared_ptr<Variable>> variables;
+  std::vector<std::shared_ptr<Variable2>> variables;
   std::transform(std::cbegin(ids), std::cend(ids),
                  std::back_inserter(variables),
                  [this](const auto& id) { return impl->variable(id); });

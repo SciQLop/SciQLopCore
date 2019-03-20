@@ -309,13 +309,12 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def_property("name", &Variable2::name, &Variable2::setName)
       .def_property_readonly("range", &Variable2::range)
       .def_property_readonly("nbPoints", &Variable2::nbPoints)
-      .def_property_readonly(
-          "data",
-          [](const Variable2& var) -> TimeSeries::ITimeSerie* {
-            auto data = var.data();
-            if(data) return data->base();
-            return nullptr;
-          })
+      .def_property_readonly("data",
+                             [](Variable2& var) -> TimeSeries::ITimeSerie* {
+                               auto data = var.data();
+                               if(data) return data->base();
+                               return nullptr;
+                             })
       .def("set_data",
            [](Variable2& var, std::vector<TimeSeries::ITimeSerie*> ts_list,
               const DateTimeRange& range) { var.setData(ts_list, range); })

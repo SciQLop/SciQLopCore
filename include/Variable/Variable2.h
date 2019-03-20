@@ -36,23 +36,24 @@ public:
 
   std::shared_ptr<Variable2> clone() const;
 
-  QString name() const noexcept;
-  void setName(const QString& name) noexcept;
-  DateTimeRange range() const noexcept;
-  std::optional<DateTimeRange> realRange() const noexcept;
+  QString name();
+  void setName(const QString& name);
+  DateTimeRange range();
+  void setRange(const DateTimeRange& range);
+  std::optional<DateTimeRange> realRange();
 
-  std::size_t nbPoints() const noexcept;
+  std::size_t nbPoints();
 
   /// @return the data of the variable, nullptr if there is no data
-  AnyTimeSerie* data() const noexcept;
+  AnyTimeSerie* data();
 
   /// @return the type of data that the variable holds
-  DataSeriesType type() const noexcept;
+  DataSeriesType type();
 
   QVariantHash metadata() const noexcept;
 
-  void setData(const std::vector<AnyTimeSerie*>& dataSeries,
-               const DateTimeRange& range, bool notify = true);
+  //  void setData(const std::vector<AnyTimeSerie*>& dataSeries,
+  //               const DateTimeRange& range, bool notify = true);
 
   void setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
                const DateTimeRange& range, bool notify = true);

@@ -14,19 +14,56 @@
   type property;
 
 #define V_FW_GETTER_SETTER(getter, setter, type)                               \
-  type Variable2::getter() const noexcept { return impl->getter(); }           \
-  void Variable2::setter(const type& value) noexcept                           \
+  type Variable2::getter()                                                     \
   {                                                                            \
-    impl->setter(value);                                                       \
+    QReadLocker lock{&this->m_lock};                                           \
+    return impl->getter();                                                     \
+  }                                                                            \
+  void Variable2::setter(const type& value)                                    \
+  {                                                                            \
+    {                                                                          \
+      QWriteLocker lock{&this->m_lock};                                        \
+      impl->setter(value);                                                     \
+    }                                                                          \
     emit updated(this->ID());                                                  \
   }
+
+static DataSeriesType findDataSeriesType(const QVariantHash& metadata)
+{
+  auto dataSeriesType = DataSeriesType::NONE;
+
+  // Go through the metadata and stop at the first value that could be converted
+  // to DataSeriesType
+  for(auto it = metadata.cbegin(), end = metadata.cend();
+      it != end && dataSeriesType == DataSeriesType::NONE; ++it)
+  {
+    dataSeriesType = DataSeriesTypeUtils::fromString(it.value().toString());
+  }
+
+  return dataSeriesType;
+}
 
 struct Variable2::VariablePrivate
 {
   VariablePrivate(const QString& name, const QVariantHash& metadata)
       : m_Name{name}, m_Range{INVALID_RANGE}, m_Metadata{metadata}, m_TimeSerie{
                                                                         nullptr}
-  {}
+  {
+    switch(findDataSeriesType(metadata))
+    {
+      case DataSeriesType::SCALAR:
+        m_TimeSerie = std::make_unique<AnyTimeSerie>(ScalarTimeSerie{});
+        break;
+      case DataSeriesType::VECTOR:
+        m_TimeSerie = std::make_unique<AnyTimeSerie>(VectorTimeSerie{});
+        break;
+      case DataSeriesType::SPECTROGRAM:
+        m_TimeSerie = std::make_unique<AnyTimeSerie>(SpectrogramTimeSerie{});
+        break;
+      default: break;
+    }
+  }
+
   VariablePrivate(const VariablePrivate& other) {}
   std::size_t nbPoints()
   {
@@ -42,14 +79,25 @@ struct Variable2::VariablePrivate
   PROPERTY_(m_Name, name, setName, QString)
   PROPERTY_(m_Range, range, setRange, DateTimeRange)
   PROPERTY_(m_Metadata, metadata, setMetadata, QVariantHash)
+  PROPERTY_(m_RealRange, realRange, setRealRange, std::optional<DateTimeRange>)
   AnyTimeSerie* dataSeries() { return m_TimeSerie.get(); }
   void setDataSeries(std::unique_ptr<AnyTimeSerie>&& timeSerie)
   {
     QWriteLocker lock{&m_Lock};
     m_TimeSerie = std::move(timeSerie);
+    if(m_TimeSerie->index() != 0)
+    {
+      setRealRange(DateTimeRange(
+          m_TimeSerie->base()->t(0),
+          m_TimeSerie->base()->t(m_TimeSerie->base()->size() - 1)));
+    }
+    else
+    {
+      setRealRange(std::nullopt);
+    }
   }
   std::unique_ptr<AnyTimeSerie> m_TimeSerie;
-  QReadWriteLock m_Lock;
+  QReadWriteLock m_Lock{QReadWriteLock::Recursive};
 };
 
 Variable2::Variable2(const QString& name, const QVariantHash& metadata)
@@ -69,15 +117,31 @@ std::shared_ptr<Variable2> Variable2::clone() const
 
 V_FW_GETTER_SETTER(name, setName, QString)
 
-DateTimeRange Variable2::range() const noexcept { return impl->range(); }
+DateTimeRange Variable2::range() { return impl->range(); }
 
-std::size_t Variable2::nbPoints() const noexcept { return impl->nbPoints(); }
+void Variable2::setRange(const DateTimeRange& range)
+{
+  QWriteLocker lock{&m_lock};
+  impl->setRange(range);
+}
 
-AnyTimeSerie* Variable2::data() const noexcept { return impl->dataSeries(); }
+std::optional<DateTimeRange> Variable2::realRange()
+{
+  QReadLocker lock{&m_lock};
+  return impl->realRange();
+}
 
-DataSeriesType Variable2::type() const noexcept { return impl->type(); }
+std::size_t Variable2::nbPoints() { return impl->nbPoints(); }
 
-QVariantHash Variable2::metadata() const noexcept {}
+AnyTimeSerie* Variable2::data() { return impl->dataSeries(); }
+
+DataSeriesType Variable2::type()
+{
+  QReadLocker lock{&m_lock};
+  return impl->type();
+}
+
+QVariantHash Variable2::metadata() const noexcept { return QVariantHash{}; }
 
 // template<typename T>
 // std::unique_ptr<AnyTimeSerie> _merge(std::vector<AnyTimeSerie*> source)
@@ -109,6 +173,7 @@ _merge(std::vector<TimeSeries::ITimeSerie*> source)
   *dest = std::move(*static_cast<T*>(source.front()));
   std::for_each(std::begin(source) + 1, std::end(source),
                 [&dest](TimeSeries::ITimeSerie* serie) {
+                  // TODO -> remove overlap !
                   std::copy(std::begin(*static_cast<T*>(serie)),
                             std::end(*static_cast<T*>(serie)),
                             std::back_inserter(dest->get<T>()));
@@ -158,8 +223,11 @@ void Variable2::setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
 {
   if(dataSeries.size())
   {
-    impl->setDataSeries(merge(dataSeries));
-    impl->setRange(range);
+    {
+      QWriteLocker lock{&m_lock};
+      impl->setDataSeries(merge(dataSeries));
+      impl->setRange(range);
+    }
     if(notify) emit this->updated(this->ID());
   }
 }

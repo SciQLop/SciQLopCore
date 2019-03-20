@@ -1,51 +1,55 @@
 #ifndef VARIABLECONTROLLER2_H
 #define VARIABLECONTROLLER2_H
-#include <memory>
-#include <vector>
-#include <set>
-#include <QHash>
-#include <QObject>
-#include <QMutexLocker>
-#include <QUuid>
-#include <QByteArray>
-#include <QItemSelectionModel>
-#include <Common/spimpl.h>
-#include <Variable/Variable.h>
-#include <Data/IDataProvider.h>
 #include "Data/DateTimeRange.h"
 
-class SCIQLOP_CORE_EXPORT VariableController2: public QObject
-{
-    class VariableController2Private;
-    Q_OBJECT
+#include <Common/spimpl.h>
+#include <Data/IDataProvider.h>
+#include <QByteArray>
+#include <QHash>
+#include <QItemSelectionModel>
+#include <QMutexLocker>
+#include <QObject>
+#include <QUuid>
+#include <Variable/Variable2.h>
+#include <memory>
+#include <set>
+#include <vector>
 
-    spimpl::unique_impl_ptr<VariableController2Private> impl;
+class SCIQLOP_CORE_EXPORT VariableController2 : public QObject
+{
+  class VariableController2Private;
+  Q_OBJECT
+
+  spimpl::unique_impl_ptr<VariableController2Private> impl;
 
 public:
-    explicit VariableController2();
-    std::shared_ptr<Variable> createVariable(const QString &name, const QVariantHash &metadata,
-                                             const std::shared_ptr<IDataProvider>& provider,
-                                             const DateTimeRange &range);
+  explicit VariableController2();
+  std::shared_ptr<Variable2>
+  createVariable(const QString& name, const QVariantHash& metadata,
+                 const std::shared_ptr<IDataProvider>& provider,
+                 const DateTimeRange& range);
 
-    std::shared_ptr<Variable> cloneVariable(const std::shared_ptr<Variable>& variable);
-    void deleteVariable(const std::shared_ptr<Variable>& variable);
-    void changeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
-    void asyncChangeRange(const std::shared_ptr<Variable>& variable, const DateTimeRange& r);
-    const std::vector<std::shared_ptr<Variable>> variables();
+  std::shared_ptr<Variable2>
+  cloneVariable(const std::shared_ptr<Variable2>& variable);
+  void deleteVariable(const std::shared_ptr<Variable2>& variable);
+  void changeRange(const std::shared_ptr<Variable2>& variable,
+                   const DateTimeRange& r);
+  void asyncChangeRange(const std::shared_ptr<Variable2>& variable,
+                        const DateTimeRange& r);
+  const std::vector<std::shared_ptr<Variable2>> variables();
 
-    bool isReady(const std::shared_ptr<Variable>& variable);
-    bool isReady();
+  bool isReady(const std::shared_ptr<Variable2>& variable);
+  bool isReady();
 
+  void synchronize(const std::shared_ptr<Variable2>& var,
+                   const std::shared_ptr<Variable2>& with);
 
-    void synchronize(const std::shared_ptr<Variable>& var, const std::shared_ptr<Variable>& with);
-
-    const std::vector<std::shared_ptr<Variable>> variables(const std::vector<QUuid>& ids);
-
+  const std::vector<std::shared_ptr<Variable2>>
+  variables(const std::vector<QUuid>& ids);
 
 signals:
-    void variableAdded(const std::shared_ptr<Variable>&);
-    void variableDeleted(const std::shared_ptr<Variable>&);
-
+  void variableAdded(const std::shared_ptr<Variable2>&);
+  void variableDeleted(const std::shared_ptr<Variable2>&);
 };
 
-#endif //VARIABLECONTROLLER2_H
+#endif // VARIABLECONTROLLER2_H
