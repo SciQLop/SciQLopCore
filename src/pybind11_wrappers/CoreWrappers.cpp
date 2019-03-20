@@ -73,15 +73,12 @@ void copy_spectro(py::array_t<double>& t, py::array_t<double>& values,
   auto t_view      = t.unchecked<1>();
   auto values_view = values.unchecked<2>();
   const auto width = values.shape(0);
-  std::cout << "WIDTH" << width << std::endl;
   for(std::size_t i = 0; i < t.size(); i++)
   {
     dest_t[i] = t_view[i];
     for(int j = 0; j < width; j++)
     {
       dest_values[i * width + j] = values_view(j, i);
-      std::cout << "dest_values[" << i * width + j << "] = values_view(" << j
-                << ", " << i << ") = " << values_view(j, i) << std::endl;
     }
   }
 }
@@ -278,9 +275,12 @@ PYBIND11_MODULE(pysciqlopcore, m)
         *(ts.begin() + key) = value;
       });
 
-  py::class_<SpectrogramTimeSerie::item_t>(m, "SpectrogramTimeSerieItem")
-      .def("__getitem__", [](SpectrogramTimeSerie::item_t& self,
-                             std::size_t key) { return self[key]; });
+  py::class_<SpectrogramTimeSerie::iterator_t>(m, "SpectrogramTimeSerieItem")
+      .def("__getitem__", [](SpectrogramTimeSerie::iterator_t& self,
+                             std::size_t key) { return (*self)[key]; })
+      .def("__setitem__",
+           [](SpectrogramTimeSerie::iterator_t& self, std::size_t key,
+              double value) { (*self)[key] = value; });
 
   py::class_<SpectrogramTimeSerie, TimeSeries::ITimeSerie>(
       m, "SpectrogramTimeSerie")
@@ -299,7 +299,10 @@ PYBIND11_MODULE(pysciqlopcore, m)
         return SpectrogramTimeSerie(_t, _values, shape);
       }))
       .def("__getitem__",
-           [](SpectrogramTimeSerie& ts, std::size_t key) { return ts[key]; });
+           [](SpectrogramTimeSerie& ts,
+              std::size_t key) -> SpectrogramTimeSerie::iterator_t {
+             return ts.begin() + key;
+           });
 
   py::class_<Variable2, std::shared_ptr<Variable2>>(m, "Variable2")
       .def(py::init<const QString&>())

@@ -10,7 +10,13 @@ class SCIQLOP_CORE_EXPORT SpectrogramTimeSerie
 {
 public:
   using item_t =
-      decltype(TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>()[0]);
+      decltype(std::declval<
+               TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>>()[0]);
+
+  using iterator_t = decltype(
+      std::declval<TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>>()
+          .begin());
+
   SpectrogramTimeSerie() {}
   ~SpectrogramTimeSerie() = default;
   using TimeSerie::TimeSerie;

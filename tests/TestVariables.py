@@ -39,6 +39,24 @@ class TimeSeriesData(unittest.TestCase):
         ts[0]=123.
         self.assertEqual(ts[0],123.)
 
+    def test_set_VectorTimeSerie_values(self):
+        ts = pysciqlopcore.VectorTimeSerie(10)
+        ts.t[0]=111.
+        self.assertEqual(ts.t[0],111.)
+        ts[0].x=111.
+        ts[0].y=222.
+        ts[0].z=333.
+        self.assertEqual(ts[0].x,111.)
+        self.assertEqual(ts[0].y,222.)
+        self.assertEqual(ts[0].z,333.)
+
+    def test_set_SpectrogramTimeSerie_values(self):
+        ts = pysciqlopcore.SpectrogramTimeSerie((10,100))
+        ts.t[0]=111.
+        self.assertEqual(ts.t[0],111.)
+        ts[0][11]=123.
+        self.assertEqual(ts[0][11],123.)
+
     def test_build_ScalarTimeSerie_from_np_arrays(self):
         ts = pysciqlopcore.ScalarTimeSerie(np.arange(10), np.arange(10)*10)
         for i in range(len(ts)):
@@ -81,8 +99,20 @@ class TimeSeriesData(unittest.TestCase):
         ts = pysciqlopcore.SpectrogramTimeSerie(np.arange(10), v)
         for i in range(len(ts)):
             for j in range(4):
-                print(f"ts[{i}][{j}] = " + str(ts[i][j]))
+                self.assertEqual(ts[i][j], i*10**j)
 
+class VariableData(unittest.TestCase):
+    def test_default_state(self):
+        v=pysciqlopcore.Variable2("hello")
+        self.assertEqual(str(v.name), str("hello"))
+        self.assertEqual(type(v.data), type(None))
+        self.assertEqual(len(v), 0)
+
+    def test_set_name(self):
+        v=pysciqlopcore.Variable2("hello")
+        self.assertEqual(str(v.name), str("hello"))
+        v.name="newName"
+        self.assertEqual(str(v.name), str("newName"))
 
 if __name__ == '__main__':
     unittest.main(exit=False)
