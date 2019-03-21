@@ -2,7 +2,6 @@
 #include <Common/MimeTypesDef.h>
 #include <Common/StringUtils.h>
 #include <Common/containers.h>
-#include <Data/IDataSeries.h>
 #include <DataSource/DataSourceController.h>
 #include <QMimeData>
 #include <QSize>

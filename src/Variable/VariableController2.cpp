@@ -13,7 +13,6 @@
 #include <QQueue>
 #include <QRunnable>
 #include <QThreadPool>
-#include <Variable/VariableCacheStrategyFactory.h>
 #include <Variable/private/VCTransaction.h>
 
 class VariableController2::VariableController2Private
@@ -136,7 +135,6 @@ class VariableController2::VariableController2Private
   std::vector<QUuid> _variablesToRemove;
   QThreadPool* _ThreadPool;
   VCTransactionsQueues _transactions;
-  std::unique_ptr<VariableCacheStrategy> _cacheStrategy;
 
   void _transactionComplete(QUuid group,
                             std::shared_ptr<VCTransaction> transaction)
@@ -270,8 +268,6 @@ class VariableController2::VariableController2Private
 
 public:
   VariableController2Private(QObject* parent = Q_NULLPTR)
-      : _cacheStrategy(VariableCacheStrategyFactory::createCacheStrategy(
-            CacheStrategy::SingleThreshold))
   {
     Q_UNUSED(parent);
     this->_ThreadPool = new QThreadPool();

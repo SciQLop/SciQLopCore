@@ -78,29 +78,16 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Common/containers.h
     ./include/Common/debug.h
     ./include/Common/cpp_utils.h
-    ./include/Common/variant_with_base.h
     ./include/Plugin/IPlugin.h
-    ./include/Data/ArrayDataIterator.h
-    ./include/Data/VectorSeries.h
     ./include/Data/VectorTimeSerie.h
     ./include/Data/DateTimeRange.h
     ./include/Data/DateTimeRangeHelper.h
-    ./include/Data/ScalarSeries.h
     ./include/Data/ScalarTimeSerie.h
-    ./include/Data/DataSeriesMergeHelper.h
-    ./include/Data/DataSeries.h
     ./include/Data/DataSeriesType.h
     ./include/Data/SqpIterator.h
-    ./include/Data/ArrayData.h
-    ./include/Data/DataSeriesIterator.h
-    ./include/Data/DataSeriesUtils.h
-    ./include/Data/SpectrogramSeries.h
     ./include/Data/SpectrogramTimeSerie.h
-    ./include/Data/Unit.h
     ./include/Data/DataProviderParameters.h
-    ./include/Data/OptionalAxis.h
     ./include/Data/IDataProvider.h
-    ./include/Data/IDataSeries.h
     ./include/Network/NetworkController.h
     ./include/Network/Downloader.h
     ./include/Version.h
@@ -108,12 +95,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Visualization/VisualizationController.h
     ./include/PluginManager/PluginManager.h
     ./include/Variable/VariableModel2.h
-    ./include/Variable/VariableCacheStrategy.h
     ./include/Variable/VariableSynchronizationGroup2.h
-    ./include/Variable/ProportionalCacheStrategy.h
-    ./include/Variable/SingleThresholdCacheStrategy.h
-    ./include/Variable/VariableCacheStrategyFactory.h
-    ./include/Variable/Variable.h
     ./include/Variable/Variable2.h
     ./include/Variable/VariableController2.h
     ./include/Variable/private/VCTransaction.h
@@ -129,15 +111,6 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Common/MimeTypesDef.cpp
     ./src/Common/StringUtils.cpp
     ./src/Common/SignalWaiter.cpp
-    ./src/Data/ScalarSeries.cpp
-    ./src/Data/ScalarTimeSerie.cpp
-    ./src/Data/DataSeriesIterator.cpp
-    ./src/Data/OptionalAxis.cpp
-    ./src/Data/ArrayDataIterator.cpp
-    ./src/Data/SpectrogramSeries.cpp
-    ./src/Data/DataSeriesUtils.cpp
-    ./src/Data/VectorSeries.cpp
-    ./src/Data/VectorTimeSerie.cpp
     ./src/Network/NetworkController.cpp
     ./src/Network/Downloader.cpp
     ./src/Visualization/VisualizationController.cpp

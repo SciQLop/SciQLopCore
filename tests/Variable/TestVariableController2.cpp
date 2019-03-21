@@ -2,7 +2,6 @@
 #include <Data/DataProviderParameters.h>
 #include <Data/DateTimeRange.h>
 #include <Data/IDataProvider.h>
-#include <Data/ScalarSeries.h>
 #include <QObject>
 #include <QtTest>
 #include <TestUtils/TestProviders.h>

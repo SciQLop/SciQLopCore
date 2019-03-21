@@ -2,9 +2,7 @@
 #define TESTPROVIDER_H
 
 #include <Data/DataProviderParameters.h>
-#include <Data/DataSeries.h>
 #include <Data/IDataProvider.h>
-#include <Data/ScalarSeries.h>
 #include <Data/ScalarTimeSerie.h>
 #include <QUuid>
 #include <QtGlobal>

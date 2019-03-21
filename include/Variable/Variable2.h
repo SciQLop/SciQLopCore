@@ -6,7 +6,6 @@
 #include <Common/MetaTypes.h>
 #include <Common/deprecate.h>
 #include <Common/spimpl.h>
-#include <Common/variant_with_base.h>
 #include <Data/DataSeriesType.h>
 #include <Data/DateTimeRange.h>
 #include <Data/ScalarTimeSerie.h>

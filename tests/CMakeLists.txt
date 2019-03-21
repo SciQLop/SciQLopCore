@@ -18,21 +18,6 @@ declare_test(TestSyncGroup TestSyncGroup Variable/TestSyncGroup.cpp "sciqlopcore
 
 declare_test(TestDateTimeRange TestDateTimeRange Data/TestDateTimeRange.cpp "sciqlopcore;Qt5::Test")
 
-
-declare_test(TestDataSeriesUtils TestDataSeriesUtils Data/TestDataSeriesUtils.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestOptionalAxis TestOptionalAxis Data/TestOptionalAxis.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestSpectrogramSeries TestSpectrogramSeries
-    "Data/TestSpectrogramSeries.cpp;Data/DataSeriesBuilders.h;Data/DataSeriesBuilders.cpp;Data/DataSeriesTestsUtils.h;Data/DataSeriesTestsUtils.cpp"
-    "sciqlopcore;Qt5::Test")
-declare_test(TestOneDimArrayData TestOneDimArrayData Data/TestOneDimArrayData.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestScalarSeries TestScalarSeries
-    "Data/TestScalarSeries.cpp;Data/DataSeriesBuilders.h;Data/DataSeriesBuilders.cpp;Data/DataSeriesTestsUtils.h;Data/DataSeriesTestsUtils.cpp"
-    "sciqlopcore;Qt5::Test")
-declare_test(TestTwoDimArrayData TestTwoDimArrayData Data/TestTwoDimArrayData.cpp "sciqlopcore;Qt5::Test")
-declare_test(TestVectorSeries TestVectorSeries
-    "Data/TestVectorSeries.cpp;Data/DataSeriesBuilders.h;Data/DataSeriesBuilders.cpp;Data/DataSeriesTestsUtils.h;Data/DataSeriesTestsUtils.cpp"
-    "sciqlopcore;Qt5::Test")
-
 declare_test(TestDataSourceController TestDataSourceController
     "DataSource/TestDataSourceController.cpp;DataSource/DataSourceItemBuilder.cpp"
     "sciqlopcore;Qt5::Test")
