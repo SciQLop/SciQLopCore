@@ -43,6 +43,18 @@ static DataSeriesType findDataSeriesType(const QVariantHash& metadata)
   return dataSeriesType;
 }
 
+std::shared_ptr<TimeSeries::ITimeSerie>
+clone_ts(const std::shared_ptr<TimeSeries::ITimeSerie>& ts)
+{
+  if(auto scal_ts = std::dynamic_pointer_cast<ScalarTimeSerie>(ts))
+    return std::make_shared<ScalarTimeSerie>(*scal_ts);
+  if(auto scal_ts = std::dynamic_pointer_cast<VectorTimeSerie>(ts))
+    return std::make_shared<VectorTimeSerie>(*scal_ts);
+  if(auto scal_ts = std::dynamic_pointer_cast<SpectrogramTimeSerie>(ts))
+    return std::make_shared<SpectrogramTimeSerie>(*scal_ts);
+  return nullptr;
+}
+
 struct Variable2::VariablePrivate
 {
   VariablePrivate(const QString& name, const QVariantHash& metadata)
@@ -52,51 +64,52 @@ struct Variable2::VariablePrivate
     switch(findDataSeriesType(metadata))
     {
       case DataSeriesType::SCALAR:
-        m_TimeSerie = std::make_unique<AnyTimeSerie>(ScalarTimeSerie{});
+        m_TimeSerie = std::make_shared<ScalarTimeSerie>(ScalarTimeSerie{});
         break;
       case DataSeriesType::VECTOR:
-        m_TimeSerie = std::make_unique<AnyTimeSerie>(VectorTimeSerie{});
+        m_TimeSerie = std::make_shared<VectorTimeSerie>(VectorTimeSerie{});
         break;
       case DataSeriesType::SPECTROGRAM:
-        m_TimeSerie = std::make_unique<AnyTimeSerie>(SpectrogramTimeSerie{});
+        m_TimeSerie =
+            std::make_shared<SpectrogramTimeSerie>(SpectrogramTimeSerie{});
         break;
       default: break;
     }
   }
 
-  VariablePrivate(const VariablePrivate& other) {}
+  VariablePrivate(const VariablePrivate& other)
+      : m_Name{other.m_Name}, m_Range{other.m_Range},
+        m_Metadata{other.m_Metadata}, m_RealRange{other.m_RealRange}
+  {
+    m_TimeSerie = clone_ts(other.m_TimeSerie);
+  }
+
   std::size_t nbPoints()
   {
-    if(m_TimeSerie) return m_TimeSerie->base()->size();
+    if(m_TimeSerie) return m_TimeSerie->size();
     return 0;
   }
   DataSeriesType type() const
   {
-    if(m_TimeSerie) return DataSeriesType(m_TimeSerie->index());
-    return DataSeriesType::NONE;
+    return DataSeriesTypeUtils::type(m_TimeSerie.get());
   }
 
   PROPERTY_(m_Name, name, setName, QString)
   PROPERTY_(m_Range, range, setRange, DateTimeRange)
   PROPERTY_(m_Metadata, metadata, setMetadata, QVariantHash)
   PROPERTY_(m_RealRange, realRange, setRealRange, std::optional<DateTimeRange>)
-  AnyTimeSerie* dataSeries() { return m_TimeSerie.get(); }
-  void setDataSeries(std::unique_ptr<AnyTimeSerie>&& timeSerie)
+  std::shared_ptr<TimeSeries::ITimeSerie> dataSeries() { return m_TimeSerie; }
+  void setDataSeries(std::shared_ptr<TimeSeries::ITimeSerie>&& timeSerie)
   {
     QWriteLocker lock{&m_Lock};
-    m_TimeSerie = std::move(timeSerie);
-    if(m_TimeSerie->index() != 0)
-    {
-      setRealRange(DateTimeRange(
-          m_TimeSerie->base()->t(0),
-          m_TimeSerie->base()->t(m_TimeSerie->base()->size() - 1)));
-    }
+    m_TimeSerie = timeSerie;
+    if(m_TimeSerie) { setRealRange(DateTimeRange(m_TimeSerie->axis_range(0))); }
     else
     {
       setRealRange(std::nullopt);
     }
   }
-  std::unique_ptr<AnyTimeSerie> m_TimeSerie;
+  std::shared_ptr<TimeSeries::ITimeSerie> m_TimeSerie;
   QReadWriteLock m_Lock{QReadWriteLock::Recursive};
 };
 
@@ -133,7 +146,10 @@ std::optional<DateTimeRange> Variable2::realRange()
 
 std::size_t Variable2::nbPoints() { return impl->nbPoints(); }
 
-AnyTimeSerie* Variable2::data() { return impl->dataSeries(); }
+std::shared_ptr<TimeSeries::ITimeSerie> Variable2::data()
+{
+  return impl->dataSeries();
+}
 
 DataSeriesType Variable2::type()
 {
@@ -143,80 +159,46 @@ DataSeriesType Variable2::type()
 
 QVariantHash Variable2::metadata() const noexcept { return QVariantHash{}; }
 
-// template<typename T>
-// std::unique_ptr<AnyTimeSerie> _merge(std::vector<AnyTimeSerie*> source)
-//{
-//  std::unique_ptr<AnyTimeSerie> dest = std::make_unique<AnyTimeSerie>();
-//  std::sort(std::begin(source), std::end(source),
-//            [](AnyTimeSerie* a, AnyTimeSerie* b) {
-//              return a->get<T>().front().t() < b->get<T>().front().t();
-//            });
-//  *dest = std::move(*source.front());
-//  std::for_each(
-//      std::begin(source) + 1, std::end(source), [&dest](AnyTimeSerie* serie) {
-//        std::copy(std::begin(serie->get<T>()), std::end(serie->get<T>()),
-//                  std::back_inserter(dest->get<T>()));
-//      });
-//  return dest;
-//}
-
 template<typename T>
-std::unique_ptr<AnyTimeSerie>
-_merge(std::vector<TimeSeries::ITimeSerie*> source)
+std::shared_ptr<TimeSeries::ITimeSerie>
+_merge(std::vector<TimeSeries::ITimeSerie*> source, const DateTimeRange& range)
 {
-  std::unique_ptr<AnyTimeSerie> dest = std::make_unique<AnyTimeSerie>();
   std::sort(std::begin(source), std::end(source),
             [](TimeSeries::ITimeSerie* a, TimeSeries::ITimeSerie* b) {
               if(a->size() && b->size()) return a->t(0) < b->t(0);
               return false;
             });
-  *dest = std::move(*static_cast<T*>(source.front()));
-  std::for_each(std::begin(source) + 1, std::end(source),
-                [&dest](TimeSeries::ITimeSerie* serie) {
-                  // TODO -> remove overlap !
-                  std::copy(std::begin(*static_cast<T*>(serie)),
-                            std::end(*static_cast<T*>(serie)),
-                            std::back_inserter(dest->get<T>()));
-                });
+  std::shared_ptr<TimeSeries::ITimeSerie> dest = std::make_shared<T>();
+  std::for_each(
+      std::begin(source), std::end(source),
+      [&dest, &range](TimeSeries::ITimeSerie* serie) {
+        auto& ts    = *static_cast<T*>(serie);
+        auto last_t = range.m_TStart;
+        if(dest->size()) last_t = dest->axis(0).back();
+
+        std::copy(std::upper_bound(
+                      std::begin(ts), std::end(ts), last_t,
+                      [](const auto& a, const auto& b) { return a < b.t(); }),
+                  std::lower_bound(
+                      std::begin(ts), std::end(ts), range.m_TEnd,
+                      [](const auto& a, const auto& b) { return a.t() < b; }),
+                  std::back_inserter(*std::dynamic_pointer_cast<T>(dest)));
+      });
   return dest;
 }
 
-// std::unique_ptr<AnyTimeSerie>
-// merge(const std::vector<AnyTimeSerie*>& dataSeries)
-//{
-//  switch(DataSeriesType(dataSeries.front()->index()))
-//  {
-//    case DataSeriesType::NONE: break;
-//    case DataSeriesType::SCALAR: return _merge<ScalarTimeSerie>(dataSeries);
-//    case DataSeriesType::VECTOR: return _merge<VectorTimeSerie>(dataSeries);
-//    case DataSeriesType::SPECTROGRAM:
-//      return _merge<SpectrogramTimeSerie>(dataSeries);
-//  }
-//  return std::unique_ptr<AnyTimeSerie>{};
-//}
-
-std::unique_ptr<AnyTimeSerie>
-merge(const std::vector<TimeSeries::ITimeSerie*>& dataSeries)
+std::shared_ptr<TimeSeries::ITimeSerie>
+merge(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
+      const DateTimeRange& range)
 {
   if(dynamic_cast<ScalarTimeSerie*>(dataSeries.front()))
-    return _merge<ScalarTimeSerie>(dataSeries);
+    return _merge<ScalarTimeSerie>(dataSeries, range);
   if(dynamic_cast<VectorTimeSerie*>(dataSeries.front()))
-    return _merge<VectorTimeSerie>(dataSeries);
+    return _merge<VectorTimeSerie>(dataSeries, range);
   if(dynamic_cast<SpectrogramTimeSerie*>(dataSeries.front()))
-    return _merge<SpectrogramTimeSerie>(dataSeries);
-  return std::unique_ptr<AnyTimeSerie>{};
+    return _merge<SpectrogramTimeSerie>(dataSeries, range);
+  return std::shared_ptr<TimeSeries::ITimeSerie>{};
 }
-
-// void Variable2::setData(const std::vector<AnyTimeSerie*>& dataSeries,
-//                        const DateTimeRange& range, bool notify)
-//{
-//  if(dataSeries.size())
-//  {
-//    impl->setDataSeries(merge(dataSeries));
-//    impl->setRange(range);
-//    if(notify) emit this->updated(this->ID());
-//  }
-//}
 
 void Variable2::setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
                         const DateTimeRange& range, bool notify)
@@ -225,7 +207,7 @@ void Variable2::setData(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
   {
     {
       QWriteLocker lock{&m_lock};
-      impl->setDataSeries(merge(dataSeries));
+      impl->setDataSeries(merge(dataSeries, range));
       impl->setRange(range);
     }
     if(notify) emit this->updated(this->ID());

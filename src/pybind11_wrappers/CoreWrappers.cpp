@@ -209,7 +209,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
            })
       .def("__repr__", __repr__<Variable>);
 
-  py::class_<TimeSeries::ITimeSerie>(m, "ITimeSerie")
+  py::class_<TimeSeries::ITimeSerie, std::shared_ptr<TimeSeries::ITimeSerie>>(
+      m, "ITimeSerie")
       .def_property_readonly(
           "size", [](const TimeSeries::ITimeSerie& ts) { return ts.size(); })
       .def("__len__",
@@ -309,12 +310,11 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def_property("name", &Variable2::name, &Variable2::setName)
       .def_property_readonly("range", &Variable2::range)
       .def_property_readonly("nbPoints", &Variable2::nbPoints)
-      .def_property_readonly("data",
-                             [](Variable2& var) -> TimeSeries::ITimeSerie* {
-                               auto data = var.data();
-                               if(data) return data->base();
-                               return nullptr;
-                             })
+      .def_property_readonly(
+          "data",
+          [](Variable2& var) -> std::shared_ptr<TimeSeries::ITimeSerie> {
+            return var.data();
+          })
       .def("set_data",
            [](Variable2& var, std::vector<TimeSeries::ITimeSerie*> ts_list,
               const DateTimeRange& range) { var.setData(ts_list, range); })

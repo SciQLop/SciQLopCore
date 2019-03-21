@@ -37,8 +37,7 @@ public:
     auto serie = new ScalarTimeSerie(size);
     std::generate(std::begin(*serie), std::end(*serie),
                   [i = ceil(parameters.m_Range.m_TStart)]() mutable {
-                    return std::pair<double, double>{i, i * slope};
-                    i++;
+                    return std::pair<double, double>{i, i++ * slope};
                   });
     return serie;
   }
@@ -63,8 +62,9 @@ template<int slope = 1> struct RangeType
 template<class T>
 void check_variable_state(std::shared_ptr<Variable2> v, DateTimeRange r)
 {
-  QVERIFY(v->data()->base()->t(0) >= r.m_TStart);
-  QVERIFY(v->data()->base()->t(v->data()->base()->size() - 1) <= r.m_TEnd);
+  auto range = v->data()->axis_range(0);
+  QVERIFY(range.first >= r.m_TStart);
+  QVERIFY(range.second <= r.m_TEnd);
   T::check_properties(v, r);
 }
 

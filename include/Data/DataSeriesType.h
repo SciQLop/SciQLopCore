@@ -1,6 +1,9 @@
 #ifndef SCIQLOP_DATASERIESTYPE_H
 #define SCIQLOP_DATASERIESTYPE_H
 
+#include <Data/ScalarTimeSerie.h>
+#include <Data/SpectrogramTimeSerie.h>
+#include <Data/VectorTimeSerie.h>
 #include <QString>
 
 enum class DataSeriesType
@@ -29,6 +32,15 @@ struct DataSeriesTypeUtils
     {
       return DataSeriesType::NONE;
     }
+  }
+  static DataSeriesType type(TimeSeries::ITimeSerie* ts)
+  {
+    if(!ts) return DataSeriesType::NONE;
+    if(dynamic_cast<ScalarTimeSerie*>(ts)) return DataSeriesType::SCALAR;
+    if(dynamic_cast<VectorTimeSerie*>(ts)) return DataSeriesType::VECTOR;
+    if(dynamic_cast<SpectrogramTimeSerie*>(ts))
+      return DataSeriesType::SPECTROGRAM;
+    return DataSeriesType::NONE;
   }
 };
 

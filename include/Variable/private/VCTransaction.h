@@ -71,7 +71,7 @@ public:
       _variable->setData(data, _range, true);
     else
     {
-      data.push_back(_variable->data()->base());
+      data.push_back(_variable->data().get());
       _variable->setData(data, _range, true);
     }
     emit transactionComplete();

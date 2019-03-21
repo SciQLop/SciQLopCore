@@ -49,6 +49,9 @@ struct DateTimeRange
 {
   DateTimeRange() : m_TStart(std::nan("")), m_TEnd(std::nan("")) {}
   DateTimeRange(double TStart, double TEnd) : m_TStart(TStart), m_TEnd(TEnd) {}
+  DateTimeRange(const std::pair<double, double>& range)
+      : m_TStart(range.first), m_TEnd(range.second)
+  {}
   /// Creates SqpRange from dates and times
   static DateTimeRange fromDateTime(const QDate& startDate,
                                     const QTime& startTime,

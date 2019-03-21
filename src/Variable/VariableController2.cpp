@@ -264,7 +264,7 @@ class VariableController2::VariableController2Private
       data.push_back(
           provider->getData(DataProviderParameters{{range}, var->metadata()}));
     }
-    data.push_back(var->data()->base()); // might be smarter
+    data.push_back(var->data().get()); // might be smarter
     var->setData(data, r, true);
   }
 

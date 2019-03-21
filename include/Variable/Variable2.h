@@ -19,11 +19,6 @@
 #include <TimeSeries.h>
 #include <optional>
 
-using AnyTimeSerie =
-    variant_w_base<TimeSeries::ITimeSerie,
-                   std::variant<std::monostate, ScalarTimeSerie,
-                                VectorTimeSerie, SpectrogramTimeSerie>>;
-
 class SCIQLOP_CORE_EXPORT Variable2 : public QObject
 {
   Q_OBJECT
@@ -45,7 +40,7 @@ public:
   std::size_t nbPoints();
 
   /// @return the data of the variable, nullptr if there is no data
-  AnyTimeSerie* data();
+  std::shared_ptr<TimeSeries::ITimeSerie> data();
 
   /// @return the type of data that the variable holds
   DataSeriesType type();
