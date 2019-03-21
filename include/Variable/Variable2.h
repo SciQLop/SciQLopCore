@@ -90,8 +90,8 @@ private:
 };
 
 // Required for using shared_ptr in signals/slots
-// SCIQLOP_REGISTER_META_TYPE(VARIABLE_PTR_REGISTRY, std::shared_ptr<Variable2>)
-// SCIQLOP_REGISTER_META_TYPE(VARIABLE_PTR_VECTOR_REGISTRY,
-//                           QVector<std::shared_ptr<Variable2>>)
+SCIQLOP_REGISTER_META_TYPE(VARIABLE_PTR_REGISTRY, std::shared_ptr<Variable2>)
+SCIQLOP_REGISTER_META_TYPE(VARIABLE_PTR_VECTOR_REGISTRY,
+                           QVector<std::shared_ptr<Variable2>>)
 
 #endif // SCIQLOP_VARIABLE2_H

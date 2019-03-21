@@ -19,7 +19,7 @@ class DBEventProduct;
 Q_DECLARE_LOGGING_CATEGORY(LOG_CatalogueController)
 
 class DataSourceItem;
-class Variable;
+class Variable2;
 
 constexpr auto default_repo = "default";
 
@@ -81,7 +81,8 @@ public:
 
 signals:
   void repositoryAdded(const QString& repository);
-  void catalogueAdded(const Catalogue_ptr& catalogue, const QString& repository);
+  void catalogueAdded(const Catalogue_ptr& catalogue,
+                      const QString& repository);
   void catalogueChanged(const Catalogue_ptr& catalogue);
 
   //    // Event

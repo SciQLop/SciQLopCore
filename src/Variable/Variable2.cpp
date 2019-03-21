@@ -157,7 +157,7 @@ DataSeriesType Variable2::type()
   return impl->type();
 }
 
-QVariantHash Variable2::metadata() const noexcept { return QVariantHash{}; }
+QVariantHash Variable2::metadata() const noexcept { return impl->metadata(); }
 
 template<typename T>
 std::shared_ptr<TimeSeries::ITimeSerie>
