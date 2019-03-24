@@ -17,6 +17,7 @@ Q_DECLARE_LOGGING_CATEGORY(LOG_PluginManager)
 class SCIQLOP_CORE_EXPORT PluginManager {
 public:
     explicit PluginManager();
+    ~PluginManager();
 
     /**
      * Loads plugins into SciQlop. The loaded plugins are those located in the directory passed in

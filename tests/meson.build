@@ -7,17 +7,6 @@ TestUtils_dep = declare_dependency(link_with : TestUtils,
                                 dependencies : [sciqlop_core, qt5test])
 
 
-DataSeriesTestsUtils = library('DataSeriesTestsUtils', 'Data/DataSeriesBuilders.h', 'Data/DataSeriesBuilders.cpp',
-                    'Data/DataSeriesTestsUtils.h',
-                    'Data/DataSeriesTestsUtils.cpp',
-                       dependencies : [sciqlop_core, qt5test]
-                       )
-
-
-DataSeriesTestsUtils_dep = declare_dependency(link_with : DataSeriesTestsUtils,
-                                dependencies : [sciqlop_core, qt5test])
-
-
 
 tests = [
     {
@@ -39,47 +28,6 @@ tests = [
         'name':'TestDateTimeRange',
         'sources': ['Data/TestDateTimeRange.cpp'],
         'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestDataSeriesUtils',
-        'sources': ['Data/TestDataSeriesUtils.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestOptionalAxis',
-        'sources': ['Data/TestOptionalAxis.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestSpectrogramSeries',
-        'sources': [
-                    'Data/TestSpectrogramSeries.cpp',
-                    ],
-        'deps': [sciqlop_core, qt5test, DataSeriesTestsUtils_dep]
-    },
-    {
-        'name':'TestOneDimArrayData',
-        'sources': ['Data/TestOneDimArrayData.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestScalarSeries',
-        'sources': [
-                    'Data/TestScalarSeries.cpp',
-                   ],
-        'deps': [sciqlop_core, qt5test, DataSeriesTestsUtils_dep]
-    },
-    {
-        'name':'TestTwoDimArrayData',
-        'sources': ['Data/TestTwoDimArrayData.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestVectorSeries',
-        'sources': [
-                    'Data/TestVectorSeries.cpp',
-                   ],
-        'deps': [sciqlop_core, qt5test, DataSeriesTestsUtils_dep]
     },
     {
         'name':'TestDataSourceController',

@@ -78,9 +78,10 @@ struct PluginManager::PluginManagerPrivate {
                 loadState.setError(QObject::tr("name '%1' already registered").arg(pluginName));
             }
             else {
-                if (auto pluginInstance = qobject_cast<IPlugin *>(pluginLoader.instance())) {
-                    pluginInstance->initialize();
+                if (auto plugin = pluginLoader.instance()) {
+                    qobject_cast<IPlugin *>(plugin)->initialize();
                     m_RegisteredPlugins.insert(pluginName, pluginPath);
+                    m_LoadedPlugins.insert(pluginName, plugin);
                 }
                 else {
                     loadState.setError(QObject::tr("the file is not a Sciqlop plugin"));
@@ -100,15 +101,31 @@ struct PluginManager::PluginManagerPrivate {
         for (QObject *plugin : QPluginLoader::staticInstances()) {
             qobject_cast<IPlugin *>(plugin)->initialize();
             m_RegisteredPlugins.insert(plugin->metaObject()->className(), "StaticPlugin");
+            m_LoadedPlugins.insert(plugin->metaObject()->className(), plugin);
         }
+    }
+    void clearAllPlugins()
+    {
+      for(auto plugin:m_LoadedPlugins)
+      {
+        delete plugin;
+      }
+      m_LoadedPlugins.clear();
+      m_RegisteredPlugins.clear();
     }
 
     /// Registered plugins (key: plugin name, value: plugin path)
     QHash<QString, QString> m_RegisteredPlugins;
+    QHash<QString,QObject*> m_LoadedPlugins;
 };
 
 PluginManager::PluginManager() : impl{spimpl::make_unique_impl<PluginManagerPrivate>()}
 {
+}
+
+PluginManager::~PluginManager()
+{
+  impl->clearAllPlugins();
 }
 
 void PluginManager::loadPlugins(const QDir &pluginDir)
