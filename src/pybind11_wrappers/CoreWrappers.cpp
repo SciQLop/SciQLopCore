@@ -114,7 +114,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
           },
           py::return_value_policy::reference);
 
-  py::class_<ScalarTimeSerie, TimeSeries::ITimeSerie>(m, "ScalarTimeSerie")
+  py::class_<ScalarTimeSerie, TimeSeries::ITimeSerie,
+             std::shared_ptr<ScalarTimeSerie>>(m, "ScalarTimeSerie")
       .def(py::init<>())
       .def(py::init<std::size_t>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
@@ -137,7 +138,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def_readwrite("y", &VectorTimeSerie::raw_value_type::y)
       .def_readwrite("z", &VectorTimeSerie::raw_value_type::z);
 
-  py::class_<VectorTimeSerie, TimeSeries::ITimeSerie>(m, "VectorTimeSerie")
+  py::class_<VectorTimeSerie, TimeSeries::ITimeSerie,
+             std::shared_ptr<VectorTimeSerie>>(m, "VectorTimeSerie")
       .def(py::init<>())
       .def(py::init<std::size_t>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
@@ -173,8 +175,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
            [](SpectrogramTimeSerie::iterator_t& self, std::size_t key,
               double value) { (*self)[key] = value; });
 
-  py::class_<SpectrogramTimeSerie, TimeSeries::ITimeSerie>(
-      m, "SpectrogramTimeSerie")
+  py::class_<SpectrogramTimeSerie, TimeSeries::ITimeSerie,
+             std::shared_ptr<SpectrogramTimeSerie>>(m, "SpectrogramTimeSerie")
       .def(py::init<>())
       .def(py::init<const std::vector<std::size_t>>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> values) {

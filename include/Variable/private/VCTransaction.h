@@ -74,6 +74,8 @@ public:
       data.push_back(_variable->data().get());
       _variable->setData(data, _range, true);
     }
+    std::for_each(std::begin(data), std::end(data),
+                  [](TimeSeries::ITimeSerie* ts) { delete ts; });
     emit transactionComplete();
   }
 signals:
