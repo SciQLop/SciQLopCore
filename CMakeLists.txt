@@ -87,6 +87,7 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Data/SqpIterator.h
     ./include/Data/SpectrogramTimeSerie.h
     ./include/Data/DataProviderParameters.h
+    ./include/Data/TimeSeriesUtils.h
     ./include/Data/IDataProvider.h
     ./include/Network/NetworkController.h
     ./include/Network/Downloader.h
