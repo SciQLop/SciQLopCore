@@ -72,6 +72,17 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i].y,i*10.)
             self.assertEqual(ts[i].z,i*100.)
 
+
+    def test_build_MultiComponentTimeSerie_from_np_arrays(self):
+        v=np.ones((5,10))
+        for i in range(5):
+            v[:][i] = np.arange(10)*10**i
+        ts = pysciqlopcore.MultiComponentTimeSerie(np.arange(10), v)
+        for i in range(len(ts)):
+            self.assertEqual(ts[i][0],i)
+            self.assertEqual(ts[i][1],i*10.)
+            self.assertEqual(ts[i][2],i*100.)
+
     def test_build_VectorTimeSerie_from_np_arrays_row(self):
         v=np.ones((10,3))
         for i in range(3):

@@ -86,6 +86,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .value("SCALAR", DataSeriesType::SCALAR)
       .value("SPECTROGRAM", DataSeriesType::SPECTROGRAM)
       .value("VECTOR", DataSeriesType::VECTOR)
+      .value("MULTICOMPONENT", DataSeriesType::MULTICOMPONENT)
       .value("NONE", DataSeriesType::NONE)
       .export_values();
 
@@ -159,17 +160,17 @@ PYBIND11_MODULE(pysciqlopcore, m)
 
         return VectorTimeSerie(_t, _values);
       }))
-      .def(
-          "__getitem__",
-          [](VectorTimeSerie& ts, std::size_t key)
-              -> VectorTimeSerie::raw_value_type& { return ts[key]; },
-          py::return_value_policy::reference)
+      .def("__getitem__",
+           [](VectorTimeSerie& ts, std::size_t key)
+               -> VectorTimeSerie::raw_value_type& { return ts[key]; },
+           py::return_value_policy::reference)
       .def("__setitem__", [](VectorTimeSerie& ts, std::size_t key,
                              VectorTimeSerie::raw_value_type value) {
         *(ts.begin() + key) = value;
       });
 
-  py::class_<MultiComponentTimeSerie::iterator_t>(m, "MultiComponentTimeSerieItem")
+  py::class_<MultiComponentTimeSerie::iterator_t>(m,
+                                                  "MultiComponentTimeSerieItem")
       .def("__getitem__", [](MultiComponentTimeSerie::iterator_t& self,
                              std::size_t key) { return (*self)[key]; })
       .def("__setitem__",
@@ -182,7 +183,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def(py::init<>())
       .def(py::init<const std::vector<std::size_t>>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
-        assert(t.size() < values.size()); // TODO check geometry
+        assert((t.size() < values.size()) |
+               (t.size() == 0)); // TODO check geometry
         MultiComponentTimeSerie::axis_t _t(t.size());
         MultiComponentTimeSerie::container_type<
             MultiComponentTimeSerie::raw_value_type>

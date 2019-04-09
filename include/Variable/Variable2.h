@@ -8,6 +8,7 @@
 #include <Common/spimpl.h>
 #include <Data/DataSeriesType.h>
 #include <Data/DateTimeRange.h>
+#include <Data/MultiComponentTimeSerie.h>
 #include <Data/ScalarTimeSerie.h>
 #include <Data/SpectrogramTimeSerie.h>
 #include <Data/VectorTimeSerie.h>

@@ -73,6 +73,13 @@ struct Variable2::VariablePrivate
         m_TimeSerie =
             std::make_shared<SpectrogramTimeSerie>(SpectrogramTimeSerie{});
         break;
+      case DataSeriesType::MULTICOMPONENT:
+      {
+        std::size_t count = metadata.value(QString("size"), 0).toInt();
+        m_TimeSerie       = std::make_shared<MultiComponentTimeSerie>(
+            MultiComponentTimeSerie{{0, count}});
+      }
+      break;
       default: break;
     }
   }
@@ -195,6 +202,8 @@ merge(const std::vector<TimeSeries::ITimeSerie*>& dataSeries,
     return _merge<ScalarTimeSerie>(dataSeries, range);
   if(dynamic_cast<VectorTimeSerie*>(dataSeries.front()))
     return _merge<VectorTimeSerie>(dataSeries, range);
+  if(dynamic_cast<MultiComponentTimeSerie*>(dataSeries.front()))
+    return _merge<MultiComponentTimeSerie>(dataSeries, range);
   if(dynamic_cast<SpectrogramTimeSerie*>(dataSeries.front()))
     return _merge<SpectrogramTimeSerie>(dataSeries, range);
   return std::shared_ptr<TimeSeries::ITimeSerie>{};
