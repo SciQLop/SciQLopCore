@@ -159,14 +159,45 @@ PYBIND11_MODULE(pysciqlopcore, m)
 
         return VectorTimeSerie(_t, _values);
       }))
-      .def("__getitem__",
-           [](VectorTimeSerie& ts, std::size_t key)
-               -> VectorTimeSerie::raw_value_type& { return ts[key]; },
-           py::return_value_policy::reference)
+      .def(
+          "__getitem__",
+          [](VectorTimeSerie& ts, std::size_t key)
+              -> VectorTimeSerie::raw_value_type& { return ts[key]; },
+          py::return_value_policy::reference)
       .def("__setitem__", [](VectorTimeSerie& ts, std::size_t key,
                              VectorTimeSerie::raw_value_type value) {
         *(ts.begin() + key) = value;
       });
+
+  py::class_<MultiComponentTimeSerie::iterator_t>(m, "MultiComponentTimeSerieItem")
+      .def("__getitem__", [](MultiComponentTimeSerie::iterator_t& self,
+                             std::size_t key) { return (*self)[key]; })
+      .def("__setitem__",
+           [](MultiComponentTimeSerie::iterator_t& self, std::size_t key,
+              double value) { (*self)[key] = value; });
+
+  py::class_<MultiComponentTimeSerie, TimeSeries::ITimeSerie,
+             std::shared_ptr<MultiComponentTimeSerie>>(
+      m, "MultiComponentTimeSerie")
+      .def(py::init<>())
+      .def(py::init<const std::vector<std::size_t>>())
+      .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
+        assert(t.size() < values.size()); // TODO check geometry
+        MultiComponentTimeSerie::axis_t _t(t.size());
+        MultiComponentTimeSerie::container_type<
+            MultiComponentTimeSerie::raw_value_type>
+            _values(values.size());
+        copy_spectro(t, values, _t, _values);
+        std::vector<std::size_t> shape;
+        shape.push_back(values.shape(1));
+        shape.push_back(values.shape(0));
+        return MultiComponentTimeSerie(_t, _values, shape);
+      }))
+      .def("__getitem__",
+           [](MultiComponentTimeSerie& ts,
+              std::size_t key) -> MultiComponentTimeSerie::iterator_t {
+             return ts.begin() + key;
+           });
 
   py::class_<SpectrogramTimeSerie::iterator_t>(m, "SpectrogramTimeSerieItem")
       .def("__getitem__", [](SpectrogramTimeSerie::iterator_t& self,
