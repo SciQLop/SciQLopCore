@@ -25,7 +25,12 @@ class TimeSeriesCtors(unittest.TestCase):
     @ddt.data(
              (pysciqlopcore.ScalarTimeSerie,10),
              (pysciqlopcore.VectorTimeSerie,10),
-             (pysciqlopcore.SpectrogramTimeSerie,[10,10])
+             (pysciqlopcore.SpectrogramTimeSerie,[10,10]),
+             (pysciqlopcore.MultiComponentTimeSerie,[10,10]),
+             (pysciqlopcore.ScalarTimeSerie,0),
+             (pysciqlopcore.VectorTimeSerie,0),
+             (pysciqlopcore.SpectrogramTimeSerie,[0,10]),
+             (pysciqlopcore.MultiComponentTimeSerie,[0,10])
     )
     def test_construct(self, case):
         ts = case[0](case[1])
@@ -82,6 +87,16 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i][0],i)
             self.assertEqual(ts[i][1],i*10.)
             self.assertEqual(ts[i][2],i*100.)
+
+    def test_build_MultiComponentTimeSerie_from_np_arrays_of_nan(self):
+        v=np.empty((5,2))
+        v.fill(np.nan)
+        ts = pysciqlopcore.MultiComponentTimeSerie(np.arange(2), v)
+        for i in range(len(ts)):
+            self.assertTrue(np.isnan(ts[i][0]))
+            self.assertTrue(np.isnan(ts[i][1]))
+            self.assertTrue(np.isnan(ts[i][2]))
+            self.assertTrue(np.isnan(ts[i][3]))
 
     def test_build_VectorTimeSerie_from_np_arrays_row(self):
         v=np.ones((10,3))

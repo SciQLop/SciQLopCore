@@ -182,14 +182,16 @@ _merge(std::vector<TimeSeries::ITimeSerie*> source, const DateTimeRange& range)
         auto& ts    = *static_cast<T*>(serie);
         auto last_t = range.m_TStart;
         if(dest->size()) last_t = dest->axis(0).back();
-
-        std::copy(std::upper_bound(
-                      std::begin(ts), std::end(ts), last_t,
-                      [](const auto& a, const auto& b) { return a < b.t(); }),
-                  std::lower_bound(
-                      std::begin(ts), std::end(ts), range.m_TEnd,
-                      [](const auto& a, const auto& b) { return a.t() < b; }),
-                  std::back_inserter(*std::dynamic_pointer_cast<T>(dest)));
+        if(ts.size())
+        {
+          std::copy(std::upper_bound(
+                        std::begin(ts), std::end(ts), last_t,
+                        [](const auto& a, const auto& b) { return a < b.t(); }),
+                    std::lower_bound(
+                        std::begin(ts), std::end(ts), range.m_TEnd,
+                        [](const auto& a, const auto& b) { return a.t() < b; }),
+                    std::back_inserter(*std::dynamic_pointer_cast<T>(dest)));
+        }
       });
   return dest;
 }
