@@ -68,9 +68,9 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i],i*10.)
 
     def test_build_VectorTimeSerie_from_np_arrays(self):
-        v=np.ones((3,10))
+        v=np.ones((10,3))
         for i in range(3):
-            v[:][i] = np.arange(10)*10**i
+            v.transpose()[:][i] = np.arange(10)*10**i
         ts = pysciqlopcore.VectorTimeSerie(np.arange(10), v)
         for i in range(len(ts)):
             self.assertEqual(ts[i].x,i)
@@ -79,9 +79,9 @@ class TimeSeriesData(unittest.TestCase):
 
 
     def test_build_MultiComponentTimeSerie_from_np_arrays(self):
-        v=np.ones((5,10))
+        v=np.ones((10,5))
         for i in range(5):
-            v[:][i] = np.arange(10)*10**i
+            v.transpose()[:][i] = np.arange(10)*10**i
         ts = pysciqlopcore.MultiComponentTimeSerie(np.arange(10), v)
         for i in range(len(ts)):
             self.assertEqual(ts[i][0],i)
@@ -89,7 +89,7 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i][2],i*100.)
 
     def test_build_MultiComponentTimeSerie_from_np_arrays_of_nan(self):
-        v=np.empty((5,2))
+        v=np.empty((2,5))
         v.fill(np.nan)
         ts = pysciqlopcore.MultiComponentTimeSerie(np.arange(2), v)
         for i in range(len(ts)):
@@ -108,6 +108,13 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i].y,i*10.)
             self.assertEqual(ts[i].z,i*100.)
 
+    def test_build_ScalarTimeSerie_from_np_dataframe(self):
+        df = pds.DataFrame(data=np.zeros((10,1)),index=np.arange(10))
+        df[0] = np.arange(10)
+        ts = pysciqlopcore.ScalarTimeSerie(df.index.values, df.values)
+        for i in range(len(ts)):
+            self.assertEqual(ts[i],i)
+
     def test_build_VectorTimeSerie_from_np_dataframe(self):
         df = pds.DataFrame(data=np.zeros((10,3)),index=np.arange(10))
         for i in range(3):
@@ -119,9 +126,9 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i].z,i*100.)
 
     def test_build_SpectrogramTimeSerie_from_np_arrays(self):
-        v=np.ones((4,10))
+        v=np.ones((10,4))
         for i in range(4):
-            v[:][i] = np.arange(10)*10**i
+            v.transpose()[:][i] = np.arange(10)*10**i
         ts = pysciqlopcore.SpectrogramTimeSerie(np.arange(10), v)
         for i in range(len(ts)):
             for j in range(4):

@@ -28,23 +28,10 @@ void copy_vector(py::array_t<double>& t, py::array_t<double>& values, T& dest_t,
 {
   auto t_view      = t.unchecked<1>();
   auto values_view = values.unchecked<2>();
-  if constexpr(row_major)
+  for(std::size_t i = 0; i < t.size(); i++)
   {
-    for(std::size_t i = 0; i < t.size(); i++)
-    {
-      dest_t[i]      = t_view[i];
-      dest_values[i] = {values_view(i, 0), values_view(i, 1),
-                        values_view(i, 2)};
-    }
-  }
-  else
-  {
-    for(std::size_t i = 0; i < t.size(); i++)
-    {
-      dest_t[i]      = t_view[i];
-      dest_values[i] = {values_view(0, i), values_view(1, i),
-                        values_view(2, i)};
-    }
+    dest_t[i]      = t_view[i];
+    dest_values[i] = {values_view(i, 0), values_view(i, 1), values_view(i, 2)};
   }
 }
 
@@ -52,12 +39,24 @@ template<typename T, typename U>
 void copy_scalar(py::array_t<double>& t, py::array_t<double>& values, T& dest_t,
                  U& dest_values)
 {
-  auto t_view      = t.unchecked<1>();
-  auto values_view = values.unchecked<1>();
-  for(std::size_t i = 0; i < t.size(); i++)
+  auto t_view = t.unchecked<1>();
+  if(values.ndim() == 1)
   {
-    dest_t[i]      = t_view[i];
-    dest_values[i] = values_view[i];
+    auto values_view = values.unchecked<1>();
+    for(std::size_t i = 0; i < t.size(); i++)
+    {
+      dest_t[i]      = t_view[i];
+      dest_values[i] = values_view[i];
+    }
+  }
+  else if(values.ndim() == 2 && values.shape(1) == 1)
+  {
+    auto values_view = values.unchecked<2>();
+    for(std::size_t i = 0; i < t.size(); i++)
+    {
+      dest_t[i]      = t_view[i];
+      dest_values[i] = values_view(i, 0);
+    }
   }
 }
 
@@ -67,13 +66,13 @@ void copy_spectro(py::array_t<double>& t, py::array_t<double>& values,
 {
   auto t_view      = t.unchecked<1>();
   auto values_view = values.unchecked<2>();
-  const auto width = values.shape(0);
+  const auto width = values.shape(1);
   for(std::size_t i = 0; i < t.size(); i++)
   {
     dest_t[i] = t_view[i];
     for(int j = 0; j < width; j++)
     {
-      dest_values[i * width + j] = values_view(j, i);
+      dest_values[i * width + j] = values_view(i, j);
     }
   }
 }
@@ -148,16 +147,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
         VectorTimeSerie::axis_t _t(t.size());
         VectorTimeSerie::container_type<VectorTimeSerie::raw_value_type>
             _values(t.size());
-        if(values.shape()[0] == 3 && values.shape(1) != 3)
-        {
-          copy_vector<decltype(_t), decltype(_values), false>(t, values, _t,
-                                                              _values);
-        }
-        else
-        {
-          copy_vector(t, values, _t, _values);
-        }
-
+        copy_vector(t, values, _t, _values);
         return VectorTimeSerie(_t, _values);
       }))
       .def("__getitem__",
@@ -191,8 +181,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
             _values(values.size());
         copy_spectro(t, values, _t, _values);
         std::vector<std::size_t> shape;
-        shape.push_back(values.shape(1));
         shape.push_back(values.shape(0));
+        shape.push_back(values.shape(1));
         return MultiComponentTimeSerie(_t, _values, shape);
       }))
       .def("__getitem__",
@@ -220,8 +210,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
             _values(values.size());
         copy_spectro(t, values, _t, _values);
         std::vector<std::size_t> shape;
-        shape.push_back(values.shape(1));
         shape.push_back(values.shape(0));
+        shape.push_back(values.shape(1));
         return SpectrogramTimeSerie(_t, _values, shape);
       }))
       .def("__getitem__",
