@@ -20,10 +20,12 @@ core_moc_headers = [
  './include/Data/ScalarTimeSerie.h',
  './include/Data/DateTimeRange.h',
  './include/Data/DataProviderParameters.h',
+ './include/Data/TimeSeriesUtils.h',
  './include/Data/VectorTimeSerie.h',
  './include/Data/SqpIterator.h',
  './include/Data/IDataProvider.h',
  './include/Data/SpectrogramTimeSerie.h',
+ './include/Data/MultiComponentTimeSerie.h',
  './include/Data/DataSeriesType.h',
  './include/CoreGlobal.h',
  './include/Network/NetworkController.h',
@@ -48,13 +50,13 @@ core_moc_headers = [
  './include/Visualization/VisualizationController.h']
 
 
+
 core_moc_sources = ['src/Network/Downloader.cpp']
 
 
 core_moc_files = qt5.preprocess(moc_headers : core_moc_headers, moc_sources: core_moc_sources)
 
-core_sources = [
- './src/Common/MimeTypesDef.cpp',
+core_sources = ['./src/Common/MimeTypesDef.cpp',
  './src/Common/SignalWaiter.cpp',
  './src/Common/DateUtils.cpp',
  './src/Common/StringUtils.cpp',
