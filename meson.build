@@ -104,7 +104,7 @@ pysciqlopcore_srcs = [
 ]
 
 python3.extension_module('pysciqlopcore', './src/pybind11_wrappers/CoreWrappers.cpp', 
-                         dependencies: [sciqlop_core, python3.dependency()], 
+                         dependencies: [sciqlop_core], 
                          install: true
                         )
 
