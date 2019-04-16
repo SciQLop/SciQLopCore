@@ -94,12 +94,19 @@ sciqlop_core = declare_dependency(link_with : sciqlop_core_lib,
                                 include_directories : core_inc,
                                 dependencies : [qt5core, qt5network, catalogicpp_dep, pybind11_dep, timeseries_dep])
 
+pymod = import('python')
+python3 = pymod.find_installation('python3')
 
-[
+pysciqlopcore_srcs = [
  './src/pybind11_wrappers/CatalogWrappers.cpp',
  './src/pybind11_wrappers/QtWrappers.cpp',
  './src/pybind11_wrappers/CoreWrappers.cpp'
 ]
+
+python3.extension_module('pysciqlopcore', './src/pybind11_wrappers/CoreWrappers.cpp', 
+                         dependencies: [sciqlop_core, python3.dependency()], 
+                         install: true
+                        )
 
 
 subdir('tests')
