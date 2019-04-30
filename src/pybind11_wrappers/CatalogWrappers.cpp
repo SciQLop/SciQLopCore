@@ -1,81 +1,102 @@
 #include "pywrappers_common.h"
+
+#include <Catalogue.hpp>
+#include <Catalogue/CatalogueController.h>
+#include <Event.hpp>
 #include <QDate>
 #include <QString>
 #include <QTime>
 #include <QUuid>
 #include <QVector>
+#include <Repository.hpp>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <sstream>
 #include <string>
 
-#include <Catalogue/CatalogueController.h>
-//#include <DBCatalogue.h>
-//#include <DBEvent.h>
-//#include <DBEventProduct.h>
-
-
 namespace py = pybind11;
 
-//std::ostream& operator<<(std::ostream& os, const DBEvent& e)
+// std::ostream& operator<<(std::ostream& os, const DBEvent& e)
 //{
 //    os << std::endl;
 //    return os;
 //}
 
-#define JAVA_LIKE_PROPERTY(name, className)                                                        \
-    .def_property("##name", &className::get##name, &className::set##name)
-
 PYBIND11_MODULE(pysciqlopcatalogs, m)
 {
+  py::class_<CatalogueController::Product_t>(m, "Product")
+      .def_readwrite("name", &CatalogueController::Product_t::name)
+      .def_readwrite("start_time", &CatalogueController::Product_t::startTime)
+      .def_readwrite("stop_time", &CatalogueController::Product_t::stopTime);
 
-    //    py::class_<DBEventProduct, std::shared_ptr<DBEventProduct>>(m,"DBEventProduct")
-    //            JAVA_LIKE_PROPERTY(TStart, DBEventProduct)
-    //            JAVA_LIKE_PROPERTY(TEnd, DBEventProduct)
-    //            JAVA_LIKE_PROPERTY(ProductId, DBEventProduct)
-    //            JAVA_LIKE_PROPERTY(CreationDateTime, DBEventProduct)
-    //            JAVA_LIKE_PROPERTY(ModificationDateTime, DBEventProduct)
-    //            JAVA_LIKE_PROPERTY(Event, DBEventProduct)
-    //            ;
+  py::class_<CatalogueController::Event_t, CatalogueController::Event_ptr>(
+      m, "Event")
+      .def_readwrite("name", &CatalogueController::Event_t::name)
+      .def_readwrite("tags", &CatalogueController::Event_t::tags)
+      .def_readwrite("products", &CatalogueController::Event_t::products)
+      .def_readonly("uuid", &CatalogueController::Event_t::uuid)
+      .def_property_readonly("start_time",
+                             &CatalogueController::Event_t::startTime)
+      .def_property_readonly("stop_time",
+                             &CatalogueController::Event_t::stopTime)
+      .def(py::self == py::self)
+      .def(py::self != py::self);
 
-    //    py::class_<DBEvent, std::shared_ptr<DBEvent>>(m, "DBEvent")
-    //            JAVA_LIKE_PROPERTY(Name,DBEvent)
-    //            JAVA_LIKE_PROPERTY(UniqId,DBEvent)
-    //            JAVA_LIKE_PROPERTY(Author,DBEvent)
-    //            JAVA_LIKE_PROPERTY(Repository,DBEvent)
-    //            JAVA_LIKE_PROPERTY(CreationDateTime,DBEvent)
-    //            JAVA_LIKE_PROPERTY(ModificationDateTime,DBEvent)
-    //            JAVA_LIKE_PROPERTY(EventProducts,DBEvent)
-    //            .def_property_readonly("TStart", &DBEvent::getTStart)
-    //            .def_property_readonly("TEnd", &DBEvent::getTEnd)
-    //            .def("__repr__",__repr__<DBEvent>);
+  py::class_<CatalogueController::Catalogue_t,
+             CatalogueController::Catalogue_ptr>(m, "Catalogue")
+      .def_readwrite("name", &CatalogueController::Catalogue_t::name)
+      .def_readonly("uuid", &CatalogueController::Catalogue_t::uuid)
+      .def_property_readonly("start_time",
+                             &CatalogueController::Catalogue_t::startTime)
+      .def_property_readonly("stop_time",
+                             &CatalogueController::Catalogue_t::stopTime)
+      .def("add", &CatalogueController::Catalogue_t::add)
+      .def("remove", py::overload_cast<CatalogueController::Event_ptr&>(
+                         &CatalogueController::Catalogue_t::remove))
+      .def("remove", py::overload_cast<const CatalogueController::uuid_t&>(
+                         &CatalogueController::Catalogue_t::remove))
+      .def("event",
+           [](const CatalogueController::Catalogue_t& catalogue,
+              const CatalogueController::uuid_t& uuid) {
+             return catalogue.event(uuid);
+           })
+      .def("__contains__", &CatalogueController::Catalogue_t::contains);
 
-    //    py::class_<DBCatalogue, std::shared_ptr<DBCatalogue>>(m,"DBEventProduct")
-    //            JAVA_LIKE_PROPERTY(CatalogueId, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(UniqId, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(Name, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(Author, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(Repository, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(CreationDateTime, DBCatalogue)
-    //            JAVA_LIKE_PROPERTY(ModificationDateTime, DBCatalogue)
-    //            ;
+  py::class_<CatalogueController>(m, "CatalogueController")
+      .def("load_repository", &CatalogueController::loadRepository)
+      .def("save_repository", &CatalogueController::saveRepository)
+      .def("events", py::overload_cast<>(&CatalogueController::events))
+      .def("events",
+           py::overload_cast<const QString&>(&CatalogueController::events))
+      .def("events",
+           py::overload_cast<const CatalogueController::Catalogue_ptr&>(
+               &CatalogueController::events))
+      .def("catalogues", py::overload_cast<>(&CatalogueController::catalogues))
+      .def("catalogues",
+           py::overload_cast<const QString&>(&CatalogueController::catalogues))
+      .def("has_unsaved_changes", &CatalogueController::hasUnsavedChanges)
+      .def("repository", py::overload_cast<CatalogueController::Event_ptr>(
+                             &CatalogueController::repository))
+      .def("repository", py::overload_cast<CatalogueController::Catalogue_ptr>(
+                             &CatalogueController::repository))
+      .def("save", py::overload_cast<CatalogueController::Event_ptr>(
+                       &CatalogueController::save))
+      .def("save", py::overload_cast<CatalogueController::Catalogue_ptr>(
+                       &CatalogueController::save))
+      .def("save",
+           py::overload_cast<const QString&>(&CatalogueController::save))
 
-    //    py::class_<CatalogueController>(m, "CatalogueController")
-    //            .def("addDB", &CatalogueController::addDB)
-    //            .def("saveDB", &CatalogueController::saveDB)
-    //            .def("addEvent", &CatalogueController::addEvent)
-    //            .def("updateEvent", &CatalogueController::updateEvent)
-    //            .def("updateEventProduct", &CatalogueController::updateEventProduct)
-    //            .def("removeEvent", &CatalogueController::removeEvent)
-    //            .def("saveEvent", &CatalogueController::saveEvent)
-    //            .def("discardEvent", &CatalogueController::discardEvent)
-    //            .def("eventHasChanges", &CatalogueController::eventHasChanges)
-    //            .def("addCatalogue", &CatalogueController::addCatalogue)
-    //            .def("updateCatalogue", &CatalogueController::updateCatalogue)
-    //            .def("removeCatalogue", &CatalogueController::removeCatalogue)
-    //            .def("saveCatalogue", &CatalogueController::saveCatalogue)
-    //            .def("discardCatalogue", &CatalogueController::discardCatalogue)
-    //            .def("saveAll", &CatalogueController::saveAll)
-    //            .def("hasChanges", &CatalogueController::hasChanges)
-    //            ;
+      .def("add", py::overload_cast<const QString&>(&CatalogueController::add))
+      .def("add", py::overload_cast<const QString&, const QString&>(
+                      &CatalogueController::add))
+      .def("add", py::overload_cast<CatalogueController::Event_ptr,
+                                    CatalogueController::Catalogue_ptr>(
+                      &CatalogueController::add))
+      .def("add",
+           py::overload_cast<CatalogueController::Event_ptr, const QString&>(
+               &CatalogueController::add))
+      .def("add", [](CatalogueController& ctrlr,
+                     CatalogueController::Event_ptr event) {
+        return ctrlr.add(event);
+      });
 }
