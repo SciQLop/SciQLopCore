@@ -126,13 +126,15 @@ class TimeSeriesData(unittest.TestCase):
             self.assertEqual(ts[i].z,i*100.)
 
     def test_build_SpectrogramTimeSerie_from_np_arrays(self):
-        v=np.ones((10,4))
-        for i in range(4):
-            v.transpose()[:][i] = np.arange(10)*10**i
-        ts = pysciqlopcore.SpectrogramTimeSerie(np.arange(10), v)
+        v=np.ones((10,30))
+        for i in range(30):
+            v.transpose()[:][i] = np.arange(10)*10**(i/10.)
+        ts = pysciqlopcore.SpectrogramTimeSerie(np.arange(10),np.arange(30), v)
         for i in range(len(ts)):
-            for j in range(4):
-                self.assertEqual(ts[i][j], i*10**j)
+            for j in range(30):
+                self.assertEqual(ts[i][j], i*10**(j/10.))
+        for i in range(30):
+            self.assertEqual(ts.axis(1)[i], i)
 
 class VariableData(unittest.TestCase):
     def test_default_state(self):

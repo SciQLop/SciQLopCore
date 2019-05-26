@@ -59,14 +59,36 @@ void copy_scalar(py::array_t<double>& t, py::array_t<double>& values, T& dest_t,
     }
   }
 }
-
 template<typename T, typename U>
-void copy_spectro(py::array_t<double>& t, py::array_t<double>& values,
-                  T& dest_t, U& dest_values)
+void copy_multicomp(py::array_t<double>& t, py::array_t<double>& values,
+                    T& dest_t, U& dest_values)
 {
   auto t_view      = t.unchecked<1>();
   auto values_view = values.unchecked<2>();
   const auto width = values.shape(1);
+  for(std::size_t i = 0; i < t.size(); i++)
+  {
+    dest_t[i] = t_view[i];
+    for(int j = 0; j < width; j++)
+    {
+      dest_values[i * width + j] = values_view(i, j);
+    }
+  }
+}
+
+template<typename T, typename U>
+void copy_spectro(py::array_t<double>& t, py::array_t<double>& y,
+                  py::array_t<double>& values, T& dest_t, T& dest_y,
+                  U& dest_values)
+{
+  auto t_view      = t.unchecked<1>();
+  auto y_view      = y.unchecked<1>();
+  auto values_view = values.unchecked<2>();
+  const auto width = values.shape(1);
+  for(std::size_t i = 0; i < y.size(); i++)
+  {
+    dest_y[i] = y_view[i];
+  }
   for(std::size_t i = 0; i < t.size(); i++)
   {
     dest_t[i] = t_view[i];
@@ -112,6 +134,11 @@ PYBIND11_MODULE(pysciqlopcore, m)
           [](TimeSeries::ITimeSerie& ts) -> decltype(ts.axis(0))& {
             return ts.axis(0);
           },
+          py::return_value_policy::reference)
+      .def(
+          "axis",
+          [](TimeSeries::ITimeSerie& ts, unsigned int index)
+              -> decltype(ts.axis(0))& { return ts.axis(index); },
           py::return_value_policy::reference);
 
   py::class_<ScalarTimeSerie, TimeSeries::ITimeSerie,
@@ -150,10 +177,11 @@ PYBIND11_MODULE(pysciqlopcore, m)
         copy_vector(t, values, _t, _values);
         return VectorTimeSerie(_t, _values);
       }))
-      .def("__getitem__",
-           [](VectorTimeSerie& ts, std::size_t key)
-               -> VectorTimeSerie::raw_value_type& { return ts[key]; },
-           py::return_value_policy::reference)
+      .def(
+          "__getitem__",
+          [](VectorTimeSerie& ts, std::size_t key)
+              -> VectorTimeSerie::raw_value_type& { return ts[key]; },
+          py::return_value_policy::reference)
       .def("__setitem__", [](VectorTimeSerie& ts, std::size_t key,
                              VectorTimeSerie::raw_value_type value) {
         *(ts.begin() + key) = value;
@@ -179,7 +207,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
         MultiComponentTimeSerie::container_type<
             MultiComponentTimeSerie::raw_value_type>
             _values(values.size());
-        copy_spectro(t, values, _t, _values);
+        copy_multicomp(t, values, _t, _values);
         std::vector<std::size_t> shape;
         shape.push_back(values.shape(0));
         shape.push_back(values.shape(1));
@@ -202,17 +230,20 @@ PYBIND11_MODULE(pysciqlopcore, m)
              std::shared_ptr<SpectrogramTimeSerie>>(m, "SpectrogramTimeSerie")
       .def(py::init<>())
       .def(py::init<const std::vector<std::size_t>>())
-      .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
+      .def(py::init([](py::array_t<double> t, py::array_t<double> y,
+                       py::array_t<double> values) {
         assert(t.size() < values.size()); // TODO check geometry
+        assert(y.size() == values.shape(1));
         SpectrogramTimeSerie::axis_t _t(t.size());
+        SpectrogramTimeSerie::axis_t _y(y.size());
         SpectrogramTimeSerie::container_type<
             SpectrogramTimeSerie::raw_value_type>
             _values(values.size());
-        copy_spectro(t, values, _t, _values);
+        copy_spectro(t, y, values, _t, _y, _values);
         std::vector<std::size_t> shape;
         shape.push_back(values.shape(0));
         shape.push_back(values.shape(1));
-        return SpectrogramTimeSerie(_t, _values, shape);
+        return SpectrogramTimeSerie(_t, _y, _values, shape);
       }))
       .def("__getitem__",
            [](SpectrogramTimeSerie& ts,
