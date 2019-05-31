@@ -18,10 +18,10 @@ public:
           .begin());
 
   SpectrogramTimeSerie() {}
-  SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t& t,
-                       SpectrogramTimeSerie::axis_t& y,
+  SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t&& t,
+                       SpectrogramTimeSerie::axis_t&& y,
                        SpectrogramTimeSerie::container_type<
-                           SpectrogramTimeSerie::raw_value_type>& values,
+                           SpectrogramTimeSerie::raw_value_type>&& values,
                        std::vector<std::size_t>& shape)
       : TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>(t, values, shape)
   {

@@ -193,6 +193,16 @@ _merge(std::vector<TimeSeries::ITimeSerie*> source, const DateTimeRange& range)
                     std::back_inserter(*std::dynamic_pointer_cast<T>(dest)));
         }
       });
+  if(source.size())
+  {
+    const auto& first = *source.begin();
+    for(std::size_t ax_index = 1; ax_index < first->shape().size(); ax_index++)
+    {
+      const auto& ax = first->axis(ax_index);
+      std::copy(std::cbegin(ax), std::cend(ax),
+                std::back_inserter(dest->axis(ax_index)));
+    }
+  }
   return dest;
 }
 

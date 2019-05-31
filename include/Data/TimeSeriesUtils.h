@@ -6,6 +6,7 @@
 #include "VectorTimeSerie.h"
 
 #include <TimeSeries.h>
+#include <cmath>
 #include <memory>
 
 namespace TimeSeriesUtils
@@ -36,6 +37,47 @@ namespace TimeSeriesUtils
     }
     return nullptr;
   }
+
+  struct axis_properties
+  {
+    double range;
+    double max_resolution;
+    bool is_log;
+  };
+
+  constexpr auto IsLog    = true;
+  constexpr auto IsLinear = false;
+
+  constexpr auto CheckMedian     = true;
+  constexpr auto DontCheckMedian = false;
+
+  template<bool is_log, bool check_median>
+  axis_properties axis_analysis(
+      typename std::conditional<is_log, std::vector<double>&,
+                                const std::vector<double>&>::type axis)
+  {
+    std::vector<double> axis_diff(axis.size());
+    if constexpr(is_log)
+    {
+      std::transform(std::cbegin(axis), std::cend(axis), std::begin(axis),
+                     [](const auto v) { return std::log10(v); });
+    }
+    auto range = *(std::cend(axis) - 1) - *(std::begin(axis));
+    std::adjacent_difference(std::cbegin(axis), std::cend(axis),
+                             std::begin(axis_diff));
+    auto min_diff =
+        (*std::min_element(std::cbegin(axis_diff) + 1, std::cend(axis_diff)));
+    if constexpr(check_median)
+    {
+      std::nth_element(std::begin(axis_diff) + 1,
+                       std::begin(axis_diff) + axis_diff.size() / 2,
+                       std::end(axis_diff));
+      auto median_diff = *(std::begin(axis_diff) + axis_diff.size() / 2);
+      if(median_diff > (4 * min_diff)) min_diff = median_diff;
+    }
+    return {range, min_diff, is_log};
+  }
+
 } // namespace TimeSeriesUtils
 
 #endif

@@ -232,7 +232,10 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def(py::init<const std::vector<std::size_t>>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> y,
                        py::array_t<double> values) {
-        assert(t.size() < values.size()); // TODO check geometry
+        auto t_s = t.size();
+        auto v_s = values.size();
+        assert(t.size() < values.size() or
+               t.size() == 0); // TODO check geometry
         assert(y.size() == values.shape(1));
         SpectrogramTimeSerie::axis_t _t(t.size());
         SpectrogramTimeSerie::axis_t _y(y.size());
@@ -243,7 +246,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
         std::vector<std::size_t> shape;
         shape.push_back(values.shape(0));
         shape.push_back(values.shape(1));
-        return SpectrogramTimeSerie(_t, _y, _values, shape);
+        return SpectrogramTimeSerie(std::move(_t), std::move(_y),
+                                    std::move(_values), shape);
       }))
       .def("__getitem__",
            [](SpectrogramTimeSerie& ts,
