@@ -264,6 +264,7 @@ class VariableController2::VariableController2Private
     }
     data.push_back(var->data().get()); // might be smarter
     var->setData(data, r, true);
+    std::for_each(std::begin(data), std::end(data), [](auto ts) { delete ts; });
   }
 
 public:

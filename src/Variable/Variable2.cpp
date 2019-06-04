@@ -203,6 +203,18 @@ _merge(std::vector<TimeSeries::ITimeSerie*> source, const DateTimeRange& range)
                 std::back_inserter(dest->axis(ax_index)));
     }
   }
+  if constexpr(std::is_same_v<T, SpectrogramTimeSerie>)
+  {
+    auto d = std::dynamic_pointer_cast<SpectrogramTimeSerie>(dest);
+    if(std::isnan(d->max_sampling))
+    {
+      std::for_each(std::begin(source), std::end(source), [&d](auto src) {
+        auto s = dynamic_cast<SpectrogramTimeSerie*>(src);
+        if(!std::isnan(s->max_sampling)) { d->max_sampling = s->max_sampling; }
+        if(!std::isnan(s->min_sampling)) { d->min_sampling = s->min_sampling; }
+      });
+    }
+  }
   return dest;
 }
 

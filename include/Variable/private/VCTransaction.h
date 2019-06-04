@@ -65,7 +65,7 @@ public:
     {
       auto ds = _provider->getData(
           DataProviderParameters{{range}, _variable->metadata()});
-      if(ds) data.push_back(ds);
+      if(ds and ds->size()) data.push_back(ds); // skip empty dataSeries
     }
     if(_overwrite)
       _variable->setData(data, _range, true);

@@ -2,6 +2,7 @@
 
 #include "pywrappers_common.h"
 
+#include <Common/debug.h>
 #include <Data/DataSeriesType.h>
 #include <Data/IDataProvider.h>
 #include <Network/Downloader.h>
@@ -231,12 +232,13 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def(py::init<>())
       .def(py::init<const std::vector<std::size_t>>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> y,
-                       py::array_t<double> values) {
-        auto t_s = t.size();
-        auto v_s = values.size();
-        assert(t.size() < values.size() or
-               t.size() == 0); // TODO check geometry
-        assert(y.size() == values.shape(1));
+                       py::array_t<double> values, double min_sampling,
+                       double max_sampling) {
+        if(t.size() >= values.size() and t.size() != 0)
+          SCIQLOP_ERROR(decltype(py::self), "Doesn't look like a Spectrogram");
+        if(y.size() != values.shape(1))
+          SCIQLOP_ERROR(decltype(py::self),
+                        "Y axis size and data shape are incompatible");
         SpectrogramTimeSerie::axis_t _t(t.size());
         SpectrogramTimeSerie::axis_t _y(y.size());
         SpectrogramTimeSerie::container_type<
@@ -247,7 +249,8 @@ PYBIND11_MODULE(pysciqlopcore, m)
         shape.push_back(values.shape(0));
         shape.push_back(values.shape(1));
         return SpectrogramTimeSerie(std::move(_t), std::move(_y),
-                                    std::move(_values), shape);
+                                    std::move(_values), shape, min_sampling,
+                                    max_sampling);
       }))
       .def("__getitem__",
            [](SpectrogramTimeSerie& ts,
