@@ -233,7 +233,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def(py::init<const std::vector<std::size_t>>())
       .def(py::init([](py::array_t<double> t, py::array_t<double> y,
                        py::array_t<double> values, double min_sampling,
-                       double max_sampling) {
+                       double max_sampling, bool y_is_log) {
         if(t.size() >= values.size() and t.size() != 0)
           SCIQLOP_ERROR(decltype(py::self), "Doesn't look like a Spectrogram");
         if(y.size() != values.shape(1))
@@ -250,7 +250,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
         shape.push_back(values.shape(1));
         return SpectrogramTimeSerie(std::move(_t), std::move(_y),
                                     std::move(_values), shape, min_sampling,
-                                    max_sampling);
+                                    max_sampling, y_is_log);
       }))
       .def("__getitem__",
            [](SpectrogramTimeSerie& ts,
