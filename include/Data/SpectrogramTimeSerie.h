@@ -24,8 +24,7 @@ public:
   SpectrogramTimeSerie() {}
   SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t&& t,
                        SpectrogramTimeSerie::axis_t&& y,
-                       SpectrogramTimeSerie::container_type<
-                           SpectrogramTimeSerie::raw_value_type>&& values,
+                       SpectrogramTimeSerie::data_t&& values,
                        std::vector<std::size_t>& shape, double min_sampling,
                        double max_sampling, bool y_is_log = true)
       : TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>(t, values,

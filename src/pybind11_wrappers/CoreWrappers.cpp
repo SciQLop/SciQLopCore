@@ -173,8 +173,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
       .def(py::init([](py::array_t<double> t, py::array_t<double> values) {
         assert(t.size() * 3 == values.size());
         VectorTimeSerie::axis_t _t(t.size());
-        VectorTimeSerie::container_type<VectorTimeSerie::raw_value_type>
-            _values(t.size());
+        VectorTimeSerie::data_t _values(t.size());
         copy_vector(t, values, _t, _values);
         return VectorTimeSerie(_t, _values);
       }))
@@ -205,9 +204,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
         assert((t.size() < values.size()) |
                (t.size() == 0)); // TODO check geometry
         MultiComponentTimeSerie::axis_t _t(t.size());
-        MultiComponentTimeSerie::container_type<
-            MultiComponentTimeSerie::raw_value_type>
-            _values(values.size());
+        MultiComponentTimeSerie::data_t _values(values.size());
         copy_multicomp(t, values, _t, _values);
         std::vector<std::size_t> shape;
         shape.push_back(values.shape(0));
@@ -241,9 +238,7 @@ PYBIND11_MODULE(pysciqlopcore, m)
                         "Y axis size and data shape are incompatible");
         SpectrogramTimeSerie::axis_t _t(t.size());
         SpectrogramTimeSerie::axis_t _y(y.size());
-        SpectrogramTimeSerie::container_type<
-            SpectrogramTimeSerie::raw_value_type>
-            _values(values.size());
+        SpectrogramTimeSerie::data_t _values(values.size());
         copy_spectro(t, y, values, _t, _y, _values);
         std::vector<std::size_t> shape;
         shape.push_back(values.shape(0));
