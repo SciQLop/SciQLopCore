@@ -94,7 +94,6 @@ FILE (GLOB_RECURSE core_SRCS
     ./include/Network/Downloader.h
     ./include/Version.h
     ./include/CoreGlobal.h
-    ./include/Visualization/VisualizationController.h
     ./include/PluginManager/PluginManager.h
     ./include/Variable/VariableModel2.h
     ./include/Variable/VariableSynchronizationGroup2.h
@@ -115,7 +114,6 @@ FILE (GLOB_RECURSE core_SRCS
     ./src/Common/SignalWaiter.cpp
     ./src/Network/NetworkController.cpp
     ./src/Network/Downloader.cpp
-    ./src/Visualization/VisualizationController.cpp
     ./src/PluginManager/PluginManager.cpp
     ./src/Variable/VariableController2.cpp
     ./src/Variable/VariableModel2.cpp
