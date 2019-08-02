@@ -30,8 +30,8 @@ class SCIQLOP_CORE_EXPORT IDataProvider : public QObject
 {
   Q_OBJECT
 public:
-  virtual ~IDataProvider() noexcept                    = default;
-  virtual std::shared_ptr<IDataProvider> clone() const = 0;
+  virtual ~IDataProvider() noexcept = default;
+  // virtual std::shared_ptr<IDataProvider> clone() const = 0;
 
   // Synchronous call -> asyncGetData may be written for asynchronous get
   virtual TimeSeries::ITimeSerie*

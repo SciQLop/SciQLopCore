@@ -20,10 +20,10 @@ public:
   SimpleRange() = default;
 
   int callCounter = 0;
-  std::shared_ptr<IDataProvider> clone() const override
-  {
-    return std::make_shared<SimpleRange>();
-  }
+  //  std::shared_ptr<IDataProvider> clone() const override
+  //  {
+  //    return std::make_shared<SimpleRange>();
+  //  }
 
   TimeSeries::ITimeSerie*
   getData(const DataProviderParameters& parameters) override

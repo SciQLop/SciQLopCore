@@ -46,8 +46,7 @@ core_moc_headers = [
  './include/Variable/VariableController2.h',
  './include/Variable/Variable2.h',
  './include/Variable/VariableSynchronizationGroup2.h',
- './include/Variable/private/VCTransaction.h',
- './include/Visualization/VisualizationController.h']
+ './include/Variable/private/VCTransaction.h']
 
 
 
@@ -74,8 +73,7 @@ core_sources = ['./src/Common/MimeTypesDef.cpp',
  './src/Variable/VariableSynchronizationGroup2.cpp',
  './src/Variable/Variable2.cpp',
  './src/Variable/VariableController2.cpp',
- './src/Variable/VariableModel2.cpp',
- './src/Visualization/VisualizationController.cpp']
+ './src/Variable/VariableModel2.cpp']
 
 
 core_inc = include_directories(['include', 'include/Plugin'])
