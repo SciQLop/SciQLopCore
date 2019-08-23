@@ -35,6 +35,9 @@ public:
      */
     QUuid registerDataSource(const QString &dataSourceName) noexcept;
 
+    // should deprecate both registerDataSource  and setDataProvider
+    void registerProvider(IDataProvider* provider) noexcept;
+
     /**
      * Sets the structure of a data source. The controller takes ownership of the structure.
      * @param dataSourceUid the unique id with which the data source has been registered into the
@@ -44,6 +47,9 @@ public:
      */
     void setDataSourceItem(const QUuid &dataSourceUid,
                            std::unique_ptr<DataSourceItem> dataSourceItem) noexcept;
+
+    void setDataSourceItem(const QUuid &dataSourceUid,
+                           const QString &path, const QMap<QString, QString>& metaData) noexcept;
 
     /**
      * Sets the data provider used to retrieve data from of a data source. The controller takes

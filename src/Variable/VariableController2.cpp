@@ -226,7 +226,7 @@ class VariableController2::VariableController2Private
       }
       else // force new range to all variables -> may be weird if more than one
            // var in the group
-           // @TODO ensure that there is no side effects
+           // TODO ensure that there is no side effects
       {
         for(auto varId : group->variables())
         {

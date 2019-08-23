@@ -4,8 +4,11 @@
 #include "CoreGlobal.h"
 
 #include <Common/spimpl.h>
+#include <Common/trees.h>
 #include <QVariant>
 #include <QVector>
+#include <iostream>
+#include <iomanip>
 
 class DataSourceItemAction;
 
@@ -19,6 +22,8 @@ enum class DataSourceItemType
   COMPONENT
 };
 
+
+
 /**
  * @brief The DataSourceItem class aims to represent a structure element of a
  * data source. A data source has a tree structure that is made up of a main
@@ -28,7 +33,10 @@ enum class DataSourceItemType
  */
 class SCIQLOP_CORE_EXPORT DataSourceItem
 {
+
 public:
+  using iterator_type = decltype (std::begin(std::declval<std::vector<std::unique_ptr<DataSourceItem>>>()));
+  using const_iterator_type = decltype (std::cbegin(std::declval<std::vector<std::unique_ptr<DataSourceItem>>>()));
   /// Key associated with the name of the item
   static const QString NAME_DATA_KEY;
   /// Key associated with the plugin of the item
@@ -167,6 +175,12 @@ public:
   bool operator==(const DataSourceItem& other);
   bool operator!=(const DataSourceItem& other);
 
+  iterator_type begin() noexcept;
+  iterator_type end() noexcept;
+  const_iterator_type begin()const noexcept;
+  const_iterator_type end()const  noexcept;
+  const_iterator_type cbegin()const noexcept;
+  const_iterator_type cend()const  noexcept;
 private:
   class DataSourceItemPrivate;
   spimpl::unique_impl_ptr<DataSourceItemPrivate> impl;

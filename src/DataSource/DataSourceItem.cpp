@@ -17,8 +17,14 @@ struct DataSourceItem::DataSourceItemPrivate
   DataSourceItem* m_Parent;
   std::vector<std::unique_ptr<DataSourceItem>> m_Children;
   DataSourceItemType m_Type;
+  //TODO check if QVariant is really wise here, looks quite overkill
+  // maybe a simple map<string,string> could be enough
   QVariantHash m_Data;
   std::vector<std::unique_ptr<DataSourceItemAction>> m_Actions;
+  auto begin()noexcept{return m_Children.begin();}
+  auto end()noexcept{return m_Children.end();}
+  auto cbegin()const noexcept{return m_Children.cbegin();}
+  auto cend()const noexcept{return m_Children.cend();}
 };
 
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
@@ -218,4 +224,34 @@ bool DataSourceItem::operator==(const DataSourceItem& other)
 bool DataSourceItem::operator!=(const DataSourceItem& other)
 {
   return !(*this == other);
+}
+
+DataSourceItem::iterator_type DataSourceItem::begin() noexcept
+{
+  return impl->begin();
+}
+
+DataSourceItem::iterator_type DataSourceItem::end() noexcept
+{
+  return impl->end();
+}
+
+DataSourceItem::const_iterator_type DataSourceItem::cbegin() const noexcept
+{
+  return impl->cbegin();
+}
+
+DataSourceItem::const_iterator_type DataSourceItem::cend() const noexcept
+{
+  return impl->cend();
+}
+
+DataSourceItem::const_iterator_type DataSourceItem::begin() const noexcept
+{
+  return impl->cbegin();
+}
+
+DataSourceItem::const_iterator_type DataSourceItem::end() const noexcept
+{
+  return impl->cend();
 }

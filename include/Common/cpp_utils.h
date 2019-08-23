@@ -1,6 +1,8 @@
 #ifndef CPP_UTILS_H
 #define CPP_UTILS_H
 
+#include "types_detectors.h"
+
 #include <functional>
 #include <tuple>
 #include <type_traits>
@@ -32,6 +34,33 @@ template<class...> using void_t = void;
 template<typename T> constexpr T diff(const std::pair<T, T>& p)
 {
   return p.second - p.first;
+}
+
+template<typename T> constexpr auto const& to_value(const T& item)
+{
+  if constexpr(std::is_pointer_v<std::remove_reference_t<std::remove_cv_t<T>>>)
+  { return *item; }
+  else
+  {
+    if constexpr(is_smart_ptr<T>::value) { return *item.get(); }
+    else
+    {
+      return item;
+    }
+  }
+}
+
+template<typename T> void repeat_n(T func, int number)
+{
+  for(int i = 0; i < number; i++)
+    func();
+}
+
+inline int operator*(int number, const std::function<void(void)>& func)
+{
+  for(int i = 0; i < number; i++)
+    func();
+  return number;
 }
 
 #endif // CPP_UTILS_H

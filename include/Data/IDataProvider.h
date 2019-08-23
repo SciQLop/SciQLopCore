@@ -29,6 +29,9 @@ DEPRECATE(class QNetworkReply; class QNetworkRequest;)
 class SCIQLOP_CORE_EXPORT IDataProvider : public QObject
 {
   Q_OBJECT
+
+  QUuid _id=QUuid::createUuid();
+
 public:
   virtual ~IDataProvider() noexcept = default;
   // virtual std::shared_ptr<IDataProvider> clone() const = 0;
@@ -36,6 +39,12 @@ public:
   // Synchronous call -> asyncGetData may be written for asynchronous get
   virtual TimeSeries::ITimeSerie*
   getData(const DataProviderParameters& parameters) = 0;
+
+  QUuid id() const { return _id; }
+  QString name()
+  {
+    return QString("%1-%2").arg(this->metaObject()->className()).arg(id().toString());
+  }
 
 signals:
 

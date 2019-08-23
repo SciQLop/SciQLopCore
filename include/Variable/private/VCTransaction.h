@@ -1,3 +1,4 @@
+#pragma once
 #include "Variable/VariableSynchronizationGroup2.h"
 
 #include <Common/containers.h>
