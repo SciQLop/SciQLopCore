@@ -10,16 +10,6 @@ TestUtils_dep = declare_dependency(link_with : TestUtils,
 
 tests = [
     {
-        'name':'TestStringUtils',
-        'sources': ['Common/TestStringUtils.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
-        'name':'TestContainers',
-        'sources': ['Common/TestContainers.cpp'],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
         'name':'TestSyncGroup',
         'sources': ['Variable/TestSyncGroup.cpp'],
         'deps': [sciqlop_core, qt5test]

@@ -1,7 +1,7 @@
 #pragma once
 #include "Variable/VariableSynchronizationGroup2.h"
 
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 #include <Common/debug.h>
 #include <Data/DataProviderParameters.h>
 #include <Data/DateTimeRange.h>

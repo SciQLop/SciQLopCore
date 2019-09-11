@@ -1,4 +1,4 @@
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 #include <Data/DataProviderParameters.h>
 #include <Data/DateTimeRange.h>
 #include <Data/IDataProvider.h>
@@ -52,7 +52,7 @@ private slots:
             });
     QVERIFY(!callbackCalled);
     auto var1 = vc.createVariable("var1", {}, provider, range);
-    QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
+    QVERIFY(cpp_utils::containers::contains(vc.variables(), var1));
     QVERIFY(callbackCalled);
   }
 
@@ -67,14 +67,14 @@ private slots:
               callbackCalled = true;
             });
     auto var1 = vc.createVariable("var1", {}, provider, range);
-    QVERIFY(SciQLop::containers::contains(vc.variables(), var1));
+    QVERIFY(cpp_utils::containers::contains(vc.variables(), var1));
     QVERIFY(!callbackCalled);
     while(!vc.isReady(var1))
     {
       qApp->processEvents();
     }
     vc.deleteVariable(var1);
-    QVERIFY(!SciQLop::containers::contains(vc.variables(), var1));
+    QVERIFY(!cpp_utils::containers::contains(vc.variables(), var1));
     QVERIFY(callbackCalled);
   }
 

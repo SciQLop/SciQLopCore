@@ -2,7 +2,7 @@
 
 #include "Variable/VariableSynchronizationGroup2.h"
 
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 #include <Common/debug.h>
 #include <Data/DataProviderParameters.h>
 #include <Data/DateTimeRange.h>
@@ -75,7 +75,7 @@ class VariableController2::VariableController2Private
 #if __cplusplus > 201703L
       [[unlikely]]
 #endif
-      if(!_variables.size() > index)
+      if(!(_variables.size() > static_cast<unsigned int>(index)))
           SCIQLOP_ERROR(threadSafeVaraiblesMaps, "Index is out of bounds");
       auto it = _variables.cbegin();
       while(index != 0)

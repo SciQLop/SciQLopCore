@@ -1,6 +1,6 @@
 #include <Catalogue/CatalogueController.h>
 #include <CatalogueIO.hpp>
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 #include <Common/debug.h>
 #include <QDataStream>
 #include <QDir>
@@ -8,7 +8,7 @@
 #include <QStandardPaths>
 #include <QThread>
 
-using namespace SciQLop::containers;
+using namespace cpp_utils::containers;
 
 // class CatalogueController::CatalogueControllerPrivate
 //{

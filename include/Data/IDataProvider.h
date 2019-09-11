@@ -4,7 +4,7 @@
 #include "CoreGlobal.h"
 
 #include <Common/MetaTypes.h>
-#include <Common/deprecate.h>
+#include <deprecate.h>
 #include <Data/DateTimeRange.h>
 #include <QObject>
 #include <QUuid>

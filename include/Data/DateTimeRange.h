@@ -3,7 +3,7 @@
 
 #include <Common/DateUtils.h>
 #include <Common/MetaTypes.h>
-#include <Common/Numeric.h>
+#include <Numeric.h>
 #include <QDebug>
 #include <QObject>
 #include <cmath>
@@ -32,8 +32,8 @@ struct DateTimeRangeTransformation
   Seconds<double> shift;
   bool operator==(const DateTimeRangeTransformation& other) const
   {
-    return SciQLop::numeric::almost_equal(zoom, other.zoom, 1) &&
-           SciQLop::numeric::almost_equal<double>(shift, other.shift, 1);
+    return cpp_utils::numeric::almost_equal(zoom, other.zoom, 1) &&
+           cpp_utils::numeric::almost_equal<double>(shift, other.shift, 1);
   }
   DateTimeRangeTransformation
   merge(const DateTimeRangeTransformation& other) const
@@ -99,8 +99,8 @@ struct DateTimeRange
 
   bool operator==(const DateTimeRange& other) const
   {
-    return SciQLop::numeric::almost_equal(m_TStart, other.m_TStart, 1) &&
-           SciQLop::numeric::almost_equal(m_TEnd, other.m_TEnd, 1);
+    return cpp_utils::numeric::almost_equal(m_TStart, other.m_TStart, 1) &&
+           cpp_utils::numeric::almost_equal(m_TEnd, other.m_TEnd, 1);
   }
 
   bool operator!=(const DateTimeRange& other) const

@@ -3,7 +3,7 @@
 #include "DataSource/DataSourceItem.h"
 #include "DataSource/DataSourceItemAction.h"
 
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 #include <Data/IDataProvider.h>
 #include <QDataStream>
 #include <QDir>

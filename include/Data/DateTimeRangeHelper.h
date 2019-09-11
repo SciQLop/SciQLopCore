@@ -12,7 +12,7 @@
 #include <opaque/numeric_typedef.hpp>
 #include <Common/DateUtils.h>
 #include <Common/MetaTypes.h>
-#include <Common/Numeric.h>
+#include <Numeric.h>
 #include <Data/DateTimeRange.h>
 
 enum class TransformationType { ZoomOut, ZoomIn, PanRight, PanLeft, Unknown };
@@ -32,14 +32,14 @@ namespace DateTimeRangeHelper {
 
     inline bool isPureShift(const DateTimeRange& range1, const DateTimeRange& range2)
     {
-        return SciQLop::numeric::almost_equal<double>(range1.delta(), range2.delta(), 1)
-                && !SciQLop::numeric::almost_equal(range1.m_TStart, range2.m_TStart, 1);
+        return cpp_utils::numeric::almost_equal<double>(range1.delta(), range2.delta(), 1)
+                && !cpp_utils::numeric::almost_equal(range1.m_TStart, range2.m_TStart, 1);
     }
 
     inline bool isPureZoom(const DateTimeRange& range1, const DateTimeRange& range2)
     {
-        return !SciQLop::numeric::almost_equal<double>(range1.delta(),range2.delta(),1)&&
-                SciQLop::numeric::almost_equal<double>(range1.center(), range2.center(),1);
+        return !cpp_utils::numeric::almost_equal<double>(range1.delta(),range2.delta(),1)&&
+                cpp_utils::numeric::almost_equal<double>(range1.center(), range2.center(),1);
     }
 
 
@@ -68,7 +68,7 @@ namespace DateTimeRangeHelper {
         auto transformation = computeTransformation (range1,range2);
         if(transformation.has_value ())
         {
-            if(SciQLop::numeric::almost_equal(transformation->zoom,1.))
+            if(cpp_utils::numeric::almost_equal(transformation->zoom,1.))
             {
                 if(transformation->shift > 0.)
                     return TransformationType::PanRight;

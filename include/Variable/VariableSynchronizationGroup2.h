@@ -6,7 +6,7 @@
 
 #include "CoreGlobal.h"
 #include <Common/spimpl.h>
-#include <Common/containers.h>
+#include <containers/algorithms.hpp>
 
 /**
  * @brief The VariableSynchronizationGroup2 class holds a list of Variables uuid which are synchronized
@@ -52,7 +52,7 @@ public:
      */
     bool contains(QUuid variable) const noexcept
     {
-        return SciQLop::containers::contains(this->_variables,variable);
+        return cpp_utils::containers::contains(this->_variables,variable);
     }
 
     /**

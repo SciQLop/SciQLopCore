@@ -1,4 +1,4 @@
-#include <Common/Numeric.h>
+#include <Numeric.h>
 #include <Data/DateTimeRange.h>
 #include <Data/DateTimeRangeHelper.h>
 #include <QObject>

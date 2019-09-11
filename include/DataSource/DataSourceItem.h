@@ -4,7 +4,7 @@
 #include "CoreGlobal.h"
 
 #include <Common/spimpl.h>
-#include <Common/trees.h>
+#include <trees/algorithms.hpp>
 #include <QVariant>
 #include <QVector>
 #include <iostream>

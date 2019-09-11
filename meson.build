@@ -2,19 +2,15 @@
 catalogicpp_dep = dependency('catalogicpp', required : true, fallback:['catalogicpp','catalogicpp_dep'])
 pybind11_dep = dependency('pybind11', required : true, fallback:['pybind11','pybind11_dep'])
 timeseries_dep = dependency('TimeSeries', required : true, fallback:['TimeSeries','time_series_dep'])
+cpp_utils_dep = dependency('cpp_utils', fallback:['cpp_utils','cpp_utils_dep'])
 
 core_moc_headers = [
- './include/Common/containers.h',
- './include/Common/StringUtils.h',
- './include/Common/Numeric.h',
  './include/Common/spimpl.h',
  './include/Common/DateUtils.h',
  './include/Common/MimeTypesDef.h',
  './include/Common/SignalWaiter.h',
- './include/Common/deprecate.h',
  './include/Common/debug.h',
  './include/Common/MetaTypes.h',
- './include/Common/cpp_utils.h',
  './include/Common/SortUtils.h',
  './include/Data/DateTimeRangeHelper.h',
  './include/Data/ScalarTimeSerie.h',
@@ -58,7 +54,6 @@ core_moc_files = qt5.preprocess(moc_headers : core_moc_headers, moc_sources: cor
 core_sources = ['./src/Common/MimeTypesDef.cpp',
  './src/Common/SignalWaiter.cpp',
  './src/Common/DateUtils.cpp',
- './src/Common/StringUtils.cpp',
  './src/Network/Downloader.cpp',
  './src/Network/NetworkController.cpp',
  './src/Settings/SqpSettingsDefs.cpp',
@@ -83,14 +78,14 @@ sciqlop_core_lib = library('sciqlopcore',
                        core_moc_files,
                        cpp_args : '-DCORE_LIB',
                        include_directories : core_inc,
-                       dependencies : [qt5core, qt5network, catalogicpp_dep, pybind11_dep, timeseries_dep],
+                       dependencies : [qt5core, qt5network, catalogicpp_dep, pybind11_dep, timeseries_dep, cpp_utils_dep],
                        install : true
                        )
 
 
 sciqlop_core = declare_dependency(link_with : sciqlop_core_lib,
                                 include_directories : core_inc,
-                                dependencies : [qt5core, qt5network, catalogicpp_dep, pybind11_dep, timeseries_dep])
+                                dependencies : [qt5core, qt5network, catalogicpp_dep, pybind11_dep, timeseries_dep, cpp_utils_dep])
 
 pymod = import('python')
 python3 = pymod.find_installation('python3')

@@ -1,7 +1,8 @@
 #include <Common/DateUtils.h>
 #include <Common/MimeTypesDef.h>
-#include <Common/StringUtils.h>
-#include <Common/containers.h>
+#include <cpp_utils_qt/cpp_utils_qt.hpp>
+#include <strings/algorithms.hpp>
+#include <containers/algorithms.hpp>
 #include <DataSource/DataSourceController.h>
 #include <QMimeData>
 #include <QSize>
@@ -55,7 +56,7 @@ namespace
     auto forbiddenNames = std::vector<QString>(variables.size());
     std::transform(variables.cbegin(), variables.cend(), forbiddenNames.begin(),
                    [](const auto& variable) { return variable->name(); });
-    auto uniqueName = StringUtils::uniqueName(defaultName, forbiddenNames);
+    auto uniqueName = cpp_utils::strings::make_unique_name(defaultName, forbiddenNames);
     Q_ASSERT(!uniqueName.isEmpty());
 
     return uniqueName;
@@ -254,7 +255,7 @@ void VariableModel2::variableUpdated(QUuid id) noexcept
 
 void VariableModel2::variableAdded(const std::shared_ptr<Variable2>& variable)
 {
-  if(!SciQLop::containers::contains(_variables, variable))
+  if(!cpp_utils::containers::contains(_variables, variable))
   {
     beginInsertRows(QModelIndex(), this->_variables.size(),
                     this->_variables.size());
