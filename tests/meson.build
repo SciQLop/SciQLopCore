@@ -4,6 +4,7 @@ TestUtils = library('TestUtils', 'TestUtils/TestProviders.h', 'TestUtils/TestPro
 
 
 TestUtils_dep = declare_dependency(link_with : TestUtils,
+                                include_directories: include_directories('TestUtils'),
                                 dependencies : [sciqlop_core, qt5test])
 
 
