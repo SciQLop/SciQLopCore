@@ -34,9 +34,7 @@ class SCIQLOP_CORE_EXPORT IDataProvider : public QObject
 
 public:
   virtual ~IDataProvider() noexcept = default;
-  // virtual std::shared_ptr<IDataProvider> clone() const = 0;
 
-  // Synchronous call -> asyncGetData may be written for asynchronous get
   virtual TimeSeries::ITimeSerie*
   getData(const DataProviderParameters& parameters) = 0;
 
@@ -54,7 +52,5 @@ signals:
 // Required for using shared_ptr in signals/slots
 SCIQLOP_REGISTER_META_TYPE(IDATAPROVIDER_PTR_REGISTRY,
                            std::shared_ptr<IDataProvider>)
-SCIQLOP_REGISTER_META_TYPE(IDATAPROVIDER_FUNCTION_REGISTRY,
-                           std::function<void(QNetworkReply*, QUuid)>)
 
 #endif // SCIQLOP_IDATAPROVIDER_H

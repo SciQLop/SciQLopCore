@@ -29,6 +29,13 @@ tests = [
         'deps': [sciqlop_core, qt5test]
     },
     {
+        'name':'TestDataSources',
+        'sources': [
+                    'DataSource/TestDataSources.cpp'
+                   ],
+        'deps': [sciqlop_core, qt5test, TestUtils_dep]
+    },
+    {
         'name':'TestDataSourceItem',
         'sources': [
                     'DataSource/TestDataSourceItem.cpp',

@@ -2,6 +2,7 @@
 #include <DataSource/DataSourceItemAction.h>
 #include <DataSource/DataSourceItemMergeHelper.h>
 #include <QVector>
+#include <containers/algorithms.hpp>
 
 const QString DataSourceItem::NAME_DATA_KEY   = QStringLiteral("name");
 const QString DataSourceItem::PLUGIN_DATA_KEY = QStringLiteral("plugin");
@@ -25,6 +26,12 @@ struct DataSourceItem::DataSourceItemPrivate
   auto end()noexcept{return m_Children.end();}
   auto cbegin()const noexcept{return m_Children.cbegin();}
   auto cend()const noexcept{return m_Children.cend();}
+  
+  int index_of(const DataSourceItem* item)
+  {
+      return std::distance(
+          std::cbegin(m_Children), std::find_if(std::cbegin(m_Children), std::cend(m_Children), [item](const auto& other){return other.get()==item;}));
+  }
 };
 
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
@@ -118,6 +125,15 @@ QString DataSourceItem::name() const noexcept
 DataSourceItem* DataSourceItem::parentItem() const noexcept
 {
   return impl->m_Parent;
+}
+
+int DataSourceItem::index() const noexcept
+{
+    if(auto parent = parentItem(); parent)
+    {
+        return parent->impl->index_of(this);
+    }
+    return 0;
 }
 
 const DataSourceItem& DataSourceItem::rootItem() const noexcept
