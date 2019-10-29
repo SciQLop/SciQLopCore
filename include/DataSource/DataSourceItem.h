@@ -4,10 +4,12 @@
 #include "CoreGlobal.h"
 
 #include <Common/spimpl.h>
+#include <QUuid>
 #include <QVariant>
 #include <QVector>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <trees/algorithms.hpp>
 
 class DataSourceItemAction;
@@ -43,8 +45,9 @@ public:
   /// Key associated with a unique id of the plugin
   static const QString ID_DATA_KEY;
 
-  explicit DataSourceItem(DataSourceItemType type, const QString& name);
-  explicit DataSourceItem(DataSourceItemType type, QVariantHash data = {});
+  //explicit DataSourceItem(DataSourceItemType type, const QString& name);
+  explicit DataSourceItem(DataSourceItemType type, const QString& name, QVariantHash data = {},
+                          std::optional<QUuid> sourceUUID = std::nullopt);
 
   std::unique_ptr<DataSourceItem> clone() const;
 
@@ -128,7 +131,15 @@ public:
 
   bool isRoot() const noexcept;
 
+  inline bool isProductOrComponent() const noexcept
+  {
+    return (this->type() == DataSourceItemType::PRODUCT) ||
+           (this->type() == DataSourceItemType::COMPONENT);
+  }
+
   QString name() const noexcept;
+  QString icon() const noexcept;
+  void setIcon(const QString& iconName);
 
   /**
    * Get the item's parent
@@ -183,8 +194,10 @@ public:
   const_iterator_type cbegin() const noexcept;
   const_iterator_type cend() const noexcept;
 
+  std::optional<QUuid> source_uuid() const noexcept;
+
 private:
-  class DataSourceItemPrivate;
+  struct DataSourceItemPrivate;
   spimpl::unique_impl_ptr<DataSourceItemPrivate> impl;
 };
 

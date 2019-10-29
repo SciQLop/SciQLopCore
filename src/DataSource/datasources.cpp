@@ -24,49 +24,109 @@
 
 #include "DataSource/datasources.h"
 
+#include "Common/MimeTypesDef.h"
+#include "DataSource/DataSourceItemAction.h"
+#include "containers/algorithms.hpp"
+
+#include <QDataStream>
+
+QString QVariant2QString(const QVariant& variant) noexcept
+{
+  if(variant.canConvert<QVariantList>())
+  {
+    auto valueString = QStringLiteral("{");
+    auto variantList = variant.value<QVariantList>();
+    QStringList items;
+    std::transform(std::cbegin(variantList), std::cend(variantList),
+                   std::back_inserter(items),
+                   [](const auto& item) { return QVariant2QString(item); });
+    valueString.append(cpp_utils::containers::join(items, ", "));
+    valueString.append("}");
+    return valueString;
+  }
+  else
+  {
+    return variant.toString();
+  }
+}
+
 inline std::unique_ptr<DataSourceItem> make_folder_item(const QString& name)
 {
   return std::make_unique<DataSourceItem>(DataSourceItemType::NODE, name);
 }
 
 template<typename T>
-DataSourceItem* make_path_items(const T& path_list_begin,
-                                const T& path_list_end, DataSourceItem* root)
+DataSourceItem* walk_tree(
+    const T& path_list_begin, const T& path_list_end, DataSourceItem* root,
+    const std::function<DataSourceItem*(DataSourceItem*, DataSourceItem*,
+                                        const decltype(*std::declval<T>())&)>&
+        f = [](DataSourceItem* parent, DataSourceItem* node,
+               const auto& name) -> DataSourceItem* {
+      (void)parent;
+      (void)name;
+      return node;
+    })
 {
   std::for_each(path_list_begin, path_list_end,
-                [&root](const auto& folder_name) mutable {
+                [&root, &f](const auto& folder_name) mutable {
                   auto folder_ptr = root->findItem(folder_name);
-                  if(folder_ptr == nullptr)
-                  {
-                    auto folder = make_folder_item(folder_name);
-                    folder_ptr  = folder.get();
-                    root->appendChild(std::move(folder));
-                  }
-                  root = folder_ptr;
+                  root            = f(root, folder_ptr, folder_name);
                 });
   return root;
 }
 
-inline std::unique_ptr<DataSourceItem>
-make_product_item(const QVariantHash& metaData, const QUuid& dataSourceUid,
-                  const QString& DATA_SOURCE_NAME, DataSources* dc)
+DataSourceItem* walk_tree(
+    const QString& path, DataSourceItem* root,
+    const std::function<DataSourceItem*(DataSourceItem*, DataSourceItem*,
+                                        const QString&)>& f =
+        [](DataSourceItem* parent, DataSourceItem* node,
+           const auto& name) -> DataSourceItem* {
+      (void)parent;
+      (void)name;
+      return node;
+    })
 {
-  auto result =
-      std::make_unique<DataSourceItem>(DataSourceItemType::PRODUCT, metaData);
+  auto path_list = path.split('/', QString::SkipEmptyParts);
+  return walk_tree(std::cbegin(path_list), std::cend(path_list), root, f);
+}
+
+template<typename T>
+DataSourceItem* make_path_items(const T& path_list_begin,
+                                const T& path_list_end, DataSourceItem* root)
+{
+  auto node_ctor = [](DataSourceItem* parent, DataSourceItem* node,
+                      const auto& name) -> DataSourceItem* {
+    if(node == nullptr)
+    {
+      auto folder = make_folder_item(name);
+      node        = folder.get();
+      parent->appendChild(std::move(folder));
+    }
+    return node;
+  };
+  return walk_tree(path_list_begin, path_list_end, root, node_ctor);
+}
+
+inline std::unique_ptr<DataSourceItem>
+make_product_item(const QString& name, QVariantHash& metaData,
+                  const QUuid& dataSourceUid, const QString& DATA_SOURCE_NAME,
+                  DataSources* dataSources)
+{
+  auto result = std::make_unique<DataSourceItem>(DataSourceItemType::PRODUCT,
+                                                 name, metaData, dataSourceUid);
 
   // Adds plugin name to product metadata
+  // TODO re-consider adding a name attribute to DataSourceItem class
   result->setData(DataSourceItem::PLUGIN_DATA_KEY, DATA_SOURCE_NAME);
-  result->setData(DataSourceItem::ID_DATA_KEY,
-                  metaData.value(DataSourceItem::NAME_DATA_KEY));
+  // result->setData(DataSourceItem::ID_DATA_KEY,
+  //                metaData.value(DataSourceItem::NAME_DATA_KEY));
 
-  auto productName = metaData.value(DataSourceItem::NAME_DATA_KEY).toString();
-
-  // Add action to load product from DataSourceController
-  //   result->addAction(std::make_unique<DataSourceItemAction>(
-  //       QObject::tr("Load %1 product").arg(productName),
-  //       [productName, dataSourceUid, dc](DataSourceItem& item) {
-  //         if(dc) { dc->loadProductItem(dataSourceUid, item); }
-  //       }));
+  // Add action to load product from DataSources
+  result->addAction(std::make_unique<DataSourceItemAction>(
+      QObject::tr("Load %1 product").arg(name),
+      [dataSources](DataSourceItem& item) {
+        if(dataSources) { dataSources->createVariable(item); }
+      }));
 
   return result;
 }
@@ -74,15 +134,51 @@ make_product_item(const QVariantHash& metaData, const QUuid& dataSourceUid,
 QVariant DataSources::data(const QModelIndex& index, int role) const
 {
   if(!index.isValid()) return QVariant();
-  if(role != Qt::DisplayRole) return QVariant();
   DataSourceItem* item = static_cast<DataSourceItem*>(index.internalPointer());
-  return item->name();
+  if(role == Qt::DisplayRole) { return item->name(); }
+  if(role == Qt::DecorationRole)
+  { return _icons.value(item->icon(), QVariant{}); }
+  if(role == Qt::ToolTipRole)
+  {
+    auto result      = QString{};
+    const auto& data = item->data();
+    std::for_each(data.constKeyValueBegin(), data.constKeyValueEnd(),
+                  [&result](const auto& item) {
+                    result.append(QString{"<b>%1:</b> %2<br/>"}.arg(
+                        item.first, QVariant2QString(item.second)));
+                  });
+    return result;
+  }
+  return QVariant();
+}
+
+QMimeData* DataSources::mimeData(const QModelIndexList& indexes) const
+{
+  QVariantList productData;
+  std::for_each(std::cbegin(indexes), std::cend(indexes),
+                [&productData](const auto& index) {
+                  if(index.isValid())
+                  {
+                    DataSourceItem* item =
+                        static_cast<DataSourceItem*>(index.internalPointer());
+                    if(item->isProductOrComponent())
+                    { productData.append(item->data()); }
+                  }
+                });
+  // TODO refactor this later
+  // maybe just an encode function 
+  QByteArray encodedData;
+  QDataStream stream{&encodedData, QIODevice::WriteOnly};
+  stream << productData;
+  auto mimeData = new QMimeData;
+  mimeData->setData(MIME_TYPE_PRODUCT_LIST, encodedData);
+  return mimeData;
 }
 
 int DataSources::columnCount(const QModelIndex& parent) const
 {
   (void)parent;
-  return 0;
+  return 1;
 }
 
 int DataSources::rowCount(const QModelIndex& parent) const
@@ -120,10 +216,28 @@ QModelIndex DataSources::index(int row, int column,
   return QModelIndex();
 }
 
+Qt::ItemFlags DataSources::flags(const QModelIndex& index) const
+{
+  Qt::ItemFlags flags = Qt::NoItemFlags;
+  if(index.isValid())
+  {
+    flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    DataSourceItem* item =
+        static_cast<DataSourceItem*>(index.internalPointer());
+    if(item && item->isProductOrComponent())
+    { flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled; }
+  }
+  return flags;
+}
+
+// TODO This can be optimized to only use insert row and column
+// this should be much faster than doing a ResetModel all the time
+// but this is more difficult to implement
 void DataSources::addDataSourceItem(
     const QUuid& providerUid, const QString& path,
     const QMap<QString, QString>& metaData) noexcept
 {
+  beginResetModel();
   auto path_list = path.split('/', QString::SkipEmptyParts);
   auto name      = *(std::cend(path_list) - 1);
   auto path_item =
@@ -134,11 +248,41 @@ void DataSources::addDataSourceItem(
     meta_data[key] = metaData[key];
   }
   path_item->appendChild(
-      make_product_item(meta_data, providerUid, "test", this));
+      make_product_item(name, meta_data, providerUid, "test", this));
+  endResetModel();
 }
 
 void DataSources::addProvider(IDataProvider* provider) noexcept
 {
   _DataProviders.insert(
       {provider->id(), std::unique_ptr<IDataProvider>{provider}});
+}
+
+void DataSources::updateNodeMetaData(
+    const QString& path, const QMap<QString, QString>& metaData) noexcept
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr)
+  {
+    std::for_each(
+        metaData.constKeyValueBegin(), metaData.constKeyValueEnd(),
+        [node](const auto& it) { node->setData(it.first, it.second, true); });
+  }
+}
+
+void DataSources::createVariable(const DataSourceItem& item)
+{
+  if(auto ds_uuid = item.source_uuid();
+     ds_uuid.has_value() && item.isProductOrComponent())
+  {
+    if(auto data_source_it = _DataProviders.find(ds_uuid.value());
+       data_source_it != std::cend(_DataProviders))
+      emit createVariable(item.name(), item.data(), data_source_it->second);
+  }
+}
+
+void DataSources::setIcon(const QString& path, const QString& iconName)
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr) { node->setIcon(iconName); }
 }

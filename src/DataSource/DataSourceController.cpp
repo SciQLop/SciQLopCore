@@ -40,15 +40,16 @@ std::unique_ptr<DataSourceItem>
 make_product_item(const QVariantHash& metaData, const QUuid& dataSourceUid,
                   const QString& DATA_SOURCE_NAME, DataSourceController* dc)
 {
+    auto productName = metaData.value(DataSourceItem::NAME_DATA_KEY).toString();
   auto result =
-      std::make_unique<DataSourceItem>(DataSourceItemType::PRODUCT, metaData);
+  std::make_unique<DataSourceItem>(DataSourceItemType::PRODUCT,productName, metaData);
 
   // Adds plugin name to product metadata
   result->setData(DataSourceItem::PLUGIN_DATA_KEY, DATA_SOURCE_NAME);
   result->setData(DataSourceItem::ID_DATA_KEY,
                   metaData.value(DataSourceItem::NAME_DATA_KEY));
 
-  auto productName = metaData.value(DataSourceItem::NAME_DATA_KEY).toString();
+  
 
   // Add action to load product from DataSourceController
   result->addAction(std::make_unique<DataSourceItemAction>(

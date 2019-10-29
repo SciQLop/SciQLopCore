@@ -1,8 +1,10 @@
 #include <DataSource/DataSourceItem.h>
 #include <DataSource/DataSourceItemAction.h>
 #include <DataSource/DataSourceItemMergeHelper.h>
+#include <QUuid>
 #include <QVector>
 #include <containers/algorithms.hpp>
+#include <optional>
 
 const QString DataSourceItem::NAME_DATA_KEY   = QStringLiteral("name");
 const QString DataSourceItem::PLUGIN_DATA_KEY = QStringLiteral("plugin");
@@ -10,42 +12,63 @@ const QString DataSourceItem::ID_DATA_KEY     = QStringLiteral("uuid");
 
 struct DataSourceItem::DataSourceItemPrivate
 {
-  explicit DataSourceItemPrivate(DataSourceItemType type, QVariantHash data)
-      : m_Parent{nullptr},
-        m_Children{}, m_Type{type}, m_Data{std::move(data)}, m_Actions{}
-  {}
+  explicit DataSourceItemPrivate(DataSourceItemType type, const QString& name,
+                                 QVariantHash data,
+                                 std::optional<QUuid> sourceUUID = std::nullopt)
+      : m_Parent{nullptr}, m_dataSourceUid{sourceUUID}, m_Children{},
+        m_name{name}, m_Type{type}, m_Data{std::move(data)}, m_Actions{}
+  {
+    m_Data[DataSourceItem::NAME_DATA_KEY] = name;
+  }
 
   DataSourceItem* m_Parent;
+  std::optional<QUuid> m_dataSourceUid = std::nullopt;
   std::vector<std::unique_ptr<DataSourceItem>> m_Children;
+  QString m_icon;
+  QString m_name;
   DataSourceItemType m_Type;
-  //TODO check if QVariant is really wise here, looks quite overkill
+  // TODO check if QVariant is really wise here, looks quite overkill
   // maybe a simple map<string,string> could be enough
   QVariantHash m_Data;
   std::vector<std::unique_ptr<DataSourceItemAction>> m_Actions;
-  auto begin()noexcept{return m_Children.begin();}
-  auto end()noexcept{return m_Children.end();}
-  auto cbegin()const noexcept{return m_Children.cbegin();}
-  auto cend()const noexcept{return m_Children.cend();}
-  
+  auto begin() noexcept { return m_Children.begin(); }
+  auto end() noexcept { return m_Children.end(); }
+  auto cbegin() const noexcept { return m_Children.cbegin(); }
+  auto cend() const noexcept { return m_Children.cend(); }
+  inline std::optional<QUuid> source_uuid() const noexcept
+  {
+    return m_dataSourceUid;
+  }
   int index_of(const DataSourceItem* item)
   {
-      return std::distance(
-          std::cbegin(m_Children), std::find_if(std::cbegin(m_Children), std::cend(m_Children), [item](const auto& other){return other.get()==item;}));
+    return std::distance(std::cbegin(m_Children),
+                         std::find_if(std::cbegin(m_Children),
+                                      std::cend(m_Children),
+                                      [item](const auto& other) {
+                                        return other.get() == item;
+                                      }));
   }
+  inline QString name() const noexcept { return m_name; }
+  inline QString icon() const noexcept { return m_icon; }
+  inline void setIcon(const QString& iconName) { m_icon = iconName; }
 };
 
-DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
-    : DataSourceItem{type, QVariantHash{{NAME_DATA_KEY, name}}}
+// DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
+//    : DataSourceItem{type,name, QVariantHash{{NAME_DATA_KEY, name}}}
+//{}
+
+DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
+                               QVariantHash data,
+                               std::optional<QUuid> sourceUUID)
+    : impl{spimpl::make_unique_impl<DataSourceItemPrivate>(
+          type, name, std::move(data), sourceUUID)}
 {}
 
-DataSourceItem::DataSourceItem(DataSourceItemType type, QVariantHash data)
-    : impl{spimpl::make_unique_impl<DataSourceItemPrivate>(type,
-                                                           std::move(data))}
-{}
-
+// TODO remove this method ASAP
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
 {
-  auto result = std::make_unique<DataSourceItem>(impl->m_Type, impl->m_Data);
+  auto result = std::make_unique<DataSourceItem>(impl->m_Type, impl->m_name,
+                                                 impl->m_Data);
 
   // Clones children
   for(const auto& child : impl->m_Children)
@@ -117,9 +140,13 @@ bool DataSourceItem::isRoot() const noexcept
   return impl->m_Parent == nullptr;
 }
 
-QString DataSourceItem::name() const noexcept
+QString DataSourceItem::name() const noexcept { return impl->name(); }
+
+QString DataSourceItem::icon() const noexcept { return impl->icon(); }
+
+void DataSourceItem::setIcon(const QString& iconName)
 {
-  return data(NAME_DATA_KEY).toString();
+  impl->setIcon(iconName);
 }
 
 DataSourceItem* DataSourceItem::parentItem() const noexcept
@@ -129,11 +156,9 @@ DataSourceItem* DataSourceItem::parentItem() const noexcept
 
 int DataSourceItem::index() const noexcept
 {
-    if(auto parent = parentItem(); parent)
-    {
-        return parent->impl->index_of(this);
-    }
-    return 0;
+  if(auto parent = parentItem(); parent)
+  { return parent->impl->index_of(this); }
+  return 0;
 }
 
 const DataSourceItem& DataSourceItem::rootItem() const noexcept
@@ -270,4 +295,9 @@ DataSourceItem::const_iterator_type DataSourceItem::begin() const noexcept
 DataSourceItem::const_iterator_type DataSourceItem::end() const noexcept
 {
   return impl->cend();
+}
+
+std::optional<QUuid> DataSourceItem::source_uuid() const noexcept
+{
+  return impl->source_uuid();
 }

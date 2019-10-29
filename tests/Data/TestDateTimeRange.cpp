@@ -30,7 +30,7 @@ private slots:
     QTest::addColumn<QDateTime>("tend");
     QTest::addColumn<double>("expected");
     auto now       = QDateTime::currentDateTime();
-    auto yesterday = QDateTime::currentDateTime().addDays(-1);
+    auto yesterday = now.addDays(-1);
     QTest::newRow("No delta") << now << now << 0.;
     QTest::newRow("One day delta") << yesterday << now << 60. * 60. * 24.;
     QTest::newRow("Minus one day delta")
@@ -103,6 +103,7 @@ private slots:
     QTest::newRow("Zoom OUT 0.001")
         << range << 0.999 << computeZoom(yestd, now, 0.999);
   }
+
   void testRangeZoom()
   {
     QFETCH(DateTimeRange, initial);
@@ -196,6 +197,7 @@ private slots:
         << range << range * 0.9 + Seconds<double>{-10.}
         << DateTimeRangeTransformation{0.9, Seconds<double>{-10.}};
   }
+
   void testRangeTransformations()
   {
     QFETCH(DateTimeRange, range1);

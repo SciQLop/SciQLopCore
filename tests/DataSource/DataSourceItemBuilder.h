@@ -36,7 +36,7 @@ public:
 
 private:
     DataSourceItemBuilder& append(DataSourceItemType type, const QString &name);
-    DataSourceItemBuilder& append(DataSourceItemType type, QVariantHash data);
+    DataSourceItemBuilder& append(DataSourceItemType type,const QString &name, QVariantHash data);
 
     std::shared_ptr<DataSourceItem> m_Root{nullptr};
     std::stack<DataSourceItem*> m_Items;

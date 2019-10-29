@@ -43,6 +43,8 @@ public:
   {
     return QString("%1-%2").arg(this->metaObject()->className()).arg(id().toString());
   }
+  
+  operator QUuid(){return _id;}
 
 signals:
 

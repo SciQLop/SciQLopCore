@@ -7,8 +7,6 @@ TestUtils_dep = declare_dependency(link_with : TestUtils,
                                 include_directories: include_directories('TestUtils'),
                                 dependencies : [sciqlop_core, qt5test])
 
-
-
 tests = [
     {
         'name':'TestSyncGroup',
@@ -85,3 +83,5 @@ foreach unit_test : tests
 
 endforeach
 
+datasources_manual_test_exe = executable('datasources_manual_test', 'DataSource/DataSourcesManualTest.cpp', dependencies :[sciqlop_core,
+TestUtils_dep, qt5gui, qt5widgets])
