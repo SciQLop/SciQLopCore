@@ -28,8 +28,8 @@
 #include "DataSourceItem.h"
 
 #include <QAbstractItemModel>
-#include <QObject>
 #include <QMimeData>
+#include <QObject>
 
 class DataSources : public QAbstractItemModel
 {
@@ -42,7 +42,7 @@ public:
   };
 
 public:
-  DataSources() : _root(new DataSourceItem(DataSourceItemType::NODE, "root")) {}
+  DataSources() : _root(new DataSourceItem(DataSourceItemType::NODE, "")) {}
   ~DataSources() { delete _root; }
 
   virtual QVariant data(const QModelIndex& index, int role) const final;
@@ -67,14 +67,16 @@ public:
   void updateNodeMetaData(const QString& path,
                           const QMap<QString, QString>& metaData) noexcept;
 
-  void createVariable(const DataSourceItem& item);
-
   void addIcon(const QString& name, QVariant icon)
   {
     _icons[name] = std::move(icon);
   }
 
   void setIcon(const QString& path, const QString& iconName);
+
+public Q_SLOTS:
+  void createVariable(const DataSourceItem& item);
+  void createVariable(const QString& path);
 
 Q_SIGNALS:
   void createVariable(const QString& variableName,

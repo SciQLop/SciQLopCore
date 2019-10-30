@@ -4,11 +4,15 @@
 #include "CoreGlobal.h"
 
 #include <Common/spimpl.h>
+#include <MimeTypes/MimeTypes.h>
+#include <QMimeData>
 #include <QUuid>
 #include <QVariant>
 #include <QVector>
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <trees/algorithms.hpp>
 
@@ -45,8 +49,9 @@ public:
   /// Key associated with a unique id of the plugin
   static const QString ID_DATA_KEY;
 
-  //explicit DataSourceItem(DataSourceItemType type, const QString& name);
-  explicit DataSourceItem(DataSourceItemType type, const QString& name, QVariantHash data = {},
+  // explicit DataSourceItem(DataSourceItemType type, const QString& name);
+  explicit DataSourceItem(DataSourceItemType type, const QString& name,
+                          QVariantHash data               = {},
                           std::optional<QUuid> sourceUUID = std::nullopt);
 
   std::unique_ptr<DataSourceItem> clone() const;
@@ -140,6 +145,7 @@ public:
   QString name() const noexcept;
   QString icon() const noexcept;
   void setIcon(const QString& iconName);
+  QString path() const noexcept;
 
   /**
    * Get the item's parent
@@ -200,5 +206,19 @@ private:
   struct DataSourceItemPrivate;
   spimpl::unique_impl_ptr<DataSourceItemPrivate> impl;
 };
+
+namespace MIME
+{
+  inline QMimeData* mimeData(const std::vector<DataSourceItem*>& items)
+  {
+    QVariantList path_list;
+    std::transform(std::cbegin(items), std::cend(items),
+                   std::back_inserter(path_list),
+                   [](const auto& item) { return item->path(); });
+    QMimeData* m = new QMimeData;
+    m->setData(MIME::MIME_TYPE_PRODUCT_LIST, MIME::encode(path_list));
+    return m;
+  }
+} // namespace MIME
 
 #endif // SCIQLOP_DATASOURCEITEMMODEL_H

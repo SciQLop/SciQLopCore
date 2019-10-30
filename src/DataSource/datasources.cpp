@@ -24,8 +24,8 @@
 
 #include "DataSource/datasources.h"
 
-#include "Common/MimeTypesDef.h"
 #include "DataSource/DataSourceItemAction.h"
+#include "MimeTypes/MimeTypes.h"
 #include "containers/algorithms.hpp"
 
 #include <QDataStream>
@@ -118,8 +118,6 @@ make_product_item(const QString& name, QVariantHash& metaData,
   // Adds plugin name to product metadata
   // TODO re-consider adding a name attribute to DataSourceItem class
   result->setData(DataSourceItem::PLUGIN_DATA_KEY, DATA_SOURCE_NAME);
-  // result->setData(DataSourceItem::ID_DATA_KEY,
-  //                metaData.value(DataSourceItem::NAME_DATA_KEY));
 
   // Add action to load product from DataSources
   result->addAction(std::make_unique<DataSourceItemAction>(
@@ -154,25 +152,17 @@ QVariant DataSources::data(const QModelIndex& index, int role) const
 
 QMimeData* DataSources::mimeData(const QModelIndexList& indexes) const
 {
-  QVariantList productData;
+  std::vector<DataSourceItem*> items;
   std::for_each(std::cbegin(indexes), std::cend(indexes),
-                [&productData](const auto& index) {
+                [&items](const auto& index) {
                   if(index.isValid())
                   {
                     DataSourceItem* item =
                         static_cast<DataSourceItem*>(index.internalPointer());
-                    if(item->isProductOrComponent())
-                    { productData.append(item->data()); }
+                    if(item->isProductOrComponent()) { items.push_back(item); }
                   }
                 });
-  // TODO refactor this later
-  // maybe just an encode function 
-  QByteArray encodedData;
-  QDataStream stream{&encodedData, QIODevice::WriteOnly};
-  stream << productData;
-  auto mimeData = new QMimeData;
-  mimeData->setData(MIME_TYPE_PRODUCT_LIST, encodedData);
-  return mimeData;
+  return MIME::mimeData(items);
 }
 
 int DataSources::columnCount(const QModelIndex& parent) const
@@ -279,6 +269,12 @@ void DataSources::createVariable(const DataSourceItem& item)
        data_source_it != std::cend(_DataProviders))
       emit createVariable(item.name(), item.data(), data_source_it->second);
   }
+}
+
+void DataSources::createVariable(const QString& path)
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr) { createVariable(*node); }
 }
 
 void DataSources::setIcon(const QString& path, const QString& iconName)

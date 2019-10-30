@@ -19,14 +19,6 @@ tests = [
         'deps': [sciqlop_core, qt5test]
     },
     {
-        'name':'TestDataSourceController',
-        'sources': [
-                    'DataSource/TestDataSourceController.cpp',
-                    'DataSource/DataSourceItemBuilder.cpp'
-                   ],
-        'deps': [sciqlop_core, qt5test]
-    },
-    {
         'name':'TestDataSources',
         'sources': [
                     'DataSource/TestDataSources.cpp'

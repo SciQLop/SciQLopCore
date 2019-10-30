@@ -1,9 +1,8 @@
 #include <Common/DateUtils.h>
-#include <Common/MimeTypesDef.h>
+#include <MimeTypes/MimeTypes.h>
 #include <cpp_utils_qt/cpp_utils_qt.hpp>
 #include <strings/algorithms.hpp>
 #include <containers/algorithms.hpp>
-#include <DataSource/DataSourceController.h>
 #include <QMimeData>
 #include <QSize>
 #include <QTimer>
@@ -166,7 +165,7 @@ Qt::DropActions VariableModel2::supportedDragActions() const
 
 QStringList VariableModel2::mimeTypes() const
 {
-  return {MIME_TYPE_VARIABLE_LIST, MIME_TYPE_TIME_RANGE};
+    return {MIME::MIME_TYPE_VARIABLE_LIST, MIME::MIME_TYPE_TIME_RANGE};
 }
 
 QMimeData* VariableModel2::mimeData(const QModelIndexList& indexes) const
@@ -193,13 +192,13 @@ QMimeData* VariableModel2::mimeData(const QModelIndexList& indexes) const
   }
 
   auto variablesEncodedData = Variable2::mimeData(variables);
-  mimeData->setData(MIME_TYPE_VARIABLE_LIST, variablesEncodedData);
+  mimeData->setData(MIME::MIME_TYPE_VARIABLE_LIST, variablesEncodedData);
 
   if(variables.size() == 1)
   {
     // No time range MIME data if multiple variables are dragged
     auto timeEncodedData = TimeController::mimeDataForTimeRange(firstTimeRange);
-    mimeData->setData(MIME_TYPE_TIME_RANGE, timeEncodedData);
+    mimeData->setData(MIME::MIME_TYPE_TIME_RANGE, timeEncodedData);
   }
 
   return mimeData;
@@ -211,9 +210,9 @@ bool VariableModel2::canDropMimeData(const QMimeData* data,
 {
   Q_UNUSED(column);
   // drop of a product
-  return data->hasFormat(MIME_TYPE_PRODUCT_LIST) ||
-         (data->hasFormat(MIME_TYPE_TIME_RANGE) && parent.isValid() &&
-          !data->hasFormat(MIME_TYPE_VARIABLE_LIST));
+  return data->hasFormat(MIME::MIME_TYPE_PRODUCT_LIST) ||
+  (data->hasFormat(MIME::MIME_TYPE_TIME_RANGE) && parent.isValid() &&
+  !data->hasFormat(MIME::MIME_TYPE_VARIABLE_LIST));
 }
 
 bool VariableModel2::dropMimeData(const QMimeData* data, Qt::DropAction action,
@@ -222,23 +221,20 @@ bool VariableModel2::dropMimeData(const QMimeData* data, Qt::DropAction action,
 {
   auto dropDone = false;
 
-  if(data->hasFormat(MIME_TYPE_PRODUCT_LIST))
+  if(data->hasFormat(MIME::MIME_TYPE_PRODUCT_LIST))
   {
-    auto productList = DataSourceController::productsDataForMimeData(
-        data->data(MIME_TYPE_PRODUCT_LIST));
-
-    for(auto metaData : productList)
+    auto productList = MIME::fromMimeData<MIME::IDS::PRODUCT_LIST>(data);
+    for(auto product : productList)
     {
-      emit createVariable(metaData.toHash());
+      emit createVariable(product.toString());
     }
-
     dropDone = true;
   }
-  else if(data->hasFormat(MIME_TYPE_TIME_RANGE) && parent.isValid())
+  else if(data->hasFormat(MIME::MIME_TYPE_TIME_RANGE) && parent.isValid())
   {
     auto variable = _variables[parent.row()];
     auto range =
-        TimeController::timeRangeForMimeData(data->data(MIME_TYPE_TIME_RANGE));
+    TimeController::timeRangeForMimeData(data->data(MIME::MIME_TYPE_TIME_RANGE));
 
     emit asyncChangeRange(variable, range);
 

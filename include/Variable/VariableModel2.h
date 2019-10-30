@@ -66,7 +66,7 @@ public:
   }
 
 signals:
-  void createVariable(const QVariantHash& productData);
+  void createVariable(const QString& productPath);
   void asyncChangeRange(const std::shared_ptr<Variable2>& variable,
                         const DateTimeRange& r);
 public slots:

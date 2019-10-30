@@ -149,6 +149,21 @@ void DataSourceItem::setIcon(const QString& iconName)
   impl->setIcon(iconName);
 }
 
+QString DataSourceItem::path() const noexcept
+{
+    std::vector<QString> path_list;
+    path_list.push_back(name());
+    auto node= parentItem();
+    while( node!=nullptr)
+    {
+        path_list.push_back(node->name());
+        node = node->parentItem();
+    }
+    QString path;
+    std::for_each(path_list.crbegin(),path_list.crend(),[&path](const auto& name){path.append('/'); path.append(name);});
+    return path;
+}
+
 DataSourceItem* DataSourceItem::parentItem() const noexcept
 {
   return impl->m_Parent;
