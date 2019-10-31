@@ -240,6 +240,7 @@ void DataSources::addDataSourceItem(
   path_item->appendChild(
       make_product_item(name, meta_data, providerUid, "test", this));
   endResetModel();
+  _updateCompletionModel(metaData,name);
 }
 
 void DataSources::addProvider(IDataProvider* provider) noexcept
@@ -258,6 +259,7 @@ void DataSources::updateNodeMetaData(
         metaData.constKeyValueBegin(), metaData.constKeyValueEnd(),
         [node](const auto& it) { node->setData(it.first, it.second, true); });
   }
+  _updateCompletionModel(metaData,"");
 }
 
 void DataSources::createVariable(const DataSourceItem& item)
@@ -281,4 +283,14 @@ void DataSources::setIcon(const QString& path, const QString& iconName)
 {
   auto node = walk_tree(path, _root);
   if(node != nullptr) { node->setIcon(iconName); }
+}
+
+void DataSources::_updateCompletionModel(const QMap<QString, QString>& metaData, const QString& name)
+{
+  auto currentList = _completionModel->stringList();
+  std::for_each(metaData.cbegin(), metaData.cend(), [&currentList](const auto& key) {
+    if(!currentList.contains(key)) currentList << key;
+  });
+  if(!name.isEmpty() && !currentList.contains(name)) currentList << name;
+  _completionModel->setStringList(currentList);
 }

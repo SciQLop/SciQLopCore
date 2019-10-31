@@ -30,6 +30,7 @@
 #include <QAbstractItemModel>
 #include <QMimeData>
 #include <QObject>
+#include <QStringListModel>
 
 class DataSources : public QAbstractItemModel
 {
@@ -42,8 +43,15 @@ public:
   };
 
 public:
-  DataSources() : _root(new DataSourceItem(DataSourceItemType::NODE, "")) {}
-  ~DataSources() { delete _root; }
+  DataSources()
+      : _root(new DataSourceItem(DataSourceItemType::NODE, "")),
+        _completionModel(new QStringListModel)
+  {}
+  ~DataSources()
+  {
+    delete _root;
+    delete _completionModel;
+  }
 
   virtual QVariant data(const QModelIndex& index, int role) const final;
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const final;
@@ -74,6 +82,11 @@ public:
 
   void setIcon(const QString& path, const QString& iconName);
 
+  inline QStringListModel* completionModel() const noexcept
+  {
+    return _completionModel;
+  }
+
 public Q_SLOTS:
   void createVariable(const DataSourceItem& item);
   void createVariable(const QString& path);
@@ -84,9 +97,11 @@ Q_SIGNALS:
                       std::shared_ptr<IDataProvider> variableProvider);
 
 private:
+    void _updateCompletionModel(const QMap<QString, QString>& metaData, const QString& name);
   DataSourceItem* _root;
   std::map<QUuid, std::shared_ptr<IDataProvider>> _DataProviders;
   QHash<QString, QVariant> _icons;
+  QStringListModel* _completionModel;
 };
 
 #endif // DATASOURCES_H
