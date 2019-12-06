@@ -35,8 +35,22 @@ public:
     _axes[1] = y;
   }
 
+  SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t&& t,
+                       SpectrogramTimeSerie::axis_t&& y,
+                       SpectrogramTimeSerie::data_t&& values,
+                       const std::initializer_list<std::size_t>& shape, double min_sampling,
+                       double max_sampling, bool y_is_log = true)
+      : TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>(t, values,
+                                                               shape),
+        min_sampling{min_sampling}, max_sampling{max_sampling}, y_is_log{
+                                                                    y_is_log}
+  {
+    _axes[1] = y;
+  }
+
   ~SpectrogramTimeSerie() = default;
   using TimeSerie::TimeSerie;
 };
 
 #endif // SCIQLOP_SPECTROGRAMTIMESERIE_H
+
