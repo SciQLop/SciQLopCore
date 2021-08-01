@@ -70,6 +70,11 @@ public:
   void addDataSourceItem(const QUuid& providerUid, const QString& path,
                          const QMap<QString, QString>& metaData) noexcept;
 
+  template<typename data_provider_t, class... Args> void addProvider(Args&&... args) noexcept
+  {
+    addProvider(new data_provider_t{std::forward<Args>(args)...});
+  }
+
   void addProvider(IDataProvider* provider) noexcept;
 
   void updateNodeMetaData(const QString& path,
