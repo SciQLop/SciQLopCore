@@ -1,6 +1,7 @@
 #include "Time/TimeController.h"
 
 #include <QDataStream>
+#include <QIODevice>
 
 Q_LOGGING_CATEGORY(LOG_TimeController, "TimeController")
 

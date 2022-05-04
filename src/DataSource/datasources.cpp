@@ -86,7 +86,7 @@ DataSourceItem* walk_tree(
       return node;
     })
 {
-  auto path_list = path.split('/', QString::SkipEmptyParts);
+  auto path_list = path.split('/', Qt::SkipEmptyParts);
   return walk_tree(std::cbegin(path_list), std::cend(path_list), root, f);
 }
 
@@ -228,7 +228,7 @@ void DataSources::addDataSourceItem(
     const QMap<QString, QString>& metaData) noexcept
 {
   beginResetModel();
-  auto path_list = path.split('/', QString::SkipEmptyParts);
+  auto path_list = path.split('/', Qt::SkipEmptyParts);
   auto name      = *(std::cend(path_list) - 1);
   auto path_item =
       make_path_items(std::cbegin(path_list), std::cend(path_list) - 1, _root);

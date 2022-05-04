@@ -18,6 +18,7 @@
 #include <QUuid>
 #include <TimeSeries.h>
 #include <optional>
+#include <QIODevice>
 
 class SCIQLOP_CORE_EXPORT Variable2 : public QObject
 {
@@ -74,7 +75,7 @@ public:
     stream >> ids;
     std::transform(std::cbegin(ids), std::cend(ids),
                    std::back_inserter(variables),
-                   [](const auto& id) { return id.toByteArray(); });
+                   [](const auto& id) { return QUuid{id.toByteArray()}; });
     return variables;
   }
 

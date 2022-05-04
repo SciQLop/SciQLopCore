@@ -63,7 +63,7 @@ int main(int argc, char** argv)
       static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
       filter,
       static_cast<void (QSortFilterProxyModel::*)(const QString&)>(
-          &QSortFilterProxyModel::setFilterRegExp));
+          &QSortFilterProxyModel::setFilterRegularExpression));
   layout->addWidget(filterBox);
   layout->addWidget(view);
   view->setModel(filter);

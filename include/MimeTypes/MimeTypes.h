@@ -8,6 +8,7 @@
 #include <QMimeData>
 #include <QString>
 #include <QVariant>
+#include <QIODevice>
 
 // ////////////////// //
 // SciQlop Mime Types //
