@@ -23,8 +23,8 @@
 #pragma once
 
 
-#include "SciQLopCore/Data/IDataProvider.h"
-#include "DataSourceItem.h"
+#include "SciQLopCore/Data/IDataProvider.hpp"
+#include "DataSourceItem.hpp"
 
 #include <QAbstractItemModel>
 #include <QMimeData>

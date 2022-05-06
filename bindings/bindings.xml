@@ -33,7 +33,7 @@
         </conversion-rule>
     </container-type>
     <primitive-type name="NpArray" target-lang-api-name="PyObject">
-      <include file-name="numpy_wrappers.h" location="local"/>
+      <include file-name="numpy_wrappers.hpp" location="local"/>
       <conversion-rule>
           <native-to-target>
           auto result = %in.py_object();

@@ -19,21 +19,24 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/DateUtils.hpp"
+#pragma once
 
-#include <cmath>
+#include <utility>
+#include <TimeSeries.h>
 
-QDateTime DateUtils::dateTime(double secs, Qt::TimeSpec timeSpec) noexcept
+class MultiComponentTimeSerie
+    : public TimeSeries::TimeSerie<double, MultiComponentTimeSerie, 2>
 {
-  // Uses msecs to be Qt 4 compatible
-  if(!std::isnan(secs))
-    return QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(secs * 1000.),
-                                          timeSpec);
-  return QDateTime();
-}
+public:
+  using item_t =
+      decltype(std::declval<
+               TimeSeries::TimeSerie<double, MultiComponentTimeSerie, 2>>()[0]);
 
-double DateUtils::secondsSinceEpoch(const QDateTime& dateTime) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  return dateTime.toMSecsSinceEpoch() / 1000.;
-}
+  using iterator_t = decltype(
+      std::declval<TimeSeries::TimeSerie<double, MultiComponentTimeSerie, 2>>()
+          .begin());
+
+  MultiComponentTimeSerie() {}
+  ~MultiComponentTimeSerie() = default;
+  using TimeSerie::TimeSerie;
+};

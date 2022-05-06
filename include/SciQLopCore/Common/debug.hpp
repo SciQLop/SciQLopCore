@@ -19,21 +19,24 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/DateUtils.hpp"
+#pragma once
+#include <string>
+#include <iostream>
+#include <typeinfo>
+#include <assert.h>
 
-#include <cmath>
-
-QDateTime DateUtils::dateTime(double secs, Qt::TimeSpec timeSpec) noexcept
+template <class T, bool crash>
+void SciQLopError(const std::string& message, int line, const std::string& file)
 {
-  // Uses msecs to be Qt 4 compatible
-  if(!std::isnan(secs))
-    return QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(secs * 1000.),
-                                          timeSpec);
-  return QDateTime();
+    std::cerr << "Error in " << file << ", class:" << typeid(T).name() << ", line: " << line <<
+              std::endl << "Message: " << message << std::endl;
+    if constexpr(crash)
+            throw;
 }
 
-double DateUtils::secondsSinceEpoch(const QDateTime& dateTime) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  return dateTime.toMSecsSinceEpoch() / 1000.;
-}
+#ifdef SCIQLOP_CRASH_ON_ERROR
+    #define SCIQLOP_ERROR(CLASS, MESSAGE) SciQLopError<CLASS, true>(MESSAGE, __LINE__, __FILE__)
+#else
+    #define SCIQLOP_ERROR(CLASS, MESSAGE) SciQLopError<CLASS, false>(MESSAGE, __LINE__, __FILE__)
+#endif
+

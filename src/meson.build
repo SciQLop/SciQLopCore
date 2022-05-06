@@ -1,16 +1,16 @@
 sciqlopcore_moc_headers = files(
-    '../include/SciQLopCore/Data/IDataProvider.h',
-    '../include/SciQLopCore/Common/SignalWaiter.h',
-    '../include/SciQLopCore/DataSource/DataSourceItemAction.h',
-    '../include/SciQLopCore/DataSource/datasources.h',
-    '../include/SciQLopCore/GUI/MainWindow.h',
-    '../include/SciQLopCore/SqpApplication.h'
+    '../include/SciQLopCore/Data/IDataProvider.hpp',
+    '../include/SciQLopCore/Common/SignalWaiter.hpp',
+    '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
+    '../include/SciQLopCore/DataSource/DataSources.hpp',
+    '../include/SciQLopCore/GUI/MainWindow.hpp',
+    '../include/SciQLopCore/SqpApplication.hpp'
 )
 
 sciqlopcore_moc_sources = files(
     'Common/SignalWaiter.cpp',
     'DataSource/DataSourceItemAction.cpp',
-    'DataSource/datasources.cpp',
+    'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
     'SqpApplication.cpp'
 )
@@ -20,23 +20,21 @@ sciqlopcore_moc_gen = qtmod.compile_moc(
                                         headers: sciqlopcore_moc_headers)
 
 sciqlopcore_headers = files(
-    '../include/SciQLopCore/Data/DataProviderParameters.h',
-    '../include/SciQLopCore/Data/DataSeriesType.h',
-    '../include/SciQLopCore/Data/DateTimeRange.h',
-    '../include/SciQLopCore/Data/DateTimeRangeHelper.h',
-    '../include/SciQLopCore/Data/MultiComponentTimeSerie.h',
-    '../include/SciQLopCore/Data/ScalarTimeSerie.h',
-    '../include/SciQLopCore/Data/SpectrogramTimeSerie.h',
-    '../include/SciQLopCore/Data/SqpIterator.h',
-    '../include/SciQLopCore/Data/TimeSeriesUtils.h',
-    '../include/SciQLopCore/Data/VectorTimeSerie.h',
-    '../include/SciQLopCore/Common/DateUtils.h',
-    '../include/SciQLopCore/Common/debug.h',
-    '../include/SciQLopCore/Common/MetaTypes.h',
-    '../include/SciQLopCore/Common/SortUtils.h',
-    '../include/SciQLopCore/DataSource/DataSourceItem.h',
-    '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.h',
-    '../include/SciQLopCore/MimeTypes/MimeTypes.h'
+    '../include/SciQLopCore/Data/DataProviderParameters.hpp',
+    '../include/SciQLopCore/Data/DataSeriesType.hpp',
+    '../include/SciQLopCore/Data/DateTimeRange.hpp',
+    '../include/SciQLopCore/Data/DateTimeRangeHelper.hpp',
+    '../include/SciQLopCore/Data/MultiComponentTimeSerie.hpp',
+    '../include/SciQLopCore/Data/ScalarTimeSerie.hpp',
+    '../include/SciQLopCore/Data/SpectrogramTimeSerie.hpp',
+    '../include/SciQLopCore/Data/TimeSeriesUtils.hpp',
+    '../include/SciQLopCore/Data/VectorTimeSerie.hpp',
+    '../include/SciQLopCore/Common/DateUtils.hpp',
+    '../include/SciQLopCore/Common/debug.hpp',
+    '../include/SciQLopCore/Common/MetaTypes.hpp',
+    '../include/SciQLopCore/DataSource/DataSourceItem.hpp',
+    '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',
+    '../include/SciQLopCore/MimeTypes/MimeTypes.hpp'
 )
 
 sciqlopcore_sources = files(
@@ -45,7 +43,7 @@ sciqlopcore_sources = files(
     'DataSource/DataSourceItem.cpp',
     'DataSource/DataSourceItemMergeHelper.cpp',
     'DataSource/DataSourceItemAction.cpp',
-    'DataSource/datasources.cpp',
+    'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
     'SqpApplication.cpp'
 )

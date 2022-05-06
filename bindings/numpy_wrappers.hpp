@@ -1,7 +1,7 @@
 #ifndef NUMPY_WRAPPERS_H
 #define NUMPY_WRAPPERS_H
-#include "SciQLopCore/Data/ScalarTimeSerie.h"
-#include "SciQLopCore/Data/VectorTimeSerie.h"
+#include "SciQLopCore/Data/ScalarTimeSerie.hpp"
+#include "SciQLopCore/Data/VectorTimeSerie.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #if defined(slots) && (defined(__GNUC__) || defined(_MSC_VER) || defined(__clang__))
 #pragma push_macro("slots")

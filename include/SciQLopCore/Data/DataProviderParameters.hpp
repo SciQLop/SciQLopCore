@@ -19,21 +19,19 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/DateUtils.hpp"
+#pragma once
+#include "DateTimeRange.hpp"
+#include <QVariantHash>
 
-#include <cmath>
+/**
+ * @brief The DataProviderParameters struct holds the information needed to retrieve data from a
+ * data provider
+ * @sa IDataProvider
+ */
+struct DataProviderParameters {
+    /// Times for which retrieve data
+    DateTimeRange m_Range;
+    /// Extra data that can be used by the provider to retrieve data
+    QVariantHash m_Data;
+};
 
-QDateTime DateUtils::dateTime(double secs, Qt::TimeSpec timeSpec) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  if(!std::isnan(secs))
-    return QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(secs * 1000.),
-                                          timeSpec);
-  return QDateTime();
-}
-
-double DateUtils::secondsSinceEpoch(const QDateTime& dateTime) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  return dateTime.toMSecsSinceEpoch() / 1000.;
-}

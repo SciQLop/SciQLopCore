@@ -19,21 +19,37 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/DateUtils.hpp"
+#pragma once
 
-#include <cmath>
+#include <QEventLoop>
 
-QDateTime DateUtils::dateTime(double secs, Qt::TimeSpec timeSpec) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  if(!std::isnan(secs))
-    return QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(secs * 1000.),
-                                          timeSpec);
-  return QDateTime();
-}
+/**
+ * Class for synchronously waiting for the reception of a signal. The signal to wait is passed to
+ * the construction of the object. When starting the wait, a timeout can be set to exit if the
+ * signal has not been sent
+ */
+class SignalWaiter : public QObject {
+    Q_OBJECT
+public:
+    /**
+     * Ctor
+     * @param object the sender of the signal
+     * @param signal the signal to listen
+     */
+    explicit SignalWaiter(QObject &sender, const char *signal);
 
-double DateUtils::secondsSinceEpoch(const QDateTime& dateTime) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  return dateTime.toMSecsSinceEpoch() / 1000.;
-}
+    /**
+     * Starts the signal and leaves after the signal has been received, or after the timeout
+     * @param timeout the timeout set (if 0, uses a default timeout)
+     * @return true if the signal was sent, false if the timeout occured
+     */
+    bool wait(int timeout);
+
+private:
+    bool m_Timeout;
+    QEventLoop m_EventLoop;
+
+private slots:
+    void timeout();
+};
+

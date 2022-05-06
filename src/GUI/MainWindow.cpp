@@ -19,7 +19,7 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/GUI/MainWindow.h"
+#include "SciQLopCore/GUI/MainWindow.hpp"
 
 #include <QAction>
 #include <QCloseEvent>

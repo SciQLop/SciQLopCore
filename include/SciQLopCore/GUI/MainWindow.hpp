@@ -34,7 +34,7 @@
 
 #include <memory>
 
-#include "SciQLopCore/SqpApplication.h"
+#include "SciQLopCore/SqpApplication.hpp"
 
 
 class MainWindow : public QMainWindow
@@ -66,7 +66,6 @@ inline void init_resources()
     SqpApplication::setOrganizationDomain("lpp.fr");
     SqpApplication::setApplicationName("SciQLop");
 
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 }
 
 inline void load_plugins(const SqpApplication& a)

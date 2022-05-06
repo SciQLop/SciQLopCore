@@ -47,7 +47,7 @@ endforeach
 
 
 sciqlop_bindings_src = files('numpy_wrappers.cpp')
-sciqlop_bindings_headers = files('bindings.h', 'PyDataProvider.h', 'numpy_wrappers.h')
+sciqlop_bindings_headers = files('bindings.h', 'PyDataProvider.hpp', 'numpy_wrappers.hpp')
 
 subdir('SciQLopBindings')
 subdir('plugins')

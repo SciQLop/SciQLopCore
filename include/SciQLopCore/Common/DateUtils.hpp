@@ -19,21 +19,22 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/DateUtils.hpp"
+#pragma once
 
-#include <cmath>
+#include <QDateTime>
 
-QDateTime DateUtils::dateTime(double secs, Qt::TimeSpec timeSpec) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  if(!std::isnan(secs))
-    return QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(secs * 1000.),
-                                          timeSpec);
-  return QDateTime();
-}
+/// Format for datetimes
+const auto DATETIME_FORMAT = QStringLiteral("dd/MM/yyyy \nhh:mm:ss:zzz");
+const auto DATETIME_FORMAT_ONE_LINE = QStringLiteral("dd/MM/yyyy hh:mm:ss:zzz");
 
-double DateUtils::secondsSinceEpoch(const QDateTime& dateTime) noexcept
-{
-  // Uses msecs to be Qt 4 compatible
-  return dateTime.toMSecsSinceEpoch() / 1000.;
-}
+/**
+ * Utility class with methods for dates
+ */
+struct DateUtils {
+    /// Converts seconds (since epoch) to datetime. By default, the datetime is in UTC
+    static QDateTime dateTime(double secs, Qt::TimeSpec timeSpec = Qt::UTC) noexcept;
+
+    /// Converts datetime to seconds since epoch
+    static double secondsSinceEpoch(const QDateTime &dateTime) noexcept;
+};
+

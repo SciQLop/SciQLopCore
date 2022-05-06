@@ -1,16 +1,16 @@
 #pragma once
-#include <SciQLopCore/Data/DataProviderParameters.h>
-#include <SciQLopCore/Data/DataSeriesType.h>
-#include <SciQLopCore/Data/IDataProvider.h>
-#include <SciQLopCore/DataSource/DataSourceItem.h>
-#include <SciQLopCore/DataSource/DataSourceItemAction.h>
-#include <SciQLopCore/DataSource/datasources.h>
+#include <SciQLopCore/Data/DataProviderParameters.hpp>
+#include <SciQLopCore/Data/DataSeriesType.hpp>
+#include <SciQLopCore/Data/IDataProvider.hpp>
+#include <SciQLopCore/DataSource/DataSourceItem.hpp>
+#include <SciQLopCore/DataSource/DataSourceItemAction.hpp>
+#include <SciQLopCore/DataSource/DataSources.hpp>
 
 #include <QPair>
 #include <QList>
-#include <SciQLopCore/SqpApplication.h>
+#include <SciQLopCore/SqpApplication.hpp>
 // must be included last because of Python/Qt definition of slots
-#include "numpy_wrappers.h"
+#include "numpy_wrappers.hpp"
 
 struct Product
 {

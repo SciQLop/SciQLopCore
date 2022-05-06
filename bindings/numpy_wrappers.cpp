@@ -1,1 +1,1 @@
-#include "numpy_wrappers.h"
+#include "numpy_wrappers.hpp"
