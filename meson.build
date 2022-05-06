@@ -1,90 +1,38 @@
+project(
+  'SciQLopCore',
+  'cpp',
+  version : '0.0.1',
+  default_options : ['warning_level=3', 'cpp_std=c++17'],
+  license : 'GPL3'
+)
 
-catalogicpp_dep = dependency('catalogicpp', required : true, fallback:['catalogicpp','catalogicpp_dep'])
-timeseries_dep = dependency('TimeSeries', required : true, fallback:['TimeSeries','time_series_dep'])
-cpp_utils_dep = dependency('cpp_utils', fallback:['cpp_utils','cpp_utils_dep'])
+add_global_arguments('-DSCIQLOPCORE_VERSION="@0@"'.format(meson.project_version()), language : 'cpp')
 
-core_moc_headers = [
- './include/Common/spimpl.h',
- './include/Common/DateUtils.h',
- './include/Common/SignalWaiter.h',
- './include/Common/debug.h',
- './include/Common/MetaTypes.h',
- './include/Common/SortUtils.h',
- './include/MimeTypes/MimeTypes.h',
- './include/Data/DateTimeRangeHelper.h',
- './include/Data/ScalarTimeSerie.h',
- './include/Data/DateTimeRange.h',
- './include/Data/DataProviderParameters.h',
- './include/Data/TimeSeriesUtils.h',
- './include/Data/VectorTimeSerie.h',
- './include/Data/SqpIterator.h',
- './include/Data/IDataProvider.h',
- './include/Data/SpectrogramTimeSerie.h',
- './include/Data/MultiComponentTimeSerie.h',
- './include/Data/DataSeriesType.h',
- './include/CoreGlobal.h',
- './include/Network/NetworkController.h',
- './include/Network/Response.h',
- './include/Network/Downloader.h',
- './include/Settings/SqpSettingsDefs.h',
- './include/Settings/ISqpSettingsBindable.h',
- './include/DataSource/datasources.h',
- './include/DataSource/DataSourceItem.h',
- './include/DataSource/DataSourceItemAction.h',
- './include/DataSource/DataSourceItemMergeHelper.h',
- './include/Time/TimeController.h',
- './include/PluginManager/PluginManager.h',
- './include/Version.h',
- './include/Catalogue/CatalogueController.h',
- './include/Plugin/IPlugin.h',
- './include/Variable/VariableModel2.h',
- './include/Variable/VariableController2.h',
- './include/Variable/Variable2.h',
- './include/Variable/VariableSynchronizationGroup2.h',
- './include/Variable/private/VCTransaction.h']
+qt_sdk=get_option('qt_version')
+if qt_sdk=='auto'
+    qt_version=run_command(find_program('qmake'), '-query', 'QT_VERSION').stdout()
+    if qt_version.startswith('5.')
+        qt_sdk='qt5'
+    elif qt_version.startswith('6.')
+        qt_sdk='qt6'
+    endif
+endif
 
 
+qtmod = import(qt_sdk)
 
-core_moc_sources = ['src/Network/Downloader.cpp']
+qt_core = dependency(qt_sdk, modules : 'Core', method:'qmake')
+qt_widgets = dependency(qt_sdk, modules : 'Widgets')
+qt_gui = dependency(qt_sdk, modules : 'Gui')
+qt_svg = dependency(qt_sdk, modules : 'Svg')
+qt_xml = dependency(qt_sdk, modules : 'Xml')
+qt_network = dependency(qt_sdk, modules : 'Network')
+qt_printsupport = dependency(qt_sdk, modules : 'PrintSupport')
+qt_Concurrent = dependency(qt_sdk, modules : 'Concurrent')
+qt_test = dependency(qt_sdk, modules : 'Test')
 
+cpp_utils_dep = dependency('cpp_utils')
+time_series_dep = dependency('TimeSeries')
 
-core_moc_files = qtmod.preprocess(moc_headers : core_moc_headers, moc_sources: core_moc_sources)
-
-core_sources = ['./src/MimeTypes/MimeTypes.cpp',
- './src/Common/SignalWaiter.cpp',
- './src/Common/DateUtils.cpp',
- './src/Network/Downloader.cpp',
- './src/Network/NetworkController.cpp',
- './src/Settings/SqpSettingsDefs.cpp',
- './src/DataSource/DataSourceItemAction.cpp',
- './src/DataSource/DataSourceItemMergeHelper.cpp',
- './src/DataSource/DataSourceItem.cpp',
- './src/DataSource/datasources.cpp',
- './src/Time/TimeController.cpp',
- './src/PluginManager/PluginManager.cpp',
- './src/Version.cpp',
- './src/Catalogue/CatalogueController.cpp',
- './src/Variable/VariableSynchronizationGroup2.cpp',
- './src/Variable/Variable2.cpp',
- './src/Variable/VariableController2.cpp',
- './src/Variable/VariableModel2.cpp']
-
-
-core_inc = include_directories(['include', 'include/Plugin'])
-
-sciqlop_core_lib = library('sciqlopcore',
-                       core_sources,
-                       core_moc_files,
-                       cpp_args : '-DCORE_LIB',
-                       include_directories : core_inc,
-                       dependencies : [qt_core, qt_network, catalogicpp_dep, timeseries_dep, cpp_utils_dep],
-                       install : true
-                       )
-
-
-sciqlop_core = declare_dependency(link_with : sciqlop_core_lib,
-                                include_directories : core_inc,
-                                dependencies : [qt_core, qt_network, catalogicpp_dep, timeseries_dep, cpp_utils_dep])
-
-subdir('tests')
-
+subdir('src')
+subdir('bindings')

@@ -1,0 +1,2 @@
+option('teamcity', type : 'boolean', value : false, description : 'Enables TeamCity output format for tests.')
+option('qt_version', value:'auto',type :'combo', choices : ['auto', 'qt5', 'qt6'], description : 'The Qt major version you want to use.')

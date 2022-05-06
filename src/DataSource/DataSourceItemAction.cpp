@@ -1,4 +1,5 @@
-#include <DataSource/DataSourceItemAction.h>
+#include "SciQLopCore/DataSource/DataSourceItemAction.h"
+#include "SciQLopCore/DataSource/DataSourceItem.h"
 
 #include <functional>
 
@@ -18,9 +19,11 @@ struct DataSourceItemAction::DataSourceItemActionPrivate {
 };
 
 DataSourceItemAction::DataSourceItemAction(const QString &name, ExecuteFunction fun)
-        : impl{spimpl::make_unique_impl<DataSourceItemActionPrivate>(name, std::move(fun))}
+        : impl{std::make_unique<DataSourceItemActionPrivate>(name, std::move(fun))}
 {
 }
+
+DataSourceItemAction::~DataSourceItemAction()=default;
 
 std::unique_ptr<DataSourceItemAction> DataSourceItemAction::clone() const
 {

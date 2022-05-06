@@ -1,6 +1,5 @@
-#include "DataSource/DataSourceItemMergeHelper.h"
-
-#include <DataSource/DataSourceItem.h>
+#include "SciQLopCore/DataSource/DataSourceItemMergeHelper.h"
+#include "SciQLopCore/DataSource/DataSourceItem.h"
 
 namespace
 {

@@ -1,2 +1,10 @@
-*.txt.user
 *.pyc
+build/
+subprojects/*
+!subprojects/*.wrap
+*.kdev4
+.cache/*
+*.user
+*.user.*
+*.ipynb_check*
+

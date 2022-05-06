@@ -22,10 +22,10 @@
  * ----------------------------------------------------------------------------*/
 // https://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
 
-#include "DataSource/datasources.h"
+#include "SciQLopCore/DataSource/datasources.h"
 
-#include "DataSource/DataSourceItemAction.h"
-#include "MimeTypes/MimeTypes.h"
+#include "SciQLopCore/DataSource/DataSourceItemAction.h"
+#include "SciQLopCore/MimeTypes/MimeTypes.h"
 #include "containers/algorithms.hpp"
 
 #include <QDataStream>

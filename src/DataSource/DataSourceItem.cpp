@@ -1,6 +1,6 @@
-#include <DataSource/DataSourceItem.h>
-#include <DataSource/DataSourceItemAction.h>
-#include <DataSource/DataSourceItemMergeHelper.h>
+#include "SciQLopCore/DataSource/DataSourceItem.h"
+#include "SciQLopCore/DataSource/DataSourceItemAction.h"
+#include "SciQLopCore/DataSource/DataSourceItemMergeHelper.h"
 #include <QUuid>
 #include <QVector>
 #include <containers/algorithms.hpp>
@@ -20,7 +20,7 @@ struct DataSourceItem::DataSourceItemPrivate
   {
     m_Data[DataSourceItem::NAME_DATA_KEY] = name;
   }
-
+  ~DataSourceItemPrivate();
   DataSourceItem* m_Parent;
   std::optional<QUuid> m_dataSourceUid = std::nullopt;
   std::vector<std::unique_ptr<DataSourceItem>> m_Children;
@@ -60,9 +60,11 @@ struct DataSourceItem::DataSourceItemPrivate
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
                                QVariantHash data,
                                std::optional<QUuid> sourceUUID)
-    : impl{spimpl::make_unique_impl<DataSourceItemPrivate>(
-          type, name, std::move(data), sourceUUID)}
+    : impl{std::make_unique<DataSourceItemPrivate>(
+               type, name, std::move(data), sourceUUID)}
 {}
+
+DataSourceItem::~DataSourceItem()=default;
 
 // TODO remove this method ASAP
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
@@ -316,3 +318,5 @@ std::optional<QUuid> DataSourceItem::source_uuid() const noexcept
 {
   return impl->source_uuid();
 }
+
+DataSourceItem::DataSourceItemPrivate::~DataSourceItemPrivate()=default;

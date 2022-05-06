@@ -1,4 +1,4 @@
-#include "Common/SignalWaiter.h"
+#include "SciQLopCore/Common/SignalWaiter.h"
 
 #include <QTimer>
 
