@@ -1,10 +1,26 @@
 <?xml version="1.0"?>
 <typesystem package="SciQLopBindings">
+    <system-include file-name="memory"/>
+    <rejection class="std" function-name="^[a-z_]+$"/>
+    <system-include file-name="memory"/>
+    <system-include file-name="shared_ptr.h"/>
     <load-typesystem name="typesystem_core.xml" generate="no" />
     <load-typesystem name="typesystem_gui.xml" generate="no" />
     <load-typesystem name="typesystem_widgets.xml" generate="no" />
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
+    <primitive-type name="long"/>
+<!--    <custom-type name="IDataProvider"/>
+    <namespace-type name="std">
+        <primitive-type name="size_t"/>
+        <primitive-type name="nullptr_t"/>
+        <enum-type name="pointer_safety"/>
+        <include file-name="memory" location="global"/>
+        <smart-pointer-type name="shared_ptr" type="shared" getter="get" ref-count-method="use_count">
+            <include file-name="memory" location="global"/>
+        </smart-pointer-type>
+    </namespace-type>
+-->
     <enum-type name="DataSeriesType"/>
     <container-type name="std::vector" type="vector">
         <include file-name="vector" location="global"/>
@@ -50,6 +66,7 @@
     <object-type name="Product" />
     <object-type name="MainWindow" />
     <object-type name="SciQLopCore" />
+    <object-type name="DataSources" />
     <object-type name="ScalarTimeSerie">
         <add-function signature="ScalarTimeSerie(NpArray&amp;,NpArray&amp;)" return-type="ScalarTimeSerie">
             <inject-code class="target">

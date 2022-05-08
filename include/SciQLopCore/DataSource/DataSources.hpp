@@ -41,15 +41,8 @@ public:
   };
 
 public:
-  DataSources()
-      : _root(new DataSourceItem(DataSourceItemType::NODE, "")),
-        _completionModel(new QStringListModel)
-  {}
-  ~DataSources()
-  {
-    delete _root;
-    delete _completionModel;
-  }
+  DataSources();
+  ~DataSources();
 
   virtual QVariant data(const QModelIndex& index, int role) const final;
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const final;
@@ -91,14 +84,7 @@ public:
     return _completionModel;
   }
 
-public Q_SLOTS:
-  void createVariable(const DataSourceItem& item);
-  void createVariable(const QString& path);
-
-Q_SIGNALS:
-  void createVariable(const QString& variableName,
-                      const QVariantHash& variableMetadata,
-                      std::shared_ptr<IDataProvider> variableProvider);
+  std::shared_ptr<IDataProvider> provider(const QString& path);
 
 private:
   void _updateCompletionModel(const QMap<QString, QString>& metaData,

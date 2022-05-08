@@ -117,13 +117,24 @@ make_product_item(const QString& name, QVariantHash& metaData,
   result->setData(DataSourceItem::PLUGIN_DATA_KEY, DATA_SOURCE_NAME);
 
   // Add action to load product from DataSources
-  result->addAction(std::make_unique<DataSourceItemAction>(
-      QObject::tr("Load %1 product").arg(name),
-      [dataSources](DataSourceItem& item) {
-        if(dataSources) { dataSources->createVariable(item); }
-      }));
+//  result->addAction(std::make_unique<DataSourceItemAction>(
+//      QObject::tr("Load %1 product").arg(name),
+//      [dataSources](DataSourceItem& item) {
+//        if(dataSources) { dataSources->createVariable(item); }
+//      }));
 
   return result;
+}
+
+DataSources::DataSources()
+    : _root(new DataSourceItem(DataSourceItemType::NODE, "")),
+      _completionModel(new QStringListModel)
+{}
+
+DataSources::~DataSources()
+{
+  delete _root;
+  delete _completionModel;
 }
 
 QVariant DataSources::data(const QModelIndex& index, int role) const
@@ -263,27 +274,26 @@ void DataSources::updateNodeMetaData(
   _updateCompletionModel(metaData, "");
 }
 
-void DataSources::createVariable(const DataSourceItem& item)
-{
-  if(auto ds_uuid = item.source_uuid();
-     ds_uuid.has_value() && item.isProductOrComponent())
-  {
-    if(auto data_source_it = _DataProviders.find(ds_uuid.value());
-       data_source_it != std::cend(_DataProviders))
-      emit createVariable(item.name(), item.data(), data_source_it->second);
-  }
-}
-
-void DataSources::createVariable(const QString& path)
-{
-  auto node = walk_tree(path, _root);
-  if(node != nullptr) { createVariable(*node); }
-}
-
 void DataSources::setIcon(const QString& path, const QString& iconName)
 {
   auto node = walk_tree(path, _root);
   if(node != nullptr) { node->setIcon(iconName); }
+}
+
+std::shared_ptr<IDataProvider> DataSources::provider(const QString& path)
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr)
+  {
+    if(auto ds_uuid = node->source_uuid();
+       ds_uuid.has_value() && node->isProductOrComponent())
+    {
+      if(auto data_source_it = _DataProviders.find(ds_uuid.value());
+         data_source_it != std::cend(_DataProviders))
+        return data_source_it->second;
+    }
+  }
+  return nullptr;
 }
 
 void DataSources::_updateCompletionModel(const QMap<QString, QString>& metaData,
