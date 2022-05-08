@@ -22,6 +22,7 @@
 #pragma once
 
 //#include <PluginManager/PluginManager.h>
+
 #include <QDir>
 #include <QLoggingCategory>
 #include <QMainWindow>
@@ -31,74 +32,67 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtPlugin>
-
 #include <memory>
-
-#include "SciQLopCore/SqpApplication.hpp"
-
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
-    virtual ~MainWindow() override;
-public slots:
+  explicit MainWindow(QWidget* parent = nullptr);
+  virtual ~MainWindow() override;
 
 protected:
-    void changeEvent(QEvent* e) override;
-    void closeEvent(QCloseEvent* event) override;
+  void changeEvent(QEvent* e) override;
+  void closeEvent(QCloseEvent* event) override;
 
-    void keyPressEvent(QKeyEvent* event) override;
+  void keyPressEvent(QKeyEvent* event) override;
 
 private:
-
-    class MainWindowPrivate;
-    std::unique_ptr<MainWindowPrivate> impl;
+  class MainWindowPrivate;
+  std::unique_ptr<MainWindowPrivate> impl;
 };
 
 inline void init_resources()
 {
-    //Q_IMPORT_PLUGIN(DemoPlugin);
-    //Q_INIT_RESOURCE(sqpguiresources);
-    SqpApplication::setOrganizationName("LPP");
-    SqpApplication::setOrganizationDomain("lpp.fr");
-    SqpApplication::setApplicationName("SciQLop");
-
+  // Q_IMPORT_PLUGIN(DemoPlugin);
+  // Q_INIT_RESOURCE(sqpguiresources);
+ // SqpApplication::setOrganizationName("LPP");
+ // SqpApplication::setOrganizationDomain("lpp.fr");
+  //SqpApplication::setApplicationName("SciQLop");
 }
 
-inline void load_plugins(const SqpApplication& a)
-{
-    // Loads plugins
-    auto pluginDir = QDir { a.applicationDirPath() };
-    auto pluginLookupPath = {
-#if _WIN32 || _WIN64
-        a.applicationDirPath() + "/SciQLop"
-#else
-        a.applicationDirPath() + "/../lib64/SciQLop",
-        a.applicationDirPath() + "/../lib64/sciqlop",
-        a.applicationDirPath() + "/../lib/SciQLop",
-        a.applicationDirPath() + "/../lib/sciqlop",
-#endif
-    };
+//inline void load_plugins(const SqpApplication& a)
+//{
+//  // Loads plugins
+//  auto pluginDir        = QDir{a.applicationDirPath()};
+//  auto pluginLookupPath = {
+//#if _WIN32 || _WIN64
+//    a.applicationDirPath() + "/SciQLop"
+//#else
+//    a.applicationDirPath() + "/../lib64/SciQLop",
+//    a.applicationDirPath() + "/../lib64/sciqlop",
+//    a.applicationDirPath() + "/../lib/SciQLop",
+//    a.applicationDirPath() + "/../lib/sciqlop",
+//#endif
+//  };
 
-#if _WIN32 || _WIN64
-    pluginDir.mkdir(PLUGIN_DIRECTORY_NAME);
-    pluginDir.cd(PLUGIN_DIRECTORY_NAME);
-#endif
-/*
-    PluginManager pluginManager {};
+//#if _WIN32 || _WIN64
+//  pluginDir.mkdir(PLUGIN_DIRECTORY_NAME);
+//  pluginDir.cd(PLUGIN_DIRECTORY_NAME);
+//#endif
+//  /*
+//      PluginManager pluginManager {};
 
-    for (auto&& path : pluginLookupPath)
-    {
-        QDir directory { path };
-        if (directory.exists())
-        {
-            pluginManager.loadPlugins(directory);
-        }
-    }
-    pluginManager.loadStaticPlugins();
-*/
-}
+//      for (auto&& path : pluginLookupPath)
+//      {
+//          QDir directory { path };
+//          if (directory.exists())
+//          {
+//              pluginManager.loadPlugins(directory);
+//          }
+//      }
+//      pluginManager.loadStaticPlugins();
+//  */
+//}
 

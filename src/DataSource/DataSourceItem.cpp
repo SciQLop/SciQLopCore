@@ -20,8 +20,10 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/DataSource/DataSourceItem.hpp"
+
 #include "SciQLopCore/DataSource/DataSourceItemAction.hpp"
 #include "SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp"
+
 #include <QUuid>
 #include <QVector>
 #include <containers/algorithms.hpp>
@@ -81,11 +83,11 @@ struct DataSourceItem::DataSourceItemPrivate
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
                                QVariantHash data,
                                std::optional<QUuid> sourceUUID)
-    : impl{std::make_unique<DataSourceItemPrivate>(
-               type, name, std::move(data), sourceUUID)}
+    : impl{std::make_unique<DataSourceItemPrivate>(type, name, std::move(data),
+                                                   sourceUUID)}
 {}
 
-DataSourceItem::~DataSourceItem()=default;
+DataSourceItem::~DataSourceItem() = default;
 
 // TODO remove this method ASAP
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
@@ -135,10 +137,7 @@ void DataSourceItem::appendChild(std::unique_ptr<DataSourceItem> child) noexcept
 DataSourceItem* DataSourceItem::child(int childIndex) const noexcept
 {
   if(childIndex < 0 || childIndex >= childCount()) { return nullptr; }
-  else
-  {
-    return impl->m_Children.at(childIndex).get();
-  }
+  else { return impl->m_Children.at(childIndex).get(); }
 }
 
 int DataSourceItem::childCount() const noexcept
@@ -174,17 +173,21 @@ void DataSourceItem::setIcon(const QString& iconName)
 
 QString DataSourceItem::path() const noexcept
 {
-    std::vector<QString> path_list;
-    path_list.push_back(name());
-    auto node= parentItem();
-    while( node!=nullptr)
-    {
-        path_list.push_back(node->name());
-        node = node->parentItem();
-    }
-    QString path;
-    std::for_each(path_list.crbegin(),path_list.crend(),[&path](const auto& name){path.append('/'); path.append(name);});
-    return path;
+  std::vector<QString> path_list;
+  path_list.push_back(name());
+  auto node = parentItem();
+  while(node != nullptr)
+  {
+    path_list.push_back(node->name());
+    node = node->parentItem();
+  }
+  QString path;
+  std::for_each(path_list.crbegin(), path_list.crend(),
+                [&path](const auto& name) {
+                  path.append('/');
+                  path.append(name);
+                });
+  return path;
 }
 
 DataSourceItem* DataSourceItem::parentItem() const noexcept
@@ -195,7 +198,9 @@ DataSourceItem* DataSourceItem::parentItem() const noexcept
 int DataSourceItem::index() const noexcept
 {
   if(auto parent = parentItem(); parent)
-  { return parent->impl->index_of(this); }
+  {
+    return parent->impl->index_of(this);
+  }
   return 0;
 }
 
@@ -218,10 +223,7 @@ void DataSourceItem::setData(const QString& key, const QVariant& value,
 
       impl->m_Data.insert(key, variantList);
     }
-    else
-    {
-      impl->m_Data.insert(key, QVariantList{*it, value});
-    }
+    else { impl->m_Data.insert(key, QVariantList{*it, value}); }
   }
   else
   {
@@ -273,7 +275,9 @@ DataSourceItem* DataSourceItem::findItem(const QString& datasourceIdKey,
     if(recursive)
     {
       if(auto foundItem = child->findItem(datasourceIdKey, true))
-      { return foundItem; }
+      {
+        return foundItem;
+      }
     }
   }
 
@@ -294,10 +298,7 @@ bool DataSourceItem::operator==(const DataSourceItem& other)
           return *itemChild == *otherChild;
         });
   }
-  else
-  {
-    return false;
-  }
+  else { return false; }
 }
 
 bool DataSourceItem::operator!=(const DataSourceItem& other)
@@ -340,4 +341,4 @@ std::optional<QUuid> DataSourceItem::source_uuid() const noexcept
   return impl->source_uuid();
 }
 
-DataSourceItem::DataSourceItemPrivate::~DataSourceItemPrivate()=default;
+DataSourceItem::DataSourceItemPrivate::~DataSourceItemPrivate() = default;

@@ -31,60 +31,39 @@
 #include <QToolButton>
 #include <memory.h>
 
-
 Q_LOGGING_CATEGORY(LOG_MainWindow, "MainWindow")
 
 class MainWindow::MainWindowPrivate
 {
 public:
-    explicit MainWindowPrivate(MainWindow* mainWindow)
-    {
-    }
-    ~MainWindowPrivate(){}
-
+  explicit MainWindowPrivate(MainWindow* mainWindow) {}
+  ~MainWindowPrivate() {}
 };
 
-MainWindow::MainWindow(QWidget* parent)
-        : QMainWindow { parent }
-{
-
-}
+MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent} {}
 
 MainWindow::~MainWindow() {}
 
 void MainWindow::changeEvent(QEvent* e)
 {
-    QMainWindow::changeEvent(e);
-    switch (e->type())
-    {
-        case QEvent::LanguageChange:
-            break;
-        default:
-            break;
-    }
+  QMainWindow::changeEvent(e);
+  switch(e->type())
+  {
+    case QEvent::LanguageChange: break;
+    default: break;
+  }
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
-{
-    event->accept();
-}
+void MainWindow::closeEvent(QCloseEvent* event) { event->accept(); }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-    switch (event->key())
-    {
-        case Qt::Key_F11:
-            if (this->isFullScreen())
-            {
-                this->showNormal();
-            }
-            else
-            {
-                this->showFullScreen();
-            }
-            break;
-        default:
-            break;
-    }
+  switch(event->key())
+  {
+    case Qt::Key_F11:
+      if(this->isFullScreen()) { this->showNormal(); }
+      else { this->showFullScreen(); }
+      break;
+    default: break;
+  }
 }
-

@@ -23,10 +23,10 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QIODevice>
 #include <QMimeData>
 #include <QString>
 #include <QVariant>
-#include <QIODevice>
 
 // ////////////////// //
 // SciQlop Mime Types //

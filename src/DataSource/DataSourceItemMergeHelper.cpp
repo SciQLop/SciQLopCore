@@ -20,6 +20,7 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp"
+
 #include "SciQLopCore/DataSource/DataSourceItem.hpp"
 
 namespace
@@ -67,9 +68,13 @@ void DataSourceItemMergeHelper::merge(const DataSourceItem& source,
   {
     // If no item is similar to the source item, the item is copied as the child
     // of the destination item
-    if(std::cend(dest) == std::find_if(std::cbegin(dest), std::cend(dest),
-                                       [&source](const auto& child)
-                                       {return source.type() != DataSourceItemType::NODE && source.name()==child->name() && source.data()==child->data();}))
-    dest.appendChild(source.clone());
+    if(std::cend(dest) ==
+       std::find_if(std::cbegin(dest), std::cend(dest),
+                    [&source](const auto& child) {
+                      return source.type() != DataSourceItemType::NODE &&
+                             source.name() == child->name() &&
+                             source.data() == child->data();
+                    }))
+      dest.appendChild(source.clone());
   }
 }

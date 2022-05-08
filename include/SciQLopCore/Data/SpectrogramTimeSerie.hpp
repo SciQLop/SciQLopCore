@@ -24,7 +24,7 @@
 #include <cmath>
 #include <utility>
 
-class  SpectrogramTimeSerie
+class SpectrogramTimeSerie
     : public TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>
 {
 public:
@@ -35,9 +35,10 @@ public:
       decltype(std::declval<
                TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>>()[0]);
 
-  using iterator_t = decltype(
-      std::declval<TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>>()
-          .begin());
+  using iterator_t =
+      decltype(std::declval<
+                   TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>>()
+                   .begin());
 
   SpectrogramTimeSerie() {}
   SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t&& t,
@@ -56,8 +57,9 @@ public:
   SpectrogramTimeSerie(SpectrogramTimeSerie::axis_t&& t,
                        SpectrogramTimeSerie::axis_t&& y,
                        SpectrogramTimeSerie::data_t&& values,
-                       const std::initializer_list<std::size_t>& shape, double min_sampling,
-                       double max_sampling, bool y_is_log = true)
+                       const std::initializer_list<std::size_t>& shape,
+                       double min_sampling, double max_sampling,
+                       bool y_is_log = true)
       : TimeSeries::TimeSerie<double, SpectrogramTimeSerie, 2>(t, values,
                                                                shape),
         min_sampling{min_sampling}, max_sampling{max_sampling}, y_is_log{
@@ -69,4 +71,3 @@ public:
   ~SpectrogramTimeSerie() = default;
   using TimeSerie::TimeSerie;
 };
-

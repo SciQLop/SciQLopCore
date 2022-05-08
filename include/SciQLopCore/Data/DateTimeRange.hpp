@@ -24,9 +24,9 @@
 #include "../Common/DateUtils.hpp"
 #include "../Common/MetaTypes.hpp"
 
+#include <QDate>
 #include <QDebug>
 #include <QObject>
-#include <QDate>
 #include <QTime>
 #include <cmath>
 #include <cpp_utils/Numeric.h>
@@ -39,48 +39,47 @@ template<typename T> struct Seconds
 
   Seconds operator+(const Seconds& other) const
   {
-      return Seconds{this->value+other.value};
+    return Seconds{this->value + other.value};
   }
 
   Seconds operator-(const Seconds& other) const
   {
-      return Seconds{this->value+other.value};
+    return Seconds{this->value + other.value};
   }
 
   Seconds operator*(const T factor) const
   {
-      return Seconds{this->value*factor};
+    return Seconds{this->value * factor};
   }
 
   Seconds operator/(const T factor) const
   {
-      return Seconds{this->value/factor};
+    return Seconds{this->value / factor};
   }
 
   Seconds operator+=(const Seconds& other)
   {
-      this->value+=other.value;
-      return *this;
+    this->value += other.value;
+    return *this;
   }
 
   Seconds operator-=(const Seconds& other)
   {
-      this->value-=other.value;
-      return *this;
+    this->value -= other.value;
+    return *this;
   }
 
   Seconds operator*=(const T factor)
   {
-      this->value*=factor;
-      return *this;
+    this->value *= factor;
+    return *this;
   }
 
   Seconds operator/=(const T factor)
   {
-      this->value/=factor;
-      return *this;
+    this->value /= factor;
+    return *this;
   }
-
 
 private:
   T value;

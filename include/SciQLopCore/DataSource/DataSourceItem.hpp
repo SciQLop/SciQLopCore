@@ -22,17 +22,18 @@
 #pragma once
 
 #include "SciQLopCore/MimeTypes/MimeTypes.hpp"
+
 #include <QMimeData>
 #include <QUuid>
 #include <QVariant>
 #include <QVector>
 #include <algorithm>
+#include <cpp_utils/trees/algorithms.hpp>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <memory>
 #include <optional>
-#include <cpp_utils/trees/algorithms.hpp>
 
 class DataSourceItemAction;
 
@@ -56,8 +57,8 @@ enum class DataSourceItemType
 class DataSourceItem
 {
 public:
-  using iterator_type = decltype(
-      std::begin(std::declval<std::vector<std::unique_ptr<DataSourceItem>>>()));
+  using iterator_type       = decltype(std::begin(
+            std::declval<std::vector<std::unique_ptr<DataSourceItem>>>()));
   using const_iterator_type = decltype(std::cbegin(
       std::declval<std::vector<std::unique_ptr<DataSourceItem>>>()));
   /// Key associated with the name of the item
@@ -240,4 +241,3 @@ namespace MIME
     return m;
   }
 } // namespace MIME
-

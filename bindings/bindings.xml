@@ -49,21 +49,7 @@
     <object-type name="PyDataProvider"/>
     <object-type name="Product" />
     <object-type name="MainWindow" />
-    <object-type name="SqpApplication">
-        <modify-function signature="SqpApplication(int&amp;,char**)" access="private"/>
-    </object-type>
-    <function signature="SqpApplication_ctor()" return-type="SqpApplication*"/>
-    <add-function signature="SqpApplication_ctor(PySequence)" return-type="SqpApplication*">
-        <inject-code class="target">
-            static int argc;
-            static char **argv;
-            Shiboken::listToArgcArgv(%1, &amp;argc, &amp;argv, "PySideApp");
-            auto retval = new SqpApplication(argc,argv);
-            %PYARG_0 = %CONVERTTOPYTHON[%RETURN_TYPE](retval);
-        </inject-code>
-    </add-function>
-    <function signature="init_resources()"/>
-    <function signature="load_plugins(const SqpApplication&amp;)"/>
+    <object-type name="SciQLopCore" />
     <object-type name="ScalarTimeSerie">
         <add-function signature="ScalarTimeSerie(NpArray&amp;,NpArray&amp;)" return-type="ScalarTimeSerie">
             <inject-code class="target">

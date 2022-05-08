@@ -49,8 +49,7 @@ struct Vector
   double x, y, z;
 };
 
-class VectorTimeSerie
-    : public TimeSeries::TimeSerie<Vector, VectorTimeSerie>
+class VectorTimeSerie : public TimeSeries::TimeSerie<Vector, VectorTimeSerie>
 {
 public:
   VectorTimeSerie() {}

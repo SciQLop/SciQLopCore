@@ -3,16 +3,14 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/Common/SignalWaiter.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
-    '../include/SciQLopCore/GUI/MainWindow.hpp',
-    '../include/SciQLopCore/SqpApplication.hpp'
+    '../include/SciQLopCore/GUI/MainWindow.hpp'
 )
 
 sciqlopcore_moc_sources = files(
     'Common/SignalWaiter.cpp',
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
-    'GUI/MainWindow.cpp',
-    'SqpApplication.cpp'
+    'GUI/MainWindow.cpp'
 )
 
 sciqlopcore_moc_gen = qtmod.compile_moc(
@@ -34,7 +32,8 @@ sciqlopcore_headers = files(
     '../include/SciQLopCore/Common/MetaTypes.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItem.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',
-    '../include/SciQLopCore/MimeTypes/MimeTypes.hpp'
+    '../include/SciQLopCore/MimeTypes/MimeTypes.hpp',
+    '../include/SciQLopCore/SciQLopCore.hpp'
 )
 
 sciqlopcore_sources = files(
@@ -45,7 +44,7 @@ sciqlopcore_sources = files(
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
-    'SqpApplication.cpp'
+    'SciQLopCore.cpp'
 )
 
 sciqlopcore_lib = library('sciqlopcore',

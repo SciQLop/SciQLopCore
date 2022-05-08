@@ -24,6 +24,7 @@
 #include "ScalarTimeSerie.hpp"
 #include "SpectrogramTimeSerie.hpp"
 #include "VectorTimeSerie.hpp"
+
 #include <QString>
 
 enum class DataSeriesType
@@ -40,7 +41,9 @@ struct DataSeriesTypeUtils
   static DataSeriesType fromString(const QString& type)
   {
     if(type.toLower() == QStringLiteral("scalar"))
-    { return DataSeriesType::SCALAR; }
+    {
+      return DataSeriesType::SCALAR;
+    }
     else if(type.toLower() == QStringLiteral("spectrogram"))
     {
       return DataSeriesType::SPECTROGRAM;
@@ -53,10 +56,7 @@ struct DataSeriesTypeUtils
     {
       return DataSeriesType::MULTICOMPONENT;
     }
-    else
-    {
-      return DataSeriesType::NONE;
-    }
+    else { return DataSeriesType::NONE; }
   }
   static DataSeriesType type(TimeSeries::ITimeSerie* ts)
   {

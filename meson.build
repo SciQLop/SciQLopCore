@@ -36,3 +36,4 @@ time_series_dep = dependency('TimeSeries')
 
 subdir('src')
 subdir('bindings')
+subdir('tests')

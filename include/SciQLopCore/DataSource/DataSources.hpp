@@ -22,9 +22,8 @@
  * ----------------------------------------------------------------------------*/
 #pragma once
 
-
-#include "SciQLopCore/Data/IDataProvider.hpp"
 #include "DataSourceItem.hpp"
+#include "SciQLopCore/Data/IDataProvider.hpp"
 
 #include <QAbstractItemModel>
 #include <QMimeData>
@@ -69,7 +68,8 @@ public:
   void addDataSourceItem(const QUuid& providerUid, const QString& path,
                          const QMap<QString, QString>& metaData) noexcept;
 
-  template<typename data_provider_t, class... Args> void addProvider(Args&&... args) noexcept
+  template<typename data_provider_t, class... Args>
+  void addProvider(Args&&... args) noexcept
   {
     addProvider(new data_provider_t{std::forward<Args>(args)...});
   }
@@ -101,10 +101,10 @@ Q_SIGNALS:
                       std::shared_ptr<IDataProvider> variableProvider);
 
 private:
-    void _updateCompletionModel(const QMap<QString, QString>& metaData, const QString& name);
+  void _updateCompletionModel(const QMap<QString, QString>& metaData,
+                              const QString& name);
   DataSourceItem* _root;
   std::map<QUuid, std::shared_ptr<IDataProvider>> _DataProviders;
   QHash<QString, QVariant> _icons;
   QStringListModel* _completionModel;
 };
-

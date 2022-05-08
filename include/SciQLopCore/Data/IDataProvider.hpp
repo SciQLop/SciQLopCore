@@ -23,6 +23,7 @@
 
 #include "SciQLopCore/Common/MetaTypes.hpp"
 #include "SciQLopCore/Data/DateTimeRange.hpp"
+
 #include <QObject>
 #include <QUuid>
 #include <TimeSeries.h>
@@ -46,7 +47,7 @@ class IDataProvider : public QObject
 {
   Q_OBJECT
 
-  QUuid _id=QUuid::createUuid();
+  QUuid _id = QUuid::createUuid();
 
 public:
   virtual ~IDataProvider() noexcept = default;
@@ -57,10 +58,12 @@ public:
   QUuid id() const { return _id; }
   QString name()
   {
-    return QString("%1-%2").arg(this->metaObject()->className()).arg(id().toString());
+    return QString("%1-%2")
+        .arg(this->metaObject()->className())
+        .arg(id().toString());
   }
-  
-  operator QUuid(){return _id;}
+
+  operator QUuid() { return _id; }
 
 signals:
 
@@ -70,5 +73,3 @@ signals:
 // Required for using shared_ptr in signals/slots
 SCIQLOP_REGISTER_META_TYPE(IDATAPROVIDER_PTR_REGISTRY,
                            std::shared_ptr<IDataProvider>)
-
-

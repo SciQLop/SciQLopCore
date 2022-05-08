@@ -20,23 +20,24 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #pragma once
-#include <string>
-#include <iostream>
-#include <typeinfo>
 #include <assert.h>
+#include <iostream>
+#include <string>
+#include <typeinfo>
 
-template <class T, bool crash>
+template<class T, bool crash>
 void SciQLopError(const std::string& message, int line, const std::string& file)
 {
-    std::cerr << "Error in " << file << ", class:" << typeid(T).name() << ", line: " << line <<
-              std::endl << "Message: " << message << std::endl;
-    if constexpr(crash)
-            throw;
+  std::cerr << "Error in " << file << ", class:" << typeid(T).name()
+            << ", line: " << line << std::endl
+            << "Message: " << message << std::endl;
+  if constexpr(crash) throw;
 }
 
 #ifdef SCIQLOP_CRASH_ON_ERROR
-    #define SCIQLOP_ERROR(CLASS, MESSAGE) SciQLopError<CLASS, true>(MESSAGE, __LINE__, __FILE__)
+#define SCIQLOP_ERROR(CLASS, MESSAGE)                                          \
+  SciQLopError<CLASS, true>(MESSAGE, __LINE__, __FILE__)
 #else
-    #define SCIQLOP_ERROR(CLASS, MESSAGE) SciQLopError<CLASS, false>(MESSAGE, __LINE__, __FILE__)
+#define SCIQLOP_ERROR(CLASS, MESSAGE)                                          \
+  SciQLopError<CLASS, false>(MESSAGE, __LINE__, __FILE__)
 #endif
-

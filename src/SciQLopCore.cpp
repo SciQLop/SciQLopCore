@@ -19,16 +19,16 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
-class DataSourceItem;
+#include <SciQLopCore/SciQLopCore.hpp>
+#include "SciQLopCore/DataSource/DataSources.hpp"
 
-/**
- * @brief The DataSourceItemMergeHelper struct is used to merge two data source
- * items
- * @sa DataSourceItem::merge()
- */
-struct DataSourceItemMergeHelper
+SciQLopCore::SciQLopCore()
 {
-  /// Merges source item into dest item
-  static void merge(const DataSourceItem& source, DataSourceItem& dest);
-};
+
+}
+
+DataSources &SciQLopCore::dataSources()
+{
+    static DataSources ds;
+    return ds;
+}
