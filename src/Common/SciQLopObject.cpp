@@ -19,47 +19,15 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
-
-#include "SciQLopCore/Common/MetaTypes.hpp"
 #include "SciQLopCore/Common/SciQLopObject.hpp"
-#include "SciQLopCore/Data/DateTimeRange.hpp"
 
-#include <QObject>
-#include <QUuid>
-#include <TimeSeries.h>
-#include <functional>
-#include <memory>
+QUuid SciQLopObject::id() const { return _id; }
 
-class DataProviderParameters;
-class IDataSeries;
-
-/**
- * @brief The IDataProvider interface aims to declare a data provider.
- *
- * A data provider is an entity that generates data and returns it according to
- * various parameters (time interval, product to retrieve the data, etc.) Since
- * its client mihgt use it from different threads it has to be either stateless
- * and/or thread safe
- *
- * @sa IDataSeries
- */
-class IDataProvider : public SciQLopObject
+QString SciQLopObject::name()
 {
-  Q_OBJECT
+    return QString("%1-%2")
+            .arg(this->metaObject()->className())
+            .arg(id().toString());
+}
 
-public:
-    inline IDataProvider() noexcept = default;
-  virtual ~IDataProvider() noexcept = default;
 
-  inline virtual TimeSeries::ITimeSerie*
-  getData(const DataProviderParameters& parameters){throw std::runtime_error{"You must implement IDataProvider::getData method"};}
-
-signals:
-
-  void progress(QUuid requestID, double progress);
-};
-
-// Required for using shared_ptr in signals/slots
-SCIQLOP_REGISTER_META_TYPE(IDATAPROVIDER_PTR_REGISTRY,
-                           std::shared_ptr<IDataProvider>)

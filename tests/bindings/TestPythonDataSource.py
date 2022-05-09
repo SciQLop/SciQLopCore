@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import unittest
-from SciQLopBindings import PyDataProvider, Product
+from SciQLopBindings import DataProvider, Product
 
 
-class MyProvider(PyDataProvider):
+class MyProvider(DataProvider):
     def __init__(self):
         super(MyProvider,self).__init__()
         self.register_products([Product("/tests/scalar",[],{"type":"scalar"})])

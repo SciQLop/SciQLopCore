@@ -1,3 +1,24 @@
+/*------------------------------------------------------------------------------
+-- This file is a part of the SciQLop Software
+-- Copyright (C) 2022, Plasma Physics Laboratory - CNRS
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+-------------------------------------------------------------------------------*/
+/*-- Author : Alexis Jeandet
+-- Mail : alexis.jeandet@member.fsf.org
+----------------------------------------------------------------------------*/
 #pragma once
 #include <QList>
 #include <QPair>
@@ -10,122 +31,75 @@
 #include <SciQLopCore/SciQLopCore.hpp>
 // must be included last because of Python/Qt definition of slots
 #include "numpy_wrappers.hpp"
-
-struct Product
+namespace py
 {
-  QString path;
-  std::vector<std::string> components;
-  QMap<QString, QString> metadata;
-  Product() = default;
-  explicit Product(const QString& path,
-                   const std::vector<std::string>& components,
-                   const QMap<QString, QString>& metadata)
-      : path{path}, components{components}, metadata{metadata}
-  {}
-  ~Product() = default;
-};
-
-template<typename T> ScalarTimeSerie* make_scalar(T& t, T& y)
-{
-  return new ScalarTimeSerie{std::move(t.data), std::move(y.data)};
-}
-
-template<typename T> VectorTimeSerie* make_vector(T& t, T& y)
-{
-  return new VectorTimeSerie{std::move(t.data), y.to_std_vect_vect()};
-}
-
-template<typename T> MultiComponentTimeSerie* make_multi_comp(T& t, T& y)
-{
-  auto y_size = y.flat_size();
-  auto t_size = t.flat_size();
-  if(t_size && (y_size % t_size) == 0)
+  struct Product
   {
-    return new MultiComponentTimeSerie{
-        std::move(t.data), std::move(y.data), {t_size, y_size / t_size}};
-  }
-  return nullptr;
-}
+    QString path;
+    std::vector<std::string> components;
+    QMap<QString, QString> metadata;
+    Product() = default;
+    explicit Product(const QString& path,
+                     const std::vector<std::string>& components,
+                     const QMap<QString, QString>& metadata)
+        : path{path}, components{components}, metadata{metadata}
+    {}
+    ~Product() = default;
+  };
 
-template<typename T> SpectrogramTimeSerie* make_spectro(T& t, T& y, T& z)
-{
-  auto z_size = z.flat_size();
-  auto t_size = t.flat_size();
-  if(t_size && (z_size % t_size) == 0)
+  struct ScalarTimeSerie : ::ScalarTimeSerie
   {
-    return new SpectrogramTimeSerie{
-        std::move(t.data),         std::move(y.data), std::move(z.data),
-        {t_size, z_size / t_size}, std::nan("1"),     std::nan("1")};
-  }
-  return nullptr;
-}
+    inline ScalarTimeSerie(NpArray time, NpArray values)
+        : ::ScalarTimeSerie{std::move(time.data), std::move(values.data)}
+    {}
+  };
 
-class PyDataProvider : public IDataProvider
-{
-public:
-  PyDataProvider()
+  struct VectorTimeSerie : ::VectorTimeSerie
   {
-    auto& dataSources = SciQLopCore::dataSources();
-    dataSources.addProvider(this);
-  }
+    inline VectorTimeSerie(NpArray time, NpArray values)
+        : ::VectorTimeSerie{std::move(time.data), values.to_std_vect_vect()}
+    {}
+  };
 
-  virtual ~PyDataProvider() {}
-
-  virtual QPair<QPair<QPair<NpArray, NpArray>, NpArray>, DataSeriesType>
-  get_data(const QMap<QString, QString>& key, double start_time,
-           double stop_time)
+  struct MultiComponentTimeSerie : ::MultiComponentTimeSerie
   {
-    (void)key, (void)start_time, (void)stop_time;
-    return {};
-  }
+    inline MultiComponentTimeSerie(NpArray time, NpArray values)
+        : ::MultiComponentTimeSerie{
+              std::move(time.data),
+              std::move(values.data),
+              {time.flat_size(), values.flat_size() / time.flat_size()}}
+    {}
+  };
 
-  virtual TimeSeries::ITimeSerie*
-  getData(const DataProviderParameters& parameters) override
+  struct SpectrogramTimeSerie : ::SpectrogramTimeSerie
   {
-    TimeSeries::ITimeSerie* ts = nullptr;
-    if(parameters.m_Data.contains("name"))
-    {
-      QMap<QString, QString> metadata;
-      std::for_each(parameters.m_Data.constKeyValueBegin(),
-                    parameters.m_Data.constKeyValueEnd(),
-                    [&metadata](const auto& item) {
-                      metadata[item.first] = item.second.toString();
-                    });
-      auto [data, type] = get_data(metadata, parameters.m_Range.m_TStart,
-                                   parameters.m_Range.m_TEnd);
+    inline SpectrogramTimeSerie(NpArray time, NpArray y, NpArray values)
+        : ::SpectrogramTimeSerie{
+              std::move(time.data),
+              std::move(y.data),
+              std::move(values.data),
+              {time.flat_size(), values.flat_size() / time.flat_size()},
+              std::nan("1"),
+              std::nan("1")}
+    {}
+  };
 
-      auto& [axes, values] = data;
-      auto& [x, y]         = axes;
-      switch(type)
-      {
-        case DataSeriesType::SCALAR: ts = make_scalar(x, values); break;
-        case DataSeriesType::VECTOR: ts = make_vector(x, values); break;
-        case DataSeriesType::MULTICOMPONENT:
-          ts = make_multi_comp(x, values);
-          break;
-        case DataSeriesType::SPECTROGRAM:
-          ts = make_spectro(x, y, values);
-          break;
-        default: break;
-      }
-    }
-    return ts;
-  }
-
-  inline void set_icon(const QString& path, const QString& name)
+  class DataProvider : public IDataProvider
   {
-    SciQLopCore::dataSources().setIcon(path, name);
-  }
+  public:
+    DataProvider();
 
-  inline void register_products(const QVector<Product*>& products)
-  {
-    auto& dataSources     = SciQLopCore::dataSources();
-    auto id               = this->id();
-    auto data_source_name = this->name();
-    std::for_each(std::cbegin(products), std::cend(products),
-                  [&id, &dataSources](const Product* product) {
-                    dataSources.addDataSourceItem(id, product->path,
-                                                  product->metadata);
-                  });
-  }
-};
+    virtual ~DataProvider();
+
+    virtual TimeSeries::ITimeSerie* get_data(const QMap<QString, QString>& key,
+                                             double start_time,
+                                             double stop_time);
+
+    virtual TimeSeries::ITimeSerie*
+    getData(const DataProviderParameters& parameters) override;
+
+    void set_icon(const QString& path, const QString& name);
+
+    void register_products(const QVector<Product*>& products);
+  };
+} // namespace py

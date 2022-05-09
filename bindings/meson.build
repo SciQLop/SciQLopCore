@@ -46,7 +46,7 @@ foreach mod:qt_modules
 endforeach
 
 
-sciqlop_bindings_src = files('numpy_wrappers.cpp')
+sciqlop_bindings_src = files('numpy_wrappers.cpp', 'PyDataProvider.cpp')
 sciqlop_bindings_headers = files('bindings.h', 'PyDataProvider.hpp', 'numpy_wrappers.hpp')
 
 subdir('SciQLopBindings')

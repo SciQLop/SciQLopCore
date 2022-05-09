@@ -10,17 +10,18 @@
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
     <primitive-type name="long"/>
-<!--    <custom-type name="IDataProvider"/>
+
+    <interface-type name="IDataProvider" force-abstract="yes"/>
     <namespace-type name="std">
         <primitive-type name="size_t"/>
         <primitive-type name="nullptr_t"/>
         <enum-type name="pointer_safety"/>
         <include file-name="memory" location="global"/>
-        <smart-pointer-type name="shared_ptr" type="shared" getter="get" ref-count-method="use_count">
+        <smart-pointer-type name="shared_ptr" type="shared" getter="get" ref-count-method="use_count" instantiations="IDataProvider">
             <include file-name="memory" location="global"/>
         </smart-pointer-type>
     </namespace-type>
--->
+
     <enum-type name="DataSeriesType"/>
     <container-type name="std::vector" type="vector">
         <include file-name="vector" location="global"/>
@@ -62,44 +63,18 @@
           </target-to-native>
         </conversion-rule>
     </primitive-type>
-    <object-type name="PyDataProvider"/>
-    <object-type name="Product" />
+    <namespace-type name="py" visible="false">
+        <object-type name="DataProvider"/>
+        <object-type name="ScalarTimeSerie" />
+        <object-type name="VectorTimeSerie" />
+        <object-type name="MultiComponentTimeSerie" />
+        <object-type name="SpectrogramTimeSerie" />
+        <object-type name="Product" />
+    </namespace-type>
+    <object-type name="SciQLopObject" />
     <object-type name="MainWindow" />
     <object-type name="SciQLopCore" />
     <object-type name="DataSources" />
-    <object-type name="ScalarTimeSerie">
-        <add-function signature="ScalarTimeSerie(NpArray&amp;,NpArray&amp;)" return-type="ScalarTimeSerie">
-            <inject-code class="target">
-                %BEGIN_ALLOW_THREADS
-                %0 = new ScalarTimeSerieWrapper();
-                %0.set_data(std::move(%1.data),std::move(%2.data));
-                %END_ALLOW_THREADS
-            </inject-code>
-        </add-function>
-        <add-function signature="size()" return-type="int" access="public" static="no">
-            <inject-code class="target">
-                %RETURN_TYPE %0 = %CPPSELF.%FUNCTION_NAME();
-                %PYARG_0 = %CONVERTTOPYTHON[%RETURN_TYPE](%0);
-            </inject-code>
-        </add-function>
-    </object-type>
-    <object-type name="VectorTimeSerie">
-        <add-function signature="VectorTimeSerie(NpArray&amp;,NpArray&amp;)" return-type="VectorTimeSerie">
-            <inject-code class="target">
-                %BEGIN_ALLOW_THREADS
-                %0 = new VectorTimeSerieWrapper();
-                %0.set_data(std::move(%1.data),%2.to_std_vect_vect());
-                %END_ALLOW_THREADS
-            </inject-code>
-        </add-function>
-        <add-function signature="size()" return-type="int" access="public" static="no">
-            <inject-code class="target">
-                %RETURN_TYPE %0 = %CPPSELF.%FUNCTION_NAME();
-                %PYARG_0 = %CONVERTTOPYTHON[%RETURN_TYPE](%0);
-            </inject-code>
-        </add-function>
-    </object-type>
-    <function signature="test_np_array(NpArray&amp;)"/>
 </typesystem>
 
 

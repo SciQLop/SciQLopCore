@@ -3,14 +3,16 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/Common/SignalWaiter.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
-    '../include/SciQLopCore/GUI/MainWindow.hpp'
+    '../include/SciQLopCore/GUI/MainWindow.hpp',
+    '../include/SciQLopCore/Common/SciQLopObject.hpp'
 )
 
 sciqlopcore_moc_sources = files(
     'Common/SignalWaiter.cpp',
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
-    'GUI/MainWindow.cpp'
+    'GUI/MainWindow.cpp',
+    'Common/SciQLopObject.cpp'
 )
 
 sciqlopcore_moc_gen = qtmod.compile_moc(
@@ -44,7 +46,8 @@ sciqlopcore_sources = files(
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
-    'SciQLopCore.cpp'
+    'SciQLopCore.cpp',
+    'Common/SciQLopObject.cpp'
 )
 
 sciqlopcore_lib = library('sciqlopcore',

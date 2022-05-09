@@ -5,20 +5,32 @@
 import os
 import re
 import sys
-
+import xml.etree.ElementTree as Et
 
 script_path = os.path.dirname(os.path.realpath(__file__))
+
+def find_all_objects(node, element, found=None):
+    found = found or []
+    found += list(map(lambda t:t.attrib['name'], node.findall('object-type')+node.findall('interface-type')))
+    smart_ptrs = node.findall('smart-pointer-type')
+    for sp in smart_ptrs:
+        classes = sp.attrib.get('instantiations', '').split(',')
+        for c in classes:
+            found.append(f"{sp.attrib['name']}_{c}")
+    for item in node.findall('namespace-type'):
+        if item.attrib.get('visible', 'true') in ['true', 'auto']:
+            found += [item.attrib['name']]
+        found += list(map(lambda name:f"{item.attrib['name']}_{name}",find_all_objects(item, element)))
+    return found
 
 
 def get_cpp_files_gen(args, include_package=True):
     with open(os.path.join(script_path, "bindings.xml"),'r') as f:
-        txt = f.read()
-        package = re.findall("<typesystem *package=.*", txt)[0].split('"')[1]
-        types = re.findall('(.*object-type *name=.*|.*value-type *name=.*)', txt)
-        types = [t.split('"')[1] for t in types]
+        xml=Et.fromstring(f.read())
+        types = find_all_objects(xml,'object-type')
+        package = xml.attrib['package']
 
-    cpp_files_gen = [f"{package.lower()}_module_wrapper.cpp"]
-    cpp_files_gen.extend([f"{typename.lower()}_wrapper.cpp" for typename in types])
+    cpp_files_gen = [f"{package.lower()}_module_wrapper.cpp"]+[f"{typename.lower()}_wrapper.cpp" for typename in types]
 
     if include_package:
         cpp_files_gen = [os.path.join(package, f) for f in cpp_files_gen]
