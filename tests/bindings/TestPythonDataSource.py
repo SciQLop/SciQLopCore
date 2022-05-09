@@ -18,6 +18,7 @@ class AProvider(unittest.TestCase):
     def test_can_be_retrieved(self):
         p = SciQLopCore.dataSources().provider("/tests/scalar")
         self.assertIsNotNone(p)
+        self.assertEqual(p, t)
 
 if __name__ == '__main__':
     unittest.main()

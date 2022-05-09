@@ -258,8 +258,7 @@ void DataSources::addDataSourceItem(
 
 void DataSources::addProvider(IDataProvider* provider) noexcept
 {
-  _DataProviders.insert(
-      {provider->id(), std::unique_ptr<IDataProvider>{provider}});
+  _DataProviders.insert({provider->id(), provider});
 }
 
 void DataSources::updateNodeMetaData(
@@ -281,7 +280,7 @@ void DataSources::setIcon(const QString& path, const QString& iconName)
   if(node != nullptr) { node->setIcon(iconName); }
 }
 
-std::shared_ptr<IDataProvider> DataSources::provider(const QString& path)
+IDataProvider* DataSources::provider(const QString& path)
 {
   auto node = walk_tree(path, _root);
   if(node != nullptr)

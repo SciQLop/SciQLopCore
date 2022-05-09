@@ -85,13 +85,13 @@ public:
     return _completionModel;
   }
 
-  std::shared_ptr<IDataProvider> provider(const QString& path);
+  IDataProvider* provider(const QString& path);
 
 private:
   void _updateCompletionModel(const QMap<QString, QString>& metaData,
                               const QString& name);
   DataSourceItem* _root;
-  std::map<QUuid, std::shared_ptr<IDataProvider>> _DataProviders;
+  std::map<QUuid, IDataProvider*> _DataProviders;
   QHash<QString, QVariant> _icons;
   QStringListModel* _completionModel;
 };

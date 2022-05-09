@@ -10,18 +10,7 @@
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
     <primitive-type name="long"/>
-
     <interface-type name="IDataProvider" force-abstract="yes"/>
-    <namespace-type name="std">
-        <primitive-type name="size_t"/>
-        <primitive-type name="nullptr_t"/>
-        <enum-type name="pointer_safety"/>
-        <include file-name="memory" location="global"/>
-        <smart-pointer-type name="shared_ptr" type="shared" getter="get" ref-count-method="use_count" instantiations="IDataProvider">
-            <include file-name="memory" location="global"/>
-        </smart-pointer-type>
-    </namespace-type>
-
     <enum-type name="DataSeriesType"/>
     <container-type name="std::vector" type="vector">
         <include file-name="vector" location="global"/>
