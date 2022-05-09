@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from SciQLopBindings import DataProvider, Product
+from SciQLopBindings import DataProvider, Product, SciQLopCore
 
 
 class MyProvider(DataProvider):
@@ -13,3 +13,11 @@ class MyProvider(DataProvider):
         return (((np.array([]), np.array([])), np.array([])), ts_type)
 
 t=MyProvider()
+
+class AProvider(unittest.TestCase):
+    def test_can_be_retrieved(self):
+        p = SciQLopCore.dataSources().provider("/tests/scalar")
+        self.assertIsNotNone(p)
+
+if __name__ == '__main__':
+    unittest.main()

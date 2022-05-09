@@ -117,17 +117,18 @@ make_product_item(const QString& name, QVariantHash& metaData,
   result->setData(DataSourceItem::PLUGIN_DATA_KEY, DATA_SOURCE_NAME);
 
   // Add action to load product from DataSources
-//  result->addAction(std::make_unique<DataSourceItemAction>(
-//      QObject::tr("Load %1 product").arg(name),
-//      [dataSources](DataSourceItem& item) {
-//        if(dataSources) { dataSources->createVariable(item); }
-//      }));
+  //  result->addAction(std::make_unique<DataSourceItemAction>(
+  //      QObject::tr("Load %1 product").arg(name),
+  //      [dataSources](DataSourceItem& item) {
+  //        if(dataSources) { dataSources->createVariable(item); }
+  //      }));
 
   return result;
 }
 
 DataSources::DataSources()
-    : _root(new DataSourceItem(DataSourceItemType::NODE, "")),
+    : SciQLopObject{SciQLopObject::className(this)},
+      _root(new DataSourceItem(DataSourceItemType::NODE, "")),
       _completionModel(new QStringListModel)
 {}
 

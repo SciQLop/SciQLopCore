@@ -75,6 +75,7 @@
     <object-type name="MainWindow" />
     <object-type name="SciQLopCore" />
     <object-type name="DataSources" />
+    <object-type name="ProductsTree" />
 </typesystem>
 
 

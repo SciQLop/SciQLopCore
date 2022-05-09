@@ -4,6 +4,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
     '../include/SciQLopCore/GUI/MainWindow.hpp',
+    '../include/SciQLopCore/GUI/PorductsTree.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp'
 )
 
@@ -12,12 +13,22 @@ sciqlopcore_moc_sources = files(
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
+    'GUI/PorductsTree.cpp',
     'Common/SciQLopObject.cpp'
 )
+
+sciqlopcore_ui_sources = files('../UI/ProductsTree.ui')
+
+sciqlopcore_rc_sources = files('../resources/sqpguiresources.qrc')
 
 sciqlopcore_moc_gen = qtmod.compile_moc(
                                         sources: sciqlopcore_moc_sources,
                                         headers: sciqlopcore_moc_headers)
+
+sciqlopcore_ui_gen = qtmod.compile_ui(sources: sciqlopcore_ui_sources)
+
+sciqlopcore_rc_gen = qtmod.compile_resources(sources: sciqlopcore_rc_sources)
+
 
 sciqlopcore_headers = files(
     '../include/SciQLopCore/Data/DataProviderParameters.hpp',
@@ -46,16 +57,22 @@ sciqlopcore_sources = files(
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
+    'GUI/PorductsTree.cpp',
     'SciQLopCore.cpp',
     'Common/SciQLopObject.cpp'
 )
 
 sciqlopcore_lib = library('sciqlopcore',
                           sciqlopcore_moc_gen,
+                          sciqlopcore_ui_gen,
                           sciqlopcore_sources,
+                          sciqlopcore_rc_gen,
                           dependencies: [time_series_dep, cpp_utils_dep, qt_core, qt_widgets, qt_gui],
                           include_directories:'../include',
-                          extra_files:[sciqlopcore_headers,sciqlopcore_moc_headers]
+                          extra_files:[sciqlopcore_headers,
+                                       sciqlopcore_moc_headers,
+                                       sciqlopcore_ui_sources,
+                                       sciqlopcore_rc_sources]
                          )
 
 sciqlopcore_dep = declare_dependency( link_with: sciqlopcore_lib,

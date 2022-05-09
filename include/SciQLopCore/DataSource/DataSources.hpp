@@ -24,13 +24,14 @@
 
 #include "DataSourceItem.hpp"
 #include "SciQLopCore/Data/IDataProvider.hpp"
+#include "SciQLopCore/Common/SciQLopObject.hpp"
 
 #include <QAbstractItemModel>
 #include <QMimeData>
 #include <QObject>
 #include <QStringListModel>
 
-class DataSources : public QAbstractItemModel
+class DataSources : public QAbstractItemModel, public SciQLopObject
 {
   Q_OBJECT
 

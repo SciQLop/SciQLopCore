@@ -44,16 +44,23 @@ class IDataSeries;
  *
  * @sa IDataSeries
  */
-class IDataProvider : public SciQLopObject
+class IDataProvider : public QObject, public SciQLopObject
 {
   Q_OBJECT
 
 public:
-    inline IDataProvider() noexcept = default;
+  inline IDataProvider() noexcept
+      : SciQLopObject(SciQLopObject::className(this))
+  {}
+
   virtual ~IDataProvider() noexcept = default;
 
   inline virtual TimeSeries::ITimeSerie*
-  getData(const DataProviderParameters& parameters){throw std::runtime_error{"You must implement IDataProvider::getData method"};}
+  getData(const DataProviderParameters& parameters)
+  {
+    throw std::runtime_error{
+        "You must implement IDataProvider::getData method"};
+  }
 
 signals:
 

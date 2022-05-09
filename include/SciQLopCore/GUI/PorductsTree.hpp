@@ -19,21 +19,30 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/Common/SciQLopObject.hpp"
+#pragma once
 
-SciQLopObject::SciQLopObject(const QString &className)
-    :_className{className}
+#include <QWidget>
+#include <QSortFilterProxyModel>
+
+namespace Ui
 {
+class ProductsTree;
+} // Ui
 
-}
-
-QUuid SciQLopObject::id() const { return _id; }
-
-QString SciQLopObject::name()
+class ProductsTree : public QWidget
 {
-    return QString("%1-%2")
-            .arg(this->_className)
-            .arg(id().toString());
-}
+  Q_OBJECT
+
+public:
+  explicit ProductsTree(QWidget* parent = nullptr);
+  virtual ~ProductsTree() override;
+
+private:
+    void updateTreeWidget() noexcept;
+
+    Ui::ProductsTree* ui;
+    QSortFilterProxyModel m_model_proxy;
+
+};
 
 
