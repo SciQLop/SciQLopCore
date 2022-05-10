@@ -19,20 +19,21 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
-#include "DateTimeRange.hpp"
+#include "SciQLopCore/SciQLopCore.hpp"
+#include "SciQLopCore/DataSource/IDataProvider.hpp"
+#include "SciQLopCore/DataSource/DataSources.hpp"
 
-#include <QVariantHash>
 
-/**
- * @brief The DataProviderParameters struct holds the information needed to
- * retrieve data from a data provider
- * @sa IDataProvider
- */
-struct DataProviderParameters
+IDataProvider::IDataProvider() noexcept
+    : SciQLopObject(SciQLopObject::className(this))
 {
-  /// Times for which retrieve data
-  DateTimeRange m_Range;
-  /// Extra data that can be used by the provider to retrieve data
-  QVariantHash m_Data;
-};
+    auto& dataSources = SciQLopCore::dataSources();
+    dataSources.addProvider(this);
+}
+
+IDataProvider::~IDataProvider() noexcept
+{
+    std::cout << "IDataProvider::~IDataProvider()" << std::endl;
+    auto& dataSources = SciQLopCore::dataSources();
+    dataSources.removeProvider(this);
+}

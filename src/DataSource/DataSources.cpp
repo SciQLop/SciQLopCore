@@ -254,11 +254,35 @@ void DataSources::addDataSourceItem(
       make_product_item(name, meta_data, providerUid, "test", this));
   endResetModel();
   _updateCompletionModel(metaData, name);
+  _Products[providerUid].append(path);
+}
+
+void DataSources::removeDataSourceItems(const QStringList& paths) noexcept
+{
+  beginResetModel();
+  for(const auto& path : paths)
+  {
+      auto node = walk_tree(path, _root);
+      if(node != nullptr)
+      {
+        node->parentItem()->removeChild(node);
+      }
+  }
+  endResetModel();
 }
 
 void DataSources::addProvider(IDataProvider* provider) noexcept
 {
   _DataProviders.insert({provider->id(), provider});
+  _Products[provider->id()] = QStringList{};
+}
+
+void DataSources::removeProvider(IDataProvider* provider) noexcept
+{
+    assert(cpp_utils::containers::contains(_Products,provider->id()));
+    removeDataSourceItems(_Products[provider->id()]);
+    _DataProviders.erase(provider->id());
+    _Products.erase(provider->id());
 }
 
 void DataSources::updateNodeMetaData(

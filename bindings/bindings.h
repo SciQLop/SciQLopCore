@@ -7,9 +7,9 @@
 #include "numpy_wrappers.hpp"
 
 #include <SciQLopCore/Data/DataSeriesType.hpp>
-#include <SciQLopCore/Data/IDataProvider.hpp>
 #include <SciQLopCore/Data/ScalarTimeSerie.hpp>
 #include <SciQLopCore/Data/VectorTimeSerie.hpp>
+#include <SciQLopCore/DataSource/IDataProvider.hpp>
 #include <SciQLopCore/DataSource/DataSources.hpp>
 #include <SciQLopCore/Common/SciQLopObject.hpp>
 #include <SciQLopCore/GUI/PorductsTree.hpp>

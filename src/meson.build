@@ -1,6 +1,6 @@
 sciqlopcore_moc_headers = files(
-    '../include/SciQLopCore/Data/IDataProvider.hpp',
     '../include/SciQLopCore/Common/SignalWaiter.hpp',
+    '../include/SciQLopCore/DataSource/IDataProvider.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
     '../include/SciQLopCore/GUI/MainWindow.hpp',
@@ -10,6 +10,7 @@ sciqlopcore_moc_headers = files(
 
 sciqlopcore_moc_sources = files(
     'Common/SignalWaiter.cpp',
+    'DataSource/IDataProvider.cpp',
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
@@ -31,7 +32,6 @@ sciqlopcore_rc_gen = qtmod.compile_resources(sources: sciqlopcore_rc_sources)
 
 
 sciqlopcore_headers = files(
-    '../include/SciQLopCore/Data/DataProviderParameters.hpp',
     '../include/SciQLopCore/Data/DataSeriesType.hpp',
     '../include/SciQLopCore/Data/DateTimeRange.hpp',
     '../include/SciQLopCore/Data/DateTimeRangeHelper.hpp',
@@ -44,6 +44,7 @@ sciqlopcore_headers = files(
     '../include/SciQLopCore/Common/debug.hpp',
     '../include/SciQLopCore/Common/MetaTypes.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItem.hpp',
+    '../include/SciQLopCore/DataSource/DataProviderParameters.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',
     '../include/SciQLopCore/MimeTypes/MimeTypes.hpp',
     '../include/SciQLopCore/SciQLopCore.hpp'
@@ -56,6 +57,7 @@ sciqlopcore_sources = files(
     'DataSource/DataSourceItemMergeHelper.cpp',
     'DataSource/DataSourceItemAction.cpp',
     'DataSource/DataSources.cpp',
+    'DataSource/IDataProvider.cpp',
     'GUI/MainWindow.cpp',
     'GUI/PorductsTree.cpp',
     'SciQLopCore.cpp',

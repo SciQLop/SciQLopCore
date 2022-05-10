@@ -22,9 +22,9 @@
 #pragma once
 #include <QList>
 #include <QPair>
-#include <SciQLopCore/Data/DataProviderParameters.hpp>
 #include <SciQLopCore/Data/DataSeriesType.hpp>
-#include <SciQLopCore/Data/IDataProvider.hpp>
+#include <SciQLopCore/DataSource/IDataProvider.hpp>
+#include <SciQLopCore/DataSource/DataProviderParameters.hpp>
 #include <SciQLopCore/DataSource/DataSourceItem.hpp>
 #include <SciQLopCore/DataSource/DataSourceItemAction.hpp>
 #include <SciQLopCore/DataSource/DataSources.hpp>

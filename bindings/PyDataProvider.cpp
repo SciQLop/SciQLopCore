@@ -22,12 +22,15 @@
 #include "PyDataProvider.hpp"
 
 py::DataProvider::DataProvider()
+    :IDataProvider()
 {
-    auto& dataSources = SciQLopCore::dataSources();
-    dataSources.addProvider(this);
+
 }
 
-py::DataProvider::~DataProvider() {}
+py::DataProvider::~DataProvider()
+{
+    std::cout << "py::DataProvider::~DataProvider()" << std::endl;
+}
 
 TimeSeries::ITimeSerie *py::DataProvider::get_data(const QMap<QString, QString> &key, double start_time, double stop_time)
 {

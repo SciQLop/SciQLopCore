@@ -134,6 +134,18 @@ void DataSourceItem::appendChild(std::unique_ptr<DataSourceItem> child) noexcept
   impl->m_Children.push_back(std::move(child));
 }
 
+void DataSourceItem::removeChild(DataSourceItem* child) noexcept
+{
+  if(auto node =
+         std::find_if(std::begin(impl->m_Children), std::end(impl->m_Children),
+                   [child](const auto& n) { return n.get() == child; });
+     node != std::cend(impl->m_Children))
+  {
+    std::swap(*node, impl->m_Children.back());
+    impl->m_Children.resize(std::size(impl->m_Children) - 1);
+  }
+}
+
 DataSourceItem* DataSourceItem::child(int childIndex) const noexcept
 {
   if(childIndex < 0 || childIndex >= childCount()) { return nullptr; }

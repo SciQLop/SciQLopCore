@@ -63,7 +63,13 @@
     <object-type name="SciQLopObject" />
     <object-type name="MainWindow" />
     <object-type name="SciQLopCore" />
-    <object-type name="DataSources" />
+    <object-type name="DataSources">
+        <modify-function signature="provider(const QString&amp;)">
+            <modify-argument index="return">
+                <define-ownership class="target" owner="default"/>
+            </modify-argument>
+        </modify-function>
+    </object-type>
     <object-type name="ProductsTree" />
 </typesystem>
 

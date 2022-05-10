@@ -23,7 +23,7 @@
 #pragma once
 
 #include "DataSourceItem.hpp"
-#include "SciQLopCore/Data/IDataProvider.hpp"
+#include "SciQLopCore/DataSource/IDataProvider.hpp"
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 
 #include <QAbstractItemModel>
@@ -62,6 +62,8 @@ public:
   void addDataSourceItem(const QUuid& providerUid, const QString& path,
                          const QMap<QString, QString>& metaData) noexcept;
 
+  void removeDataSourceItems(const QStringList& paths) noexcept;
+
   template<typename data_provider_t, class... Args>
   void addProvider(Args&&... args) noexcept
   {
@@ -69,6 +71,7 @@ public:
   }
 
   void addProvider(IDataProvider* provider) noexcept;
+  void removeProvider(IDataProvider* provider) noexcept;
 
   void updateNodeMetaData(const QString& path,
                           const QMap<QString, QString>& metaData) noexcept;
@@ -92,6 +95,7 @@ private:
                               const QString& name);
   DataSourceItem* _root;
   std::map<QUuid, IDataProvider*> _DataProviders;
+  std::map<QUuid, QStringList> _Products;
   QHash<QString, QVariant> _icons;
   QStringListModel* _completionModel;
 };

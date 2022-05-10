@@ -93,6 +93,8 @@ public:
    */
   void appendChild(std::unique_ptr<DataSourceItem> child) noexcept;
 
+  void removeChild(DataSourceItem *child) noexcept;
+
   /**
    * Returns the item's child associated to an index
    * @param childIndex the index to search
