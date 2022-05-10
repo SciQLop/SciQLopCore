@@ -10,7 +10,7 @@
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
     <primitive-type name="long"/>
-    <interface-type name="IDataProvider" force-abstract="yes"/>
+    <object-type name="IDataProvider" force-abstract="yes"/>
     <enum-type name="DataSeriesType"/>
     <container-type name="std::vector" type="vector">
         <include file-name="vector" location="global"/>
@@ -53,7 +53,14 @@
         </conversion-rule>
     </primitive-type>
     <namespace-type name="py" visible="false">
-        <object-type name="DataProvider"/>
+        <object-type name="DataProvider">
+            <modify-function signature="get_data(const QMap&lt;QString, QString&gt; &amp; , double, double)">
+                <modify-argument index="return">
+                    <define-ownership class="target" owner="default"/>
+                </modify-argument>
+            </modify-function>
+        </object-type>
+        <object-type name="ITimeSerie" force-abstract="yes"/>
         <object-type name="ScalarTimeSerie" />
         <object-type name="VectorTimeSerie" />
         <object-type name="MultiComponentTimeSerie" />

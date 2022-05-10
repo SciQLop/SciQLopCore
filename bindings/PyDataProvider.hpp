@@ -23,12 +23,13 @@
 #include <QList>
 #include <QPair>
 #include <SciQLopCore/Data/DataSeriesType.hpp>
-#include <SciQLopCore/DataSource/IDataProvider.hpp>
 #include <SciQLopCore/DataSource/DataProviderParameters.hpp>
 #include <SciQLopCore/DataSource/DataSourceItem.hpp>
 #include <SciQLopCore/DataSource/DataSourceItemAction.hpp>
 #include <SciQLopCore/DataSource/DataSources.hpp>
+#include <SciQLopCore/DataSource/IDataProvider.hpp>
 #include <SciQLopCore/SciQLopCore.hpp>
+#include <TimeSeries.h>
 // must be included last because of Python/Qt definition of slots
 #include "numpy_wrappers.hpp"
 namespace py
@@ -47,40 +48,57 @@ namespace py
     ~Product() = default;
   };
 
-  struct ScalarTimeSerie : ::ScalarTimeSerie
+  struct ITimeSerie
+  {
+    ITimeSerie();
+    ITimeSerie(TimeSeries::ITimeSerie* ts);
+    virtual ~ITimeSerie();
+    inline TimeSeries::ITimeSerie* take()
+    {
+      auto result = ts;
+      ts=nullptr;
+      return result;
+    }
+  private:
+    TimeSeries::ITimeSerie* ts;
+  };
+
+  struct ScalarTimeSerie : ITimeSerie
   {
     inline ScalarTimeSerie(NpArray time, NpArray values)
-        : ::ScalarTimeSerie{std::move(time.data), std::move(values.data)}
+        : ITimeSerie{new ::ScalarTimeSerie{std::move(time.data),
+                                           std::move(values.data)}}
     {}
   };
 
-  struct VectorTimeSerie : ::VectorTimeSerie
+  struct VectorTimeSerie : ITimeSerie
   {
     inline VectorTimeSerie(NpArray time, NpArray values)
-        : ::VectorTimeSerie{std::move(time.data), values.to_std_vect_vect()}
+        : ITimeSerie{new ::VectorTimeSerie{std::move(time.data),
+                                           values.to_std_vect_vect()}}
     {}
   };
 
-  struct MultiComponentTimeSerie : ::MultiComponentTimeSerie
+  struct MultiComponentTimeSerie : ITimeSerie
   {
     inline MultiComponentTimeSerie(NpArray time, NpArray values)
-        : ::MultiComponentTimeSerie{
+        : ITimeSerie{new ::MultiComponentTimeSerie{
               std::move(time.data),
               std::move(values.data),
-              {time.flat_size(), values.flat_size() / time.flat_size()}}
+              {time.flat_size(), values.flat_size() / time.flat_size()}}}
     {}
   };
 
-  struct SpectrogramTimeSerie : ::SpectrogramTimeSerie
+  struct SpectrogramTimeSerie : ITimeSerie
   {
     inline SpectrogramTimeSerie(NpArray time, NpArray y, NpArray values)
-        : ::SpectrogramTimeSerie{
+        : ITimeSerie{new ::SpectrogramTimeSerie{
               std::move(time.data),
               std::move(y.data),
               std::move(values.data),
               {time.flat_size(), values.flat_size() / time.flat_size()},
               std::nan("1"),
-              std::nan("1")}
+              std::nan("1")}}
     {}
   };
 
@@ -91,9 +109,8 @@ namespace py
 
     virtual ~DataProvider();
 
-    virtual TimeSeries::ITimeSerie* get_data(const QMap<QString, QString>& key,
-                                             double start_time,
-                                             double stop_time);
+    virtual ITimeSerie* get_data(const QMap<QString, QString>& key,
+                                 double start_time, double stop_time);
 
     virtual TimeSeries::ITimeSerie*
     getData(const DataProviderParameters& parameters) override;

@@ -21,52 +21,63 @@
 ----------------------------------------------------------------------------*/
 #include "PyDataProvider.hpp"
 
-py::DataProvider::DataProvider()
-    :IDataProvider()
-{
-
-}
+py::DataProvider::DataProvider() : IDataProvider() {}
 
 py::DataProvider::~DataProvider()
 {
-    std::cout << "py::DataProvider::~DataProvider()" << std::endl;
+  std::cout << "py::DataProvider::~DataProvider()" << std::endl;
 }
 
-TimeSeries::ITimeSerie *py::DataProvider::get_data(const QMap<QString, QString> &key, double start_time, double stop_time)
+py::ITimeSerie* py::DataProvider::get_data(const QMap<QString, QString>& key,
+                                           double start_time, double stop_time)
 {
-    (void)key, (void)start_time, (void)stop_time;
-    return nullptr;
+  (void)key, (void)start_time, (void)stop_time;
+  return nullptr;
 }
 
-TimeSeries::ITimeSerie *py::DataProvider::getData(const DataProviderParameters &parameters)
+TimeSeries::ITimeSerie*
+py::DataProvider::getData(const DataProviderParameters& parameters)
 {
-    if(parameters.m_Data.contains("name"))
-    {
-        QMap<QString, QString> metadata;
-        std::for_each(parameters.m_Data.constKeyValueBegin(),
-                      parameters.m_Data.constKeyValueEnd(),
-                      [&metadata](const auto& item) {
-            metadata[item.first] = item.second.toString();
-        });
-        return get_data(metadata, parameters.m_Range.m_TStart,
-                        parameters.m_Range.m_TEnd);
-    }
-    return nullptr;
+  if(parameters.m_Data.contains("name"))
+  {
+    QMap<QString, QString> metadata;
+    std::for_each(parameters.m_Data.constKeyValueBegin(),
+                  parameters.m_Data.constKeyValueEnd(),
+                  [&metadata](const auto& item) {
+                    metadata[item.first] = item.second.toString();
+                  });
+    auto result = get_data(metadata, parameters.m_Range.m_TStart,
+                           parameters.m_Range.m_TEnd);
+    auto ts     = result->take();
+    delete result;
+    return ts;
+  }
+  return nullptr;
 }
 
-void py::DataProvider::set_icon(const QString &path, const QString &name)
+void py::DataProvider::set_icon(const QString& path, const QString& name)
 {
-    SciQLopCore::dataSources().setIcon(path, name);
+  SciQLopCore::dataSources().setIcon(path, name);
 }
 
-void py::DataProvider::register_products(const QVector<Product *> &products)
+void py::DataProvider::register_products(const QVector<Product*>& products)
 {
-    auto& dataSources     = SciQLopCore::dataSources();
-    auto id               = this->id();
-    auto data_source_name = this->name();
-    std::for_each(std::cbegin(products), std::cend(products),
-                  [&id, &dataSources](const Product* product) {
-        dataSources.addDataSourceItem(id, product->path,
-                                      product->metadata);
-    });
+  auto& dataSources     = SciQLopCore::dataSources();
+  auto id               = this->id();
+  auto data_source_name = this->name();
+  std::for_each(std::cbegin(products), std::cend(products),
+                [&id, &dataSources](const Product* product) {
+                  dataSources.addDataSourceItem(id, product->path,
+                                                product->metadata);
+                });
+}
+
+py::ITimeSerie::ITimeSerie() : ts{nullptr} {}
+
+py::ITimeSerie::ITimeSerie(TimeSeries::ITimeSerie* ts) : ts{ts} {}
+
+py::ITimeSerie::~ITimeSerie()
+{
+  std::cout << "py::ITimeSerie::~ITimeSerie()" << std::endl;
+  if(ts) delete ts;
 }
