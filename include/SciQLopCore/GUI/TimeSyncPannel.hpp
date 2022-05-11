@@ -23,11 +23,11 @@
 
 #include <QWidget>
 
-#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
+#include <SciQLopPlots/Qt/SyncPanel.hpp>
 
-class PlotWidget : public SciQLopPlots::SciQLopPlot
+class TimeSyncPannel : public SciQLopPlots::SyncPannel
 {
   Q_OBJECT
 public:
-  PlotWidget(QWidget* parent);
+  TimeSyncPannel(QWidget* parent=nullptr);
 };

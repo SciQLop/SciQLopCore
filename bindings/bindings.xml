@@ -67,6 +67,9 @@
         <object-type name="SpectrogramTimeSerie" />
         <object-type name="Product" />
     </namespace-type>
+    <namespace-type name="SciQLopPlots" visible="true">
+        <object-type name="SyncPannel" />
+    </namespace-type>
     <object-type name="SciQLopObject" />
     <object-type name="MainWindow" />
     <object-type name="SciQLopCore" />
@@ -78,7 +81,7 @@
         </modify-function>
     </object-type>
     <object-type name="ProductsTree" />
-    <object-type name="PlotWidget" />
+    <object-type name="TimeSyncPannel" />
 </typesystem>
 
 

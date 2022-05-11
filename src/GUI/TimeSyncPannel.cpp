@@ -19,15 +19,10 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
+#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
 
-#include <QWidget>
-
-#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
-
-class PlotWidget : public SciQLopPlots::SciQLopPlot
+TimeSyncPannel::TimeSyncPannel(QWidget *parent)
+    :SciQLopPlots::SyncPannel{parent}
 {
-  Q_OBJECT
-public:
-  PlotWidget(QWidget* parent);
-};
+
+}

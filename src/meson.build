@@ -5,6 +5,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/DataSource/DataSources.hpp',
     '../include/SciQLopCore/GUI/MainWindow.hpp',
     '../include/SciQLopCore/GUI/PlotWidget.hpp',
+    '../include/SciQLopCore/GUI/TimeSyncPannel.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp'
 )
@@ -17,6 +18,7 @@ sciqlopcore_moc_sources = files(
     'GUI/MainWindow.cpp',
     'GUI/PorductsTree.cpp',
     'GUI/PlotWidget.cpp',
+    'GUI/TimeSyncPannel.cpp',
     'Common/SciQLopObject.cpp'
 )
 
@@ -63,6 +65,7 @@ sciqlopcore_sources = files(
     'GUI/MainWindow.cpp',
     'GUI/PorductsTree.cpp',
     'GUI/PlotWidget.cpp',
+    'GUI/TimeSyncPannel.cpp',
     'SciQLopCore.cpp',
     'Common/SciQLopObject.cpp'
 )

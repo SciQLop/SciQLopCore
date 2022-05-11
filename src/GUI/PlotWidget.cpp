@@ -21,9 +21,4 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/PlotWidget.hpp"
 
-PlotWidget::PlotWidget(QWidget *parent) :QWidget{parent}, m_plot{new SciQLopPlots::SciQLopPlot{this}}
-{
-    if (!this->layout())
-        this->setLayout(new QVBoxLayout);
-    this->layout()->addWidget(m_plot);
-}
+PlotWidget::PlotWidget(QWidget* parent) : SciQLopPlots::SciQLopPlot{parent} {}
