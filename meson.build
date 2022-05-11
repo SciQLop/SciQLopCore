@@ -33,6 +33,7 @@ qt_test = dependency(qt_sdk, modules : 'Test')
 
 cpp_utils_dep = dependency('cpp_utils')
 time_series_dep = dependency('TimeSeries')
+SciQLopPlots_dep = dependency('SciQLopPlots')
 
 subdir('src')
 subdir('bindings')

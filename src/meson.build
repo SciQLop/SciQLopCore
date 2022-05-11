@@ -73,8 +73,7 @@ sciqlopcore_lib = library('sciqlopcore',
                           include_directories:'../include',
                           extra_files:[sciqlopcore_headers,
                                        sciqlopcore_moc_headers,
-                                       sciqlopcore_ui_sources,
-                                       sciqlopcore_rc_sources]
+                                       sciqlopcore_ui_sources]
                          )
 
 sciqlopcore_dep = declare_dependency( link_with: sciqlopcore_lib,

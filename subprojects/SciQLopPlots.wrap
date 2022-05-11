@@ -1,0 +1,7 @@
+[wrap-git]
+directory = SciQLopPlots
+url = https://github.com/SciQLop/SciQLopPlots
+revision = master
+
+[provide]
+SciQLopPlots=SciQLopPlots_dep
