@@ -9,9 +9,12 @@ import xml.etree.ElementTree as Et
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 
+def fix_name(name):
+    return name.replace('<','_').replace('>','_')
+
 def find_all_objects(node, element, found=None):
     found = found or []
-    found += list(map(lambda t:t.attrib['name'], node.findall('object-type')+node.findall('interface-type')))
+    found += list(map(lambda t:fix_name(t.attrib['name']), node.findall('object-type')+node.findall('interface-type')))
     smart_ptrs = node.findall('smart-pointer-type')
     for sp in smart_ptrs:
         classes = sp.attrib.get('instantiations', '').split(',')

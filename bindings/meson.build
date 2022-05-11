@@ -31,11 +31,16 @@ shiboken_build_flags = run_command(python3, 'shiboken-helper.py', '--qmake', qma
 shiboken_link_flags  = run_command(python3, 'shiboken-helper.py', '--qmake', qmake.full_path(), '--pyside_version', pyside_version, '--libs', modules_arg).stdout().strip('\n').split(' ')
 shiboken_typesystem  = run_command(python3, 'shiboken-helper.py', '--qmake', qmake.full_path(), '--pyside_version', pyside_version, '--typesystem').stdout().strip('\n')
 
+subprojects_dir = meson.current_source_dir()+'/../subprojects'
 
 sciqlop_bindings_incs = shiboken_build_flags + [
     '-I'+meson.current_source_dir()+'/../include',
-    '-I'+meson.current_source_dir()+'/../subprojects/TimeSeries/include',
-    '-I'+meson.current_source_dir()+'/../subprojects/cpp_utils/include',
+    '-I'+subprojects_dir+'/TimeSeries/include',
+    '-I'+subprojects_dir+'/cpp_utils/include',
+    '-I'+subprojects_dir+'/SciQLopPlots/include',
+    '-I'+subprojects_dir+'/QCustomPlot/src',
+    '-I'+subprojects_dir+'/hedley-11',
+    '-I'+subprojects_dir+'/channels',
     '-I'+python3.get_path('include'),
     '-I'+qt_headers_path,
     '-I'+numpy_inc

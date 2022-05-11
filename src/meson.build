@@ -4,6 +4,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
     '../include/SciQLopCore/GUI/MainWindow.hpp',
+    '../include/SciQLopCore/GUI/PlotWidget.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp'
 )
@@ -15,6 +16,7 @@ sciqlopcore_moc_sources = files(
     'DataSource/DataSources.cpp',
     'GUI/MainWindow.cpp',
     'GUI/PorductsTree.cpp',
+    'GUI/PlotWidget.cpp',
     'Common/SciQLopObject.cpp'
 )
 
@@ -60,6 +62,7 @@ sciqlopcore_sources = files(
     'DataSource/IDataProvider.cpp',
     'GUI/MainWindow.cpp',
     'GUI/PorductsTree.cpp',
+    'GUI/PlotWidget.cpp',
     'SciQLopCore.cpp',
     'Common/SciQLopObject.cpp'
 )
@@ -69,7 +72,7 @@ sciqlopcore_lib = library('sciqlopcore',
                           sciqlopcore_ui_gen,
                           sciqlopcore_sources,
                           sciqlopcore_rc_gen,
-                          dependencies: [time_series_dep, cpp_utils_dep, qt_core, qt_widgets, qt_gui],
+                          dependencies: [time_series_dep, cpp_utils_dep, SciQLopPlots_dep, qt_core, qt_widgets, qt_gui],
                           include_directories:'../include',
                           extra_files:[sciqlopcore_headers,
                                        sciqlopcore_moc_headers,
@@ -78,5 +81,5 @@ sciqlopcore_lib = library('sciqlopcore',
 
 sciqlopcore_dep = declare_dependency( link_with: sciqlopcore_lib,
                                       include_directories:'../include',
-                                      dependencies: [time_series_dep, cpp_utils_dep, qt_core, qt_widgets, qt_gui]
+                                      dependencies: [time_series_dep, SciQLopPlots_dep, cpp_utils_dep, qt_core, qt_widgets, qt_gui]
                                     )

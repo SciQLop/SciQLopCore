@@ -78,6 +78,7 @@
         </modify-function>
     </object-type>
     <object-type name="ProductsTree" />
+    <object-type name="PlotWidget" />
 </typesystem>
 
 
