@@ -28,16 +28,6 @@
 #include <QAction>
 #include <QCompleter>
 
-namespace
-{
-
-  /// Number of columns displayed in the tree
-  constexpr auto TREE_NB_COLUMNS = 1;
-
-  /// Header labels for the tree
-  const auto TREE_HEADER_LABELS = QStringList{QObject::tr("Name")};
-
-} // namespace
 
 ProductsTree::ProductsTree(QWidget* parent)
     : QWidget{parent}, ui{new Ui::ProductsTree}
@@ -46,15 +36,14 @@ ProductsTree::ProductsTree(QWidget* parent)
   m_model_proxy.setSourceModel(&SciQLopCore::dataSources());
   ui->treeView->setModel(&m_model_proxy);
   ui->treeView->setDragEnabled(true);
-  m_model_proxy.setFilterRole(Qt::ToolTipRole);
+  m_model_proxy.setFilterRole(Qt::DisplayRole);
   m_model_proxy.setRecursiveFilteringEnabled(true);
+  m_model_proxy.setAutoAcceptChildRows(true);
 
-  // Connection to filter tree
-  connect(ui->filterLineEdit, &QLineEdit::textChanged, &m_model_proxy,
-          static_cast<void (QSortFilterProxyModel::*)(const QString&)>(
-              &QSortFilterProxyModel::setFilterRegularExpression));
-  SciQLopCore::dataSources().addIcon("satellite",
-                                     QVariant(QIcon(":/icons/satellite.svg")));
+  connect(ui->filterLineEdit, &QLineEdit::textChanged, &m_model_proxy,[this](const QString& filter)
+  {
+      m_model_proxy.setFilterFixedString(filter);
+  });
 
   QAction* expandAll   = new QAction("Expand all");
   QAction* collapseAll = new QAction("Collapse all");

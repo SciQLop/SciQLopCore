@@ -20,9 +20,32 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/TimeSyncPannel.hpp"
+#include <iostream>
+#include <QDragEnterEvent>
+#include <QMimeData>
 
-TimeSyncPannel::TimeSyncPannel(QWidget *parent)
-    :SciQLopPlots::SyncPannel{parent}
+TimeSyncPannel::TimeSyncPannel(QWidget* parent)
+    : SciQLopPlots::SyncPannel{parent}
 {
+  setAcceptDrops(true);
+}
 
+TimeSyncPannel::~TimeSyncPannel()
+{
+    std::cout << "TimeSyncPannel::~TimeSyncPannel" << std::endl;
+}
+
+void TimeSyncPannel::dragEnterEvent(QDragEnterEvent *event)
+{
+  for(const auto&f:event->mimeData()->formats())
+  {
+    std::cout << f.toStdString() << std::endl;
+  }
+  //if (event->mimeData()->hasFormat("text/plain"))
+    event->acceptProposedAction();
+}
+
+void TimeSyncPannel::dragMoveEvent(QDragMoveEvent *event)
+{
+  event->acceptProposedAction();
 }

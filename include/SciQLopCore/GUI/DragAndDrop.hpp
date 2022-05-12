@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
 -- This file is a part of the SciQLop Software
--- Copyright (C) 2017, Plasma Physics Laboratory - CNRS
+-- Copyright (C) 2022, Plasma Physics Laboratory - CNRS
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -20,44 +20,23 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #pragma once
+#include <QDragEnterEvent>
+#include <QDragLeaveEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
 
-#include <QMainWindow>
-#include <QWidget>
-
-namespace Ui
+template <typename Widget_t>
+struct DragAndDrop
 {
-class MainWindow;
-} // Ui
-class TimeSyncPannel;
+  inline DragAndDrop(Widget_t* widget)
+      :widget{widget}
+  {}
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dragLeaveEvent(QDragLeaveEvent *event);
+  void dropEvent(QDropEvent *event);
 
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
-
-public:
-  explicit MainWindow(QWidget* parent = nullptr);
-  virtual ~MainWindow() override;
-
-  void addTimeSynPannel(TimeSyncPannel* pannel);
-  void addWidgetIntoDock(Qt::DockWidgetArea,QWidget*);
-
-protected:
-  void changeEvent(QEvent* e) override;
-  void closeEvent(QCloseEvent* event) override;
-
-  void keyPressEvent(QKeyEvent* event) override;
 
 private:
-  Ui::MainWindow* ui;
+  Widget_t* widget;
 };
-
-inline void init_resources()
-{
-  // Q_IMPORT_PLUGIN(DemoPlugin);
-  // Q_INIT_RESOURCE(sqpguiresources);
- // SqpApplication::setOrganizationName("LPP");
- // SqpApplication::setOrganizationDomain("lpp.fr");
-  //SqpApplication::setApplicationName("SciQLop");
-}
-
-

@@ -27,6 +27,9 @@
 #include <QMimeData>
 #include <QString>
 #include <QVariant>
+#include <QMap>
+
+#include <array>
 
 // ////////////////// //
 // SciQlop Mime Types //
@@ -34,6 +37,7 @@
 
 namespace MIME
 {
+
   inline QString const MIME_TYPE_GRAPH =
       QStringLiteral("application/x.sciqlop.graph");
   inline QString const MIME_TYPE_ZONE =
@@ -63,7 +67,7 @@ namespace MIME
     SOURCE_CATALOGUE_LIST
   };
 
-  inline std::unordered_map<IDS, QString> const MIME_TYPES = {
+  inline QMap<IDS, QString> const MIME_TYPES = {
       {IDS::GRAPH, MIME_TYPE_GRAPH},
       {IDS::ZONE, MIME_TYPE_ZONE},
       {IDS::VARIABLE_LIST, MIME_TYPE_VARIABLE_LIST},
@@ -72,6 +76,11 @@ namespace MIME
       {IDS::SELECTION_ZONE, MIME_TYPE_SELECTION_ZONE},
       {IDS::EVENT_LIST, MIME_TYPE_EVENT_LIST},
       {IDS::SOURCE_CATALOGUE_LIST, MIME_TYPE_SOURCE_CATALOGUE_LIST}};
+
+  inline QString txt(IDS id)
+  {
+    return MIME_TYPES[id];
+  }
 
   inline QVariantList decode(const QByteArray& mimeData)
   {
@@ -102,7 +111,7 @@ namespace MIME
 
   template<IDS id> QVariantList fromMimeData(const QMimeData* mime)
   {
-    return decode(mime->data(MIME_TYPES.at(id)));
+    return decode(mime->data(MIME_TYPES[id]));
   }
 
 } // namespace MIME

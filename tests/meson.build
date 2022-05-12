@@ -10,4 +10,4 @@ foreach test:test_scripts
 endforeach
 
 library('tests_fake',[],
-        extra_files:test_scripts)
+        extra_files:test_scripts+['bindings/manual_test.py'])

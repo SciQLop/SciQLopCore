@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
 -- This file is a part of the SciQLop Software
--- Copyright (C) 2017, Plasma Physics Laboratory - CNRS
+-- Copyright (C) 2022, Plasma Physics Laboratory - CNRS
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,45 +19,26 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
+#include <QTabWidget>
+#include <SciQLopCore/GUI/CentralWidget.hpp>
+#include <SciQLopCore/GUI/TimeSyncPannel.hpp>
+#include <iostream>
 
-#include <QMainWindow>
-#include <QWidget>
-
-namespace Ui
+CentralWidget::CentralWidget(QWidget* parent) : QMainWindow{parent}
 {
-class MainWindow;
-} // Ui
-class TimeSyncPannel;
-
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
-
-public:
-  explicit MainWindow(QWidget* parent = nullptr);
-  virtual ~MainWindow() override;
-
-  void addTimeSynPannel(TimeSyncPannel* pannel);
-  void addWidgetIntoDock(Qt::DockWidgetArea,QWidget*);
-
-protected:
-  void changeEvent(QEvent* e) override;
-  void closeEvent(QCloseEvent* event) override;
-
-  void keyPressEvent(QKeyEvent* event) override;
-
-private:
-  Ui::MainWindow* ui;
-};
-
-inline void init_resources()
-{
-  // Q_IMPORT_PLUGIN(DemoPlugin);
-  // Q_INIT_RESOURCE(sqpguiresources);
- // SqpApplication::setOrganizationName("LPP");
- // SqpApplication::setOrganizationDomain("lpp.fr");
-  //SqpApplication::setApplicationName("SciQLop");
+  setWindowFlags(Qt::Widget);
+  setWindowTitle("Plot area");
+  setDockNestingEnabled(true);
 }
 
-
+void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
+{
+  if(pannel)
+  {
+    auto doc = new QDockWidget(this);
+    doc->setAllowedAreas(Qt::AllDockWidgetAreas);
+    doc->setWidget(pannel);
+    this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
+    std::cout << "TimeSyncPannel added" << std::endl;
+  }
+}

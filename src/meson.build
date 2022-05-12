@@ -4,6 +4,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/DataSource/DataSourceItemAction.hpp',
     '../include/SciQLopCore/DataSource/DataSources.hpp',
     '../include/SciQLopCore/GUI/MainWindow.hpp',
+    '../include/SciQLopCore/GUI/CentralWidget.hpp',
     '../include/SciQLopCore/GUI/PlotWidget.hpp',
     '../include/SciQLopCore/GUI/TimeSyncPannel.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
@@ -19,10 +20,11 @@ sciqlopcore_moc_sources = files(
     'GUI/PorductsTree.cpp',
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPannel.cpp',
+    'GUI/CentralWidget.cpp',
     'Common/SciQLopObject.cpp'
 )
 
-sciqlopcore_ui_sources = files('../UI/ProductsTree.ui')
+sciqlopcore_ui_sources = files('../UI/ProductsTree.ui', '../UI/mainwindow.ui')
 
 sciqlopcore_rc_sources = files('../resources/sqpguiresources.qrc')
 
@@ -47,6 +49,7 @@ sciqlopcore_headers = files(
     '../include/SciQLopCore/Common/DateUtils.hpp',
     '../include/SciQLopCore/Common/debug.hpp',
     '../include/SciQLopCore/Common/MetaTypes.hpp',
+    '../include/SciQLopCore/GUI/DragAndDrop.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItem.hpp',
     '../include/SciQLopCore/DataSource/DataProviderParameters.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',
@@ -63,6 +66,7 @@ sciqlopcore_sources = files(
     'DataSource/DataSources.cpp',
     'DataSource/IDataProvider.cpp',
     'GUI/MainWindow.cpp',
+    'GUI/CentralWidget.cpp',
     'GUI/PorductsTree.cpp',
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPannel.cpp',

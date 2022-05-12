@@ -70,8 +70,30 @@
     <namespace-type name="SciQLopPlots" visible="true">
         <object-type name="SyncPannel" />
     </namespace-type>
+    <namespace-type name="MIME" visible="true">
+        <enum-type name="IDS" />
+        <function signature="txt(IDS)" />
+    </namespace-type>
     <object-type name="SciQLopObject" />
-    <object-type name="MainWindow" />
+    <object-type name="MainWindow">
+        <modify-function signature="addTimeSynPannel(TimeSyncPannel*)">
+            <modify-argument index="1">
+                <parent index="this" action="add"/>
+            </modify-argument>
+        </modify-function>
+        <modify-function signature="addWidgetIntoDock(Qt::DockWidgetArea,QWidget*)">
+            <modify-argument index="2">
+                <parent index="this" action="add"/>
+            </modify-argument>
+        </modify-function>
+    </object-type>
+    <object-type name="CentralWidget" >
+        <modify-function signature="addTimeSynPannel(TimeSyncPannel*)">
+            <modify-argument index="1">
+                <parent index="this" action="add"/>
+            </modify-argument>
+        </modify-function>
+    </object-type>
     <object-type name="SciQLopCore" />
     <object-type name="DataSources">
         <modify-function signature="provider(const QString&amp;)">

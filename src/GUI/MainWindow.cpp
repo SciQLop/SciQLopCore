@@ -21,28 +21,44 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/MainWindow.hpp"
 
+#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
+#include "ui_mainwindow.h"
+
 #include <QAction>
 #include <QCloseEvent>
 #include <QDate>
 #include <QDir>
 #include <QFileDialog>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QToolBar>
 #include <QToolButton>
-#include <memory.h>
 
 Q_LOGGING_CATEGORY(LOG_MainWindow, "MainWindow")
 
-class MainWindow::MainWindowPrivate
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow{parent}, ui{new Ui::MainWindow}
 {
-public:
-  explicit MainWindowPrivate(MainWindow* mainWindow) {}
-  ~MainWindowPrivate() {}
-};
-
-MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent} {}
+  ui->setupUi(this);
+}
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::addTimeSynPannel(TimeSyncPannel* pannel)
+{
+    this->ui->centralwidget->addTimeSynPannel(pannel);
+}
+
+void MainWindow::addWidgetIntoDock(Qt::DockWidgetArea area, QWidget *w)
+{
+    if(w)
+    {
+      auto doc = new QDockWidget(this);
+      doc->setAllowedAreas(Qt::AllDockWidgetAreas);
+      doc->setWidget(w);
+      this->addDockWidget(area, doc);
+    }
+}
 
 void MainWindow::changeEvent(QEvent* e)
 {
