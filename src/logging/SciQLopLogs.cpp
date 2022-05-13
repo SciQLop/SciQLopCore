@@ -19,22 +19,8 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#pragma once
+#include <QLoggingCategory>
+#include "SciQLopCore/logging/SciQLopLogs.hpp"
 
-#include "SciQLopCore/GUI/DragAndDrop.hpp"
 
-#include <QWidget>
-#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
-
-class PlotWidget : public DropHelper<SciQLopPlots::SciQLopPlot>
-{
-  Q_OBJECT
-
-public:
-  PlotWidget(QWidget* parent);
-
-  void plot(const QStringList& products);
-
-protected:
-
-};
+Q_LOGGING_CATEGORY(gui_logs, "sciqlop.gui")

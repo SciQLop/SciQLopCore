@@ -67,8 +67,8 @@ void py::DataProvider::register_products(const QVector<Product*>& products)
   auto data_source_name = this->name();
   std::for_each(std::cbegin(products), std::cend(products),
                 [&id, &dataSources](const Product* product) {
-                  dataSources.addDataSourceItem(id, product->path,
-                                                product->metadata);
+                  dataSources.addDataSourceItem(
+                      id, product->path, product->ds_type, product->metadata);
                 });
 }
 

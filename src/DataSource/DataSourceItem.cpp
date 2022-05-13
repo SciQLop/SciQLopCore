@@ -36,6 +36,7 @@ const QString DataSourceItem::ID_DATA_KEY     = QStringLiteral("uuid");
 struct DataSourceItem::DataSourceItemPrivate
 {
   explicit DataSourceItemPrivate(DataSourceItemType type, const QString& name,
+                                 DataSeriesType ds_type,
                                  QVariantHash data,
                                  std::optional<QUuid> sourceUUID = std::nullopt)
       : m_Parent{nullptr}, m_dataSourceUid{sourceUUID}, m_Children{},
@@ -49,7 +50,9 @@ struct DataSourceItem::DataSourceItemPrivate
   std::vector<std::unique_ptr<DataSourceItem>> m_Children;
   QString m_icon;
   QString m_name;
+  DataSeriesType m_ds_type;
   DataSourceItemType m_Type;
+
   // TODO check if QVariant is really wise here, looks quite overkill
   // maybe a simple map<string,string> could be enough
   QVariantHash m_Data;
@@ -74,6 +77,7 @@ struct DataSourceItem::DataSourceItemPrivate
   inline QString name() const noexcept { return m_name; }
   inline QString icon() const noexcept { return m_icon; }
   inline void setIcon(const QString& iconName) { m_icon = iconName; }
+  inline DataSeriesType dataSeriesType(){return m_ds_type;}
 };
 
 // DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
@@ -81,9 +85,10 @@ struct DataSourceItem::DataSourceItemPrivate
 //{}
 
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
+                               DataSeriesType ds_type,
                                QVariantHash data,
                                std::optional<QUuid> sourceUUID)
-    : impl{std::make_unique<DataSourceItemPrivate>(type, name, std::move(data),
+    : impl{std::make_unique<DataSourceItemPrivate>(type, name, ds_type, std::move(data),
                                                    sourceUUID)}
 {}
 
@@ -92,7 +97,7 @@ DataSourceItem::~DataSourceItem() = default;
 // TODO remove this method ASAP
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
 {
-  auto result = std::make_unique<DataSourceItem>(impl->m_Type, impl->m_name,
+  auto result = std::make_unique<DataSourceItem>(impl->m_Type, impl->m_name,impl->dataSeriesType(),
                                                  impl->m_Data);
 
   // Clones children
@@ -200,6 +205,11 @@ QString DataSourceItem::path() const noexcept
                   path.append(name);
                 });
   return path;
+}
+
+DataSeriesType DataSourceItem::dataSeriesType() const noexcept
+{
+    return impl->dataSeriesType();
 }
 
 DataSourceItem* DataSourceItem::parentItem() const noexcept

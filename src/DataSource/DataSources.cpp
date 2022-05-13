@@ -105,12 +105,12 @@ DataSourceItem* make_path_items(const T& path_list_begin,
 }
 
 inline std::unique_ptr<DataSourceItem>
-make_product_item(const QString& name, QVariantHash& metaData,
-                  const QUuid& dataSourceUid, const QString& DATA_SOURCE_NAME,
-                  DataSources* dataSources)
+make_product_item(const QString& name, DataSeriesType ds_type,
+                  QVariantHash& metaData, const QUuid& dataSourceUid,
+                  const QString& DATA_SOURCE_NAME, DataSources* dataSources)
 {
-  auto result = std::make_unique<DataSourceItem>(DataSourceItemType::PRODUCT,
-                                                 name, metaData, dataSourceUid);
+  auto result = std::make_unique<DataSourceItem>(
+      DataSourceItemType::PRODUCT, name, ds_type, metaData, dataSourceUid);
 
   // Adds plugin name to product metadata
   // TODO re-consider adding a name attribute to DataSourceItem class
@@ -237,7 +237,7 @@ Qt::ItemFlags DataSources::flags(const QModelIndex& index) const
 // this should be much faster than doing a ResetModel all the time
 // but this is more difficult to implement
 void DataSources::addDataSourceItem(
-    const QUuid& providerUid, const QString& path,
+    const QUuid& providerUid, const QString& path, DataSeriesType ds_type,
     const QMap<QString, QString>& metaData) noexcept
 {
   beginResetModel();
@@ -251,7 +251,7 @@ void DataSources::addDataSourceItem(
     meta_data[key] = metaData[key];
   }
   path_item->appendChild(
-      make_product_item(name, meta_data, providerUid, "test", this));
+      make_product_item(name, ds_type, meta_data, providerUid, "test", this));
   endResetModel();
   _updateCompletionModel(metaData, name);
   _Products[providerUid].append(path);
@@ -262,11 +262,8 @@ void DataSources::removeDataSourceItems(const QStringList& paths) noexcept
   beginResetModel();
   for(const auto& path : paths)
   {
-      auto node = walk_tree(path, _root);
-      if(node != nullptr)
-      {
-        node->parentItem()->removeChild(node);
-      }
+    auto node = walk_tree(path, _root);
+    if(node != nullptr) { node->parentItem()->removeChild(node); }
   }
   endResetModel();
 }
@@ -279,10 +276,10 @@ void DataSources::addProvider(IDataProvider* provider) noexcept
 
 void DataSources::removeProvider(IDataProvider* provider) noexcept
 {
-    assert(cpp_utils::containers::contains(_Products,provider->id()));
-    removeDataSourceItems(_Products[provider->id()]);
-    _DataProviders.erase(provider->id());
-    _Products.erase(provider->id());
+  assert(cpp_utils::containers::contains(_Products, provider->id()));
+  removeDataSourceItems(_Products[provider->id()]);
+  _DataProviders.erase(provider->id());
+  _Products.erase(provider->id());
 }
 
 void DataSources::updateNodeMetaData(

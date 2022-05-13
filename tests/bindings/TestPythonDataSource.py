@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import unittest
-from SciQLopBindings import DataProvider, Product, SciQLopCore, ScalarTimeSerie
+from SciQLopBindings import DataProvider, Product, SciQLopCore, ScalarTimeSerie, DataSeriesType
 import numpy as np
 
 
 class MyProvider(DataProvider):
     def __init__(self, path="/tests/scalar"):
         super(MyProvider,self).__init__()
-        self.register_products([Product(path,[],{"type":"scalar"})])
+        self.register_products([Product(path,[], DataSeriesType.SCALAR,{"type":"scalar"})])
 
     def get_data(self,metadata,start,stop):
         return ScalarTimeSerie(np.arange(start,stop)*1., np.cos(np.arange(start,stop)))

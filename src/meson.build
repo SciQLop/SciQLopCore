@@ -54,7 +54,8 @@ sciqlopcore_headers = files(
     '../include/SciQLopCore/DataSource/DataProviderParameters.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',
     '../include/SciQLopCore/MimeTypes/MimeTypes.hpp',
-    '../include/SciQLopCore/SciQLopCore.hpp'
+    '../include/SciQLopCore/SciQLopCore.hpp',
+    '../include/SciQLopCore/logging/SciQLopLogs.hpp'
 )
 
 sciqlopcore_sources = files(
@@ -71,7 +72,8 @@ sciqlopcore_sources = files(
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPannel.cpp',
     'SciQLopCore.cpp',
-    'Common/SciQLopObject.cpp'
+    'Common/SciQLopObject.cpp',
+    'logging/SciQLopLogs.cpp'
 )
 
 sciqlopcore_lib = library('sciqlopcore',

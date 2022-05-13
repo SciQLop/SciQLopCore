@@ -20,32 +20,53 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/TimeSyncPannel.hpp"
-#include <iostream>
+
+#include "SciQLopCore/MimeTypes/MimeTypes.hpp"
+#include "SciQLopCore/logging/SciQLopLogs.hpp"
+#include "SciQLopCore/GUI/PlotWidget.hpp"
+
+#include "SciQLopPlots/Qt/Graph.hpp"
+
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <iostream>
+
+QStringList ToQStringList(const QVariantList& list)
+{
+  QStringList r;
+  for(const auto& e : list)
+  {
+    if(e.userType() == QMetaType::QString) { r.append(e.toString()); }
+  }
+  return r;
+}
 
 TimeSyncPannel::TimeSyncPannel(QWidget* parent)
-    : SciQLopPlots::SyncPannel{parent}
+    : DropHelper<SciQLopPlots::SyncPannel>{
+          parent,
+          {{MIME::IDS::TIME_RANGE,
+            [this](const QMimeData*) {
+              this->setXRange({{}, {}});
+              return true;
+            }},
+           {MIME::IDS::PRODUCT_LIST,
+            [this,
+             mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
+              this->plot(ToQStringList(MIME::decode(data->data(mime))));
+              return true;
+            }}}}
 {
   setAcceptDrops(true);
 }
 
 TimeSyncPannel::~TimeSyncPannel()
 {
-    std::cout << "TimeSyncPannel::~TimeSyncPannel" << std::endl;
+  std::cout << "TimeSyncPannel::~TimeSyncPannel" << std::endl;
 }
 
-void TimeSyncPannel::dragEnterEvent(QDragEnterEvent *event)
+void TimeSyncPannel::plot(const QStringList& products)
 {
-  for(const auto&f:event->mimeData()->formats())
-  {
-    std::cout << f.toStdString() << std::endl;
-  }
-  //if (event->mimeData()->hasFormat("text/plain"))
-    event->acceptProposedAction();
-}
-
-void TimeSyncPannel::dragMoveEvent(QDragMoveEvent *event)
-{
-  event->acceptProposedAction();
+    auto p = new PlotWidget{this};
+    addPlot(p);
+    p->plot(products);
 }

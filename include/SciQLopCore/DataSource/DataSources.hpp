@@ -23,8 +23,8 @@
 #pragma once
 
 #include "DataSourceItem.hpp"
-#include "SciQLopCore/DataSource/IDataProvider.hpp"
 #include "SciQLopCore/Common/SciQLopObject.hpp"
+#include "SciQLopCore/DataSource/IDataProvider.hpp"
 
 #include <QAbstractItemModel>
 #include <QMimeData>
@@ -60,6 +60,7 @@ public:
   Qt::ItemFlags flags(const QModelIndex& index) const final;
 
   void addDataSourceItem(const QUuid& providerUid, const QString& path,
+                         DataSeriesType ds_type,
                          const QMap<QString, QString>& metaData) noexcept;
 
   void removeDataSourceItems(const QStringList& paths) noexcept;

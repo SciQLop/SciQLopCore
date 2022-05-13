@@ -39,11 +39,13 @@ namespace py
     QString path;
     std::vector<std::string> components;
     QMap<QString, QString> metadata;
+    DataSeriesType ds_type;
     Product() = default;
     explicit Product(const QString& path,
                      const std::vector<std::string>& components,
+                     DataSeriesType ds_type,
                      const QMap<QString, QString>& metadata)
-        : path{path}, components{components}, metadata{metadata}
+        : path{path}, components{components}, metadata{metadata},ds_type{ds_type}
     {}
     ~Product() = default;
   };

@@ -22,6 +22,7 @@
 #pragma once
 
 #include "SciQLopCore/MimeTypes/MimeTypes.hpp"
+#include "SciQLopCore/Data/DataSeriesType.hpp"
 
 #include <QMimeData>
 #include <QUuid>
@@ -70,6 +71,7 @@ public:
 
   // explicit DataSourceItem(DataSourceItemType type, const QString& name);
   explicit DataSourceItem(DataSourceItemType type, const QString& name,
+                          DataSeriesType ds_type = DataSeriesType::NONE,
                           QVariantHash data               = {},
                           std::optional<QUuid> sourceUUID = std::nullopt);
 
@@ -169,6 +171,7 @@ public:
   QString icon() const noexcept;
   void setIcon(const QString& iconName);
   QString path() const noexcept;
+  DataSeriesType dataSeriesType()const noexcept;
 
   /**
    * Get the item's parent

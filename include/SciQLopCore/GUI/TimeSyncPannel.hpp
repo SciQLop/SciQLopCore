@@ -25,7 +25,9 @@
 #include <QWidget>
 #include <SciQLopPlots/Qt/SyncPanel.hpp>
 
-class TimeSyncPannel : public SciQLopPlots::SyncPannel
+#include "SciQLopCore/GUI/DragAndDrop.hpp"
+
+class TimeSyncPannel : public DropHelper<SciQLopPlots::SyncPannel>
 {
   Q_OBJECT
 
@@ -33,11 +35,8 @@ public:
   TimeSyncPannel(QWidget* parent = nullptr);
   ~TimeSyncPannel();
 
-protected:
-
-  void dragEnterEvent(QDragEnterEvent *event);
-  void dragMoveEvent(QDragMoveEvent *event);
-
+private:
+  void plot(const QStringList& products);
 
 
 };
