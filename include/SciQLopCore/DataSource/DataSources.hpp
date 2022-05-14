@@ -91,12 +91,16 @@ public:
 
   IDataProvider* provider(const QString& path);
 
+  DataSeriesType dataSeriesType(const QString& path);
+
+  QVariantHash nodeData(const QString& path);
+
 private:
   void _updateCompletionModel(const QMap<QString, QString>& metaData,
                               const QString& name);
-  DataSourceItem* _root;
+  DataSourceItem* _root=nullptr;
   std::map<QUuid, IDataProvider*> _DataProviders;
   std::map<QUuid, QStringList> _Products;
   QHash<QString, QVariant> _icons;
-  QStringListModel* _completionModel;
+  QStringListModel* _completionModel=nullptr;
 };

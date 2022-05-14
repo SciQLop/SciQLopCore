@@ -23,7 +23,10 @@
 #include "SciQLopCore/DataSource/DataSources.hpp"
 #include "SciQLopCore/logging/SciQLopLogs.hpp"
 #include "SciQLopCore/SciQLopCore.hpp"
-#include "SciQLopPlots/Qt/Graph.hpp"
+#include "SciQLopCore/Data/Pipelines.hpp"
+
+
+
 
 PlotWidget::PlotWidget(QWidget* parent)
     : DropHelper<SciQLopPlots::SciQLopPlot>{
@@ -42,11 +45,5 @@ PlotWidget::PlotWidget(QWidget* parent)
 
 void PlotWidget::plot(const QStringList& products)
 {
-    for(const auto& product:products)
-    {
-        auto provider = SciQLopCore::dataSources().provider(product);
-        //SciQLopCore::dataSources().
-        //SciQLopPlots::add_graph<>(this);
-        std::cout << provider << std::endl;
-    }
+
 }

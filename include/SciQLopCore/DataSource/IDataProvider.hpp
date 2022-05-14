@@ -49,9 +49,9 @@ class IDataProvider : public QObject, public SciQLopObject
   Q_OBJECT
 
 public:
-  IDataProvider() noexcept;
+  IDataProvider();
 
-  virtual ~IDataProvider() noexcept;
+  virtual ~IDataProvider();
 
   inline virtual TimeSeries::ITimeSerie*
   getData(const DataProviderParameters& parameters)

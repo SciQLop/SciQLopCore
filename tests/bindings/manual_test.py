@@ -13,7 +13,7 @@ class MyProvider(DataProvider):
 
     def get_data(self, metadata, start, stop):
         return ScalarTimeSerie(
-            np.arange(start, stop) * 1.0, np.cos(np.arange(start, stop))
+            np.arange(start, stop) * 1.0, np.cos(np.arange(start, stop,.1))
         )
 
 

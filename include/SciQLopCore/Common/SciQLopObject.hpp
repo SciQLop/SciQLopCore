@@ -91,7 +91,7 @@ class SciQLopObject
 
 public:
   SciQLopObject(const QString & className);
-  virtual ~SciQLopObject() noexcept = default;
+  virtual ~SciQLopObject();
 
   QUuid id() const;
   QString name();

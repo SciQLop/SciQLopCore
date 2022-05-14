@@ -24,6 +24,8 @@
 #include "SciQLopCore/MimeTypes/MimeTypes.hpp"
 #include "SciQLopCore/logging/SciQLopLogs.hpp"
 #include "SciQLopCore/GUI/PlotWidget.hpp"
+#include "SciQLopCore/Data/Pipelines.hpp"
+#include "SciQLopCore/SciQLopCore.hpp"
 
 #include "SciQLopPlots/Qt/Graph.hpp"
 
@@ -68,5 +70,5 @@ void TimeSyncPannel::plot(const QStringList& products)
 {
     auto p = new PlotWidget{this};
     addPlot(p);
-    p->plot(products);
+    SciQLopCore::pipelines().plot(products,p);
 }

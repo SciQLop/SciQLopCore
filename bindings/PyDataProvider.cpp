@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include "PyDataProvider.hpp"
 
-py::DataProvider::DataProvider() : IDataProvider() {}
+py::DataProvider::DataProvider(): IDataProvider(){}
 
 py::DataProvider::~DataProvider()
 {
@@ -48,6 +48,7 @@ py::DataProvider::getData(const DataProviderParameters& parameters)
                   });
     auto result = get_data(metadata, parameters.m_Range.m_TStart,
                            parameters.m_Range.m_TEnd);
+    std::cout << "Before take" << std::endl;
     auto ts     = result->take();
     delete result;
     return ts;

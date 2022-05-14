@@ -8,7 +8,8 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/GUI/PlotWidget.hpp',
     '../include/SciQLopCore/GUI/TimeSyncPannel.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
-    '../include/SciQLopCore/Common/SciQLopObject.hpp'
+    '../include/SciQLopCore/Common/SciQLopObject.hpp',
+    '../include/SciQLopCore/Data/Pipelines.hpp'
 )
 
 sciqlopcore_moc_sources = files(
@@ -21,7 +22,8 @@ sciqlopcore_moc_sources = files(
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPannel.cpp',
     'GUI/CentralWidget.cpp',
-    'Common/SciQLopObject.cpp'
+    'Common/SciQLopObject.cpp',
+    'Data/Pipelines.cpp'
 )
 
 sciqlopcore_ui_sources = files('../UI/ProductsTree.ui', '../UI/mainwindow.ui')
@@ -73,7 +75,8 @@ sciqlopcore_sources = files(
     'GUI/TimeSyncPannel.cpp',
     'SciQLopCore.cpp',
     'Common/SciQLopObject.cpp',
-    'logging/SciQLopLogs.cpp'
+    'logging/SciQLopLogs.cpp',
+    'Data/Pipelines.cpp'
 )
 
 sciqlopcore_lib = library('sciqlopcore',

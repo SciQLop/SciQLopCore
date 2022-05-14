@@ -27,6 +27,11 @@ SciQLopObject::SciQLopObject(const QString &className)
 
 }
 
+SciQLopObject::~SciQLopObject()
+{
+
+}
+
 QUuid SciQLopObject::id() const { return _id; }
 
 QString SciQLopObject::name()

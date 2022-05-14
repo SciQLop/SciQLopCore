@@ -10,7 +10,13 @@
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
     <primitive-type name="long"/>
-    <object-type name="IDataProvider" force-abstract="yes"/>
+    <object-type name="IDataProvider" force-abstract="yes">
+        <modify-function signature="getData(const DataProviderParameters&amp;)">
+            <modify-argument index="return">
+                <define-ownership class="target" owner="default"/>
+            </modify-argument>
+        </modify-function>
+    </object-type>
     <enum-type name="DataSeriesType"/>
     <container-type name="std::vector" type="vector">
         <include file-name="vector" location="global"/>
@@ -56,7 +62,7 @@
         <object-type name="DataProvider">
             <modify-function signature="get_data(const QMap&lt;QString, QString&gt; &amp; , double, double)">
                 <modify-argument index="return">
-                    <define-ownership class="target" owner="default"/>
+                    <define-ownership class="target" owner="c++"/>
                 </modify-argument>
             </modify-function>
         </object-type>

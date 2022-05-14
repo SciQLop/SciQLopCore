@@ -24,16 +24,15 @@
 #include "SciQLopCore/DataSource/DataSources.hpp"
 
 
-IDataProvider::IDataProvider() noexcept
+IDataProvider::IDataProvider()
     : SciQLopObject(SciQLopObject::className(this))
 {
-    auto& dataSources = SciQLopCore::dataSources();
-    dataSources.addProvider(this);
+    SciQLopCore::dataSources().addProvider(this);
 }
 
-IDataProvider::~IDataProvider() noexcept
+IDataProvider::~IDataProvider()
 {
-    std::cout << "IDataProvider::~IDataProvider()" << std::endl;
+    //std::cout << "IDataProvider::~IDataProvider()" << std::endl;
     auto& dataSources = SciQLopCore::dataSources();
     dataSources.removeProvider(this);
 }

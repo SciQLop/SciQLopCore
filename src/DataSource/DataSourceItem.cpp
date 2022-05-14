@@ -36,11 +36,11 @@ const QString DataSourceItem::ID_DATA_KEY     = QStringLiteral("uuid");
 struct DataSourceItem::DataSourceItemPrivate
 {
   explicit DataSourceItemPrivate(DataSourceItemType type, const QString& name,
-                                 DataSeriesType ds_type,
-                                 QVariantHash data,
+                                 DataSeriesType ds_type, QVariantHash data,
                                  std::optional<QUuid> sourceUUID = std::nullopt)
-      : m_Parent{nullptr}, m_dataSourceUid{sourceUUID}, m_Children{},
-        m_name{name}, m_Type{type}, m_Data{std::move(data)}, m_Actions{}
+      : m_Parent{nullptr}, m_dataSourceUid{sourceUUID},
+        m_Children{}, m_name{name}, m_ds_type{ds_type}, m_Type{type},
+        m_Data{std::move(data)}, m_Actions{}
   {
     m_Data[DataSourceItem::NAME_DATA_KEY] = name;
   }
@@ -77,7 +77,7 @@ struct DataSourceItem::DataSourceItemPrivate
   inline QString name() const noexcept { return m_name; }
   inline QString icon() const noexcept { return m_icon; }
   inline void setIcon(const QString& iconName) { m_icon = iconName; }
-  inline DataSeriesType dataSeriesType(){return m_ds_type;}
+  inline DataSeriesType dataSeriesType() { return m_ds_type; }
 };
 
 // DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name)
@@ -85,11 +85,10 @@ struct DataSourceItem::DataSourceItemPrivate
 //{}
 
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
-                               DataSeriesType ds_type,
-                               QVariantHash data,
+                               DataSeriesType ds_type, QVariantHash data,
                                std::optional<QUuid> sourceUUID)
-    : impl{std::make_unique<DataSourceItemPrivate>(type, name, ds_type, std::move(data),
-                                                   sourceUUID)}
+    : impl{std::make_unique<DataSourceItemPrivate>(type, name, ds_type,
+                                                   std::move(data), sourceUUID)}
 {}
 
 DataSourceItem::~DataSourceItem() = default;
@@ -97,8 +96,8 @@ DataSourceItem::~DataSourceItem() = default;
 // TODO remove this method ASAP
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
 {
-  auto result = std::make_unique<DataSourceItem>(impl->m_Type, impl->m_name,impl->dataSeriesType(),
-                                                 impl->m_Data);
+  auto result = std::make_unique<DataSourceItem>(
+      impl->m_Type, impl->m_name, impl->dataSeriesType(), impl->m_Data);
 
   // Clones children
   for(const auto& child : impl->m_Children)
@@ -143,7 +142,7 @@ void DataSourceItem::removeChild(DataSourceItem* child) noexcept
 {
   if(auto node =
          std::find_if(std::begin(impl->m_Children), std::end(impl->m_Children),
-                   [child](const auto& n) { return n.get() == child; });
+                      [child](const auto& n) { return n.get() == child; });
      node != std::cend(impl->m_Children))
   {
     std::swap(*node, impl->m_Children.back());
@@ -209,7 +208,7 @@ QString DataSourceItem::path() const noexcept
 
 DataSeriesType DataSourceItem::dataSeriesType() const noexcept
 {
-    return impl->dataSeriesType();
+  return impl->dataSeriesType();
 }
 
 DataSourceItem* DataSourceItem::parentItem() const noexcept

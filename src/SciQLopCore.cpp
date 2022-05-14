@@ -19,16 +19,34 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include <SciQLopCore/SciQLopCore.hpp>
+#include "SciQLopCore/Data/Pipelines.hpp"
 #include "SciQLopCore/DataSource/DataSources.hpp"
 
-SciQLopCore::SciQLopCore()
-{
+#include <SciQLopCore/SciQLopCore.hpp>
+#include <iostream>
 
+SciQLopCore::SciQLopCore() {}
+
+DataSources& SciQLopCore::dataSources()
+{
+  static DataSources* ds=nullptr;
+  if(ds!=nullptr)
+      return *ds;
+  else
+  {
+      ds=new DataSources{};
+      return *ds;
+  }
 }
 
-DataSources &SciQLopCore::dataSources()
+Pipelines& SciQLopCore::pipelines()
 {
-    static DataSources ds;
-    return ds;
+  static Pipelines* p=nullptr;
+  if(p!=nullptr)
+      return *p;
+  else
+  {
+      p=new Pipelines{};
+      return *p;
+  }
 }

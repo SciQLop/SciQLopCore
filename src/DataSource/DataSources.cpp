@@ -29,6 +29,7 @@
 #include "containers/algorithms.hpp"
 
 #include <QDataStream>
+#include <iostream>
 
 QString QVariant2QString(const QVariant& variant) noexcept
 {
@@ -134,8 +135,8 @@ DataSources::DataSources()
 
 DataSources::~DataSources()
 {
-  delete _root;
-  delete _completionModel;
+  if(_root) delete _root;
+  if(_completionModel) delete _completionModel;
 }
 
 QVariant DataSources::data(const QModelIndex& index, int role) const
@@ -315,6 +316,20 @@ IDataProvider* DataSources::provider(const QString& path)
     }
   }
   return nullptr;
+}
+
+DataSeriesType DataSources::dataSeriesType(const QString& path)
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr) { return node->dataSeriesType(); }
+  return DataSeriesType::NONE;
+}
+
+QVariantHash DataSources::nodeData(const QString& path)
+{
+  auto node = walk_tree(path, _root);
+  if(node != nullptr) { return node->data(); }
+  return {};
 }
 
 void DataSources::_updateCompletionModel(const QMap<QString, QString>& metaData,
