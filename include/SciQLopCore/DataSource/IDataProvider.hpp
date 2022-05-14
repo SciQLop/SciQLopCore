@@ -49,7 +49,7 @@ class IDataProvider : public QObject, public SciQLopObject
   Q_OBJECT
 
 public:
-  IDataProvider();
+  IDataProvider(QObject* parent=nullptr);
 
   virtual ~IDataProvider();
 

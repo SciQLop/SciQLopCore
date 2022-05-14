@@ -1,6 +1,6 @@
+from PySide6 import QtCore, QtWidgets
 from SciQLopBindings import DataProvider, Product, ScalarTimeSerie
 from SciQLopBindings import SciQLopCore, MainWindow, TimeSyncPannel, ProductsTree, DataSeriesType
-from PySide6 import QtCore, QtWidgets
 import numpy as np
 
 app = QtWidgets.QApplication([])
@@ -12,8 +12,9 @@ class MyProvider(DataProvider):
         self.register_products([Product(path, [], DataSeriesType.SCALAR, {"type": "scalar"})])
 
     def get_data(self, metadata, start, stop):
+        t = np.arange(start, stop,.1)
         return ScalarTimeSerie(
-            np.arange(start, stop) * 1.0, np.cos(np.arange(start, stop,.1))
+            t, np.cos(t)
         )
 
 

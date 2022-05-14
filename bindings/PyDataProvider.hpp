@@ -106,8 +106,9 @@ namespace py
 
   class DataProvider : public IDataProvider
   {
+    Q_OBJECT
   public:
-    DataProvider();
+    DataProvider(QObject* parent=nullptr);
 
     virtual ~DataProvider();
 

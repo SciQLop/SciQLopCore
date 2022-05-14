@@ -59,7 +59,13 @@ subdir('plugins')
 
 shiboken_dep = declare_dependency(compile_args: shiboken_build_flags, link_args: shiboken_link_flags)
 
-sciqlop_bindings = python3.extension_module('SciQLopBindings', sciqlop_bindings_src, shiboken_generator_out,
+sciqlop_bindings_moc_gen = qtmod.compile_moc(
+                                        sources: 'PyDataProvider.cpp',
+                                        headers: 'PyDataProvider.hpp')
+
+
+sciqlop_bindings = python3.extension_module('SciQLopBindings',
+        sciqlop_bindings_src, shiboken_generator_out, sciqlop_bindings_moc_gen,
         dependencies : [ python3_dep, shiboken_dep, sciqlopcore_dep, cpp_utils_dep],
         include_directories : numpy_inc
 )

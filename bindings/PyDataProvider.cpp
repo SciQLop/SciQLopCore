@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include "PyDataProvider.hpp"
 
-py::DataProvider::DataProvider(): IDataProvider(){}
+py::DataProvider::DataProvider(QObject* parent): IDataProvider(parent){}
 
 py::DataProvider::~DataProvider()
 {

@@ -87,7 +87,13 @@ class SciQLopObject
 {
 
   QUuid _id = QUuid::createUuid();
-  const QString _className;
+  QString _className;
+
+protected:
+  void setClassName(const QString& name)
+  {
+    _className = name;
+  }
 
 public:
   SciQLopObject(const QString & className);
@@ -103,11 +109,11 @@ public:
   {
       if constexpr(has_metaObject_v<T>)
       {
-          return object->metaObject()->className();
+          return T::staticMetaObject.className();
       }
       else
       {
-          return QString{type_name<T>()};
+        return QString::fromStdString(std::string{type_name<T>()});
       }
   }
 

@@ -19,20 +19,20 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/SciQLopCore.hpp"
 #include "SciQLopCore/DataSource/IDataProvider.hpp"
+
 #include "SciQLopCore/DataSource/DataSources.hpp"
+#include "SciQLopCore/SciQLopCore.hpp"
 
-
-IDataProvider::IDataProvider()
-    : SciQLopObject(SciQLopObject::className(this))
+IDataProvider::IDataProvider(QObject *parent)
+    : QObject(parent), SciQLopObject(SciQLopObject::className(this))
 {
-    SciQLopCore::dataSources().addProvider(this);
+  SciQLopCore::dataSources().addProvider(this);
 }
 
 IDataProvider::~IDataProvider()
 {
-    //std::cout << "IDataProvider::~IDataProvider()" << std::endl;
-    auto& dataSources = SciQLopCore::dataSources();
-    dataSources.removeProvider(this);
+  // std::cout << "IDataProvider::~IDataProvider()" << std::endl;
+  auto& dataSources = SciQLopCore::dataSources();
+  dataSources.removeProvider(this);
 }
