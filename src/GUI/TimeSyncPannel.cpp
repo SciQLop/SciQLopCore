@@ -21,12 +21,11 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/TimeSyncPannel.hpp"
 
-#include "SciQLopCore/MimeTypes/MimeTypes.hpp"
-#include "SciQLopCore/logging/SciQLopLogs.hpp"
-#include "SciQLopCore/GUI/PlotWidget.hpp"
 #include "SciQLopCore/Data/Pipelines.hpp"
+#include "SciQLopCore/GUI/PlotWidget.hpp"
+#include "SciQLopCore/MimeTypes/MimeTypes.hpp"
 #include "SciQLopCore/SciQLopCore.hpp"
-
+#include "SciQLopCore/logging/SciQLopLogs.hpp"
 #include "SciQLopPlots/Qt/Graph.hpp"
 
 #include <QDragEnterEvent>
@@ -59,6 +58,8 @@ TimeSyncPannel::TimeSyncPannel(QWidget* parent)
             }}}}
 {
   setAcceptDrops(true);
+  setXRange({(QDateTime::currentSecsSinceEpoch()-3600*24*700) * 1.,
+             (QDateTime::currentSecsSinceEpoch()-3600*24*699) * 1.});
 }
 
 TimeSyncPannel::~TimeSyncPannel()
@@ -68,7 +69,7 @@ TimeSyncPannel::~TimeSyncPannel()
 
 void TimeSyncPannel::plot(const QStringList& products)
 {
-    auto p = new PlotWidget{this};
-    addPlot(p);
-    SciQLopCore::pipelines().plot(products,p);
+  auto p = new PlotWidget{this};
+  addPlot(p);
+  SciQLopCore::pipelines().plot(products, p);
 }

@@ -29,9 +29,7 @@
 
 using data_t = std::pair<std::vector<double>, std::vector<double>>;
 
-template<DataSeriesType ds_type> data_t to_data_t(TimeSeries::ITimeSerie* ts);
-
-template<> data_t to_data_t<DataSeriesType::SCALAR>(TimeSeries::ITimeSerie* ts)
+data_t scalar_to_data_t(TimeSeries::ITimeSerie* ts)
 {
   std::cout << "to_data_t" << std::endl;
   auto scalar_ts = dynamic_cast<ScalarTimeSerie*>(ts);
@@ -46,29 +44,64 @@ template<> data_t to_data_t<DataSeriesType::SCALAR>(TimeSeries::ITimeSerie* ts)
   return {x, y};
 }
 
-template<> data_t to_data_t<DataSeriesType::VECTOR>(TimeSeries::ITimeSerie* ts)
+data_t vector_to_data_t(TimeSeries::ITimeSerie* ts)
 {
   if(ts)
   {
     auto vector_ts = dynamic_cast<VectorTimeSerie*>(ts);
-    std::vector<double> x(vector_ts->size());
-    std::vector<double> y(3 * vector_ts->size());
+    const auto sz  = vector_ts->size();
+    std::vector<double> x(sz);
+    std::vector<double> y(3 * sz);
+    for(auto i = 0UL; i < sz; i++)
+    {
+      y[i]          = (*vector_ts)[i].x;
+      y[i + sz]     = (*vector_ts)[i].y;
+      y[i + 2 * sz] = (*vector_ts)[i].z;
+      x[i]          = vector_ts->t(i);
+    }
     return {x, y};
   }
   return {};
 }
 
+
+template<DataSeriesType dst> data_t to_data_t(TimeSeries::ITimeSerie* ts)
+{
+  if constexpr(dst == DataSeriesType::SCALAR) return scalar_to_data_t(ts);
+  if constexpr(dst == DataSeriesType::VECTOR) return vector_to_data_t(ts);
+}
+
+template<DataSeriesType ds_type>
+inline int components_count(const QVariantHash& metaData)
+{
+  if constexpr (ds_type==DataSeriesType::NONE)
+    return 0;
+  if constexpr (ds_type==DataSeriesType::SCALAR)
+    return 1;
+  if constexpr (ds_type==DataSeriesType::VECTOR)
+    return 3;
+  if constexpr (ds_type==DataSeriesType::MULTICOMPONENT)
+    return 1;
+  if constexpr (ds_type==DataSeriesType::SPECTROGRAM)
+    return 1;
+}
+
 template<typename data_t, DataSeriesType ds_type>
 class Pipeline : public IPipeline
 {
+  using graph_indexes_t = std::vector<int>;
   std::thread genThread;
-  SciQLopPlots::Graph<data_t, SciQLopPlots::SciQLopPlot, int> graph;
+  SciQLopPlots::Graph<data_t, SciQLopPlots::SciQLopPlot> graph;
   IDataProvider* provider;
+
+  std::vector<QColor> colors = {Qt::blue, Qt::red, Qt::green, Qt::yellow};
+
 
 public:
   Pipeline(SciQLopPlots::SciQLopPlot* plot, IDataProvider* provider,
            QVariantHash metaData, QColor color = Qt::blue)
-      : graph{SciQLopPlots::add_graph<data_t>(plot, color)}, provider{provider}
+      : graph{SciQLopPlots::add_graph<data_t>(plot, components_count<ds_type>(metaData))},
+        provider{provider}
   {
     std::cout << "Pipeline ctor" << std::endl;
     genThread = std::thread([&graph = graph, &in = graph.transformations_out,
@@ -103,6 +136,12 @@ void Pipelines::plot(const QStringList& products,
       case DataSeriesType::SCALAR: {
         std::cout << "Scalar TS" << std::endl;
         auto pipeline = new Pipeline<data_t, DataSeriesType::SCALAR>(
+            plot, provider, metaData);
+      }
+      break;
+      case DataSeriesType::VECTOR: {
+        std::cout << "Vector TS" << std::endl;
+        auto pipeline = new Pipeline<data_t, DataSeriesType::VECTOR>(
             plot, provider, metaData);
       }
       break;
