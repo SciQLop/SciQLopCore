@@ -32,21 +32,27 @@
 #include <functional>
 #include <tuple>
 
+struct DropHandler
+{
+  MIME::IDS mime_id;
+  QString mime_str;
+  std::function<bool(const QMimeData*)> callback;
+
+  DropHandler(MIME::IDS id, std::function<bool(const QMimeData*)>&& callback)
+      : mime_id{id}, mime_str{MIME::txt(id)}, callback(std::move(callback))
+  {}
+  DropHandler(MIME::IDS id,
+              const std::function<bool(const QMimeData*)>& callback)
+      : mime_id{id}, mime_str{MIME::txt(id)}, callback(callback)
+  {}
+};
+
 template<typename Widget_t> struct DropHelper : Widget_t
 {
-  inline DropHelper(
-      QWidget* parent,
-      std::initializer_list<
-          std::pair<MIME::IDS, std::function<bool(const QMimeData*)>>>
-          handlers)
-      : Widget_t{parent}
+  inline DropHelper(QWidget* parent,
+                    std::initializer_list<DropHandler> handlers)
+      : Widget_t{parent}, drop_handlers{handlers}
   {
-    this->drop_handlers.reserve(std::size(handlers));
-    for(const auto& handler : handlers)
-    {
-      this->drop_handlers.emplace_back(MIME::txt(handler.first),
-                                       std::move(handler.second));
-    }
   }
 
 protected:
@@ -55,7 +61,7 @@ protected:
     const auto& formats = event->mimeData()->formats();
     for(int i = 0; i < std::size(drop_handlers); i++)
     {
-      if(cpp_utils::containers::contains(formats, drop_handlers[i].first))
+      if(cpp_utils::containers::contains(formats, drop_handlers[i].mime_str))
       {
         current_handler_index = i;
         event->acceptProposedAction();
@@ -74,19 +80,19 @@ protected:
   {
     if(current_handler_index != -1)
     {
-      if(drop_handlers[current_handler_index].second(event->mimeData()))
+      if(drop_handlers[current_handler_index].callback(event->mimeData()))
       {
         event->acceptProposedAction();
         event->accept();
-        qCDebug(gui_logs) << "dropEvent: "
-                          << MIME::decode(event->mimeData()->data(
-                                 drop_handlers[current_handler_index].first));
+        qCDebug(gui_logs)
+            << "dropEvent: "
+            << MIME::decode(event->mimeData()->data(
+                   drop_handlers[current_handler_index].mime_str));
       }
     }
   }
 
 private:
-  std::vector<std::pair<QString, std::function<bool(const QMimeData*)>>>
-      drop_handlers;
+  std::vector<DropHandler> drop_handlers;
   int current_handler_index = -1;
 };

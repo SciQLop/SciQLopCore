@@ -28,9 +28,8 @@
 #include <QAction>
 #include <QCompleter>
 
-
 ProductsTree::ProductsTree(QWidget* parent)
-    : QWidget{parent}, ui{new Ui::ProductsTree}
+    : QWidget{parent}, SciQLopObject{this}, ui{new Ui::ProductsTree}
 {
   ui->setupUi(this);
   m_model_proxy.setSourceModel(&SciQLopCore::dataSources());
@@ -40,10 +39,10 @@ ProductsTree::ProductsTree(QWidget* parent)
   m_model_proxy.setRecursiveFilteringEnabled(true);
   m_model_proxy.setAutoAcceptChildRows(true);
 
-  connect(ui->filterLineEdit, &QLineEdit::textChanged, &m_model_proxy,[this](const QString& filter)
-  {
-      m_model_proxy.setFilterFixedString(filter);
-  });
+  connect(ui->filterLineEdit, &QLineEdit::textChanged, &m_model_proxy,
+          [this](const QString& filter) {
+            m_model_proxy.setFilterFixedString(filter);
+          });
 
   QAction* expandAll   = new QAction("Expand all");
   QAction* collapseAll = new QAction("Collapse all");

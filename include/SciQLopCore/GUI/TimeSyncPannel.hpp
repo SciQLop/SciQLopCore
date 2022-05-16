@@ -25,9 +25,10 @@
 #include <QWidget>
 #include <SciQLopPlots/Qt/SyncPanel.hpp>
 
+#include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
-class TimeSyncPannel : public DropHelper<SciQLopPlots::SyncPannel>
+class TimeSyncPannel : public DropHelper<SciQLopPlots::SyncPannel>, public SciQLopObject
 {
   Q_OBJECT
 

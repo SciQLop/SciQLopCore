@@ -24,9 +24,12 @@
 #include <QWidget>
 #include <QMainWindow>
 
+#include "SciQLopCore/Common/SciQLopObject.hpp"
+#include "SciQLopCore/GUI/DragAndDrop.hpp"
+
 class TimeSyncPannel;
 
-class CentralWidget : public QMainWindow
+class CentralWidget : public DropHelper<QMainWindow>, public SciQLopObject
 {
   Q_OBJECT
 public:

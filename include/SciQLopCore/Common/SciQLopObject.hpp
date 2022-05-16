@@ -97,6 +97,14 @@ protected:
 
 public:
   SciQLopObject(const QString & className);
+
+  template<typename T>
+  SciQLopObject(T* self)
+      :_className(className(self))
+  {
+
+  }
+
   virtual ~SciQLopObject();
 
   QUuid id() const;
@@ -105,7 +113,7 @@ public:
   inline operator QUuid() { return _id; }
 
   template<typename T>
-  static QString className(const T* object)
+  static QString className(const T*)
   {
       if constexpr(has_metaObject_v<T>)
       {

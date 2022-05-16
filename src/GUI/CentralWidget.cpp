@@ -22,9 +22,11 @@
 #include <QTabWidget>
 #include <SciQLopCore/GUI/CentralWidget.hpp>
 #include <SciQLopCore/GUI/TimeSyncPannel.hpp>
+#include <SciQLopCore/logging/SciQLopLogs.hpp>
 #include <iostream>
 
-CentralWidget::CentralWidget(QWidget* parent) : QMainWindow{parent}
+CentralWidget::CentralWidget(QWidget* parent)
+    : DropHelper<QMainWindow>{parent, {}}, SciQLopObject{this}
 {
   setWindowFlags(Qt::Widget);
   setWindowTitle("Plot area");
@@ -39,6 +41,8 @@ void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
     doc->setAllowedAreas(Qt::AllDockWidgetAreas);
     doc->setWidget(pannel);
     this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
-    std::cout << "TimeSyncPannel added" << std::endl;
+    doc->setWindowTitle(pannel->name());
+
+    qCDebug(gui_logs) <<"TimeSyncPannel added";
   }
 }

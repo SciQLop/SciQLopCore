@@ -24,12 +24,14 @@
 #include <QWidget>
 #include <QSortFilterProxyModel>
 
+#include "SciQLopCore/Common/SciQLopObject.hpp"
+
 namespace Ui
 {
 class ProductsTree;
 } // Ui
 
-class ProductsTree : public QWidget
+class ProductsTree : public QWidget, public SciQLopObject
 {
   Q_OBJECT
 

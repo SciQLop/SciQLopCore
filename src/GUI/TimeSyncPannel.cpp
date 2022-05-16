@@ -43,28 +43,32 @@ QStringList ToQStringList(const QVariantList& list)
 }
 
 TimeSyncPannel::TimeSyncPannel(QWidget* parent)
-    : DropHelper<SciQLopPlots::SyncPannel>{
-          parent,
-          {{MIME::IDS::TIME_RANGE,
-            [this](const QMimeData*) {
-              this->setXRange({{}, {}});
-              return true;
-            }},
-           {MIME::IDS::PRODUCT_LIST,
-            [this,
-             mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
-              this->plot(ToQStringList(MIME::decode(data->data(mime))));
-              return true;
-            }}}}
+    : DropHelper<SciQLopPlots::SyncPannel>{parent,
+                                           {{MIME::IDS::TIME_RANGE,
+                                             [this](const QMimeData*) {
+                                               this->setXRange({{}, {}});
+                                               return true;
+                                             }},
+                                            {MIME::IDS::PRODUCT_LIST,
+                                             [this,
+                                              mime = MIME::txt(
+                                                  MIME::IDS::PRODUCT_LIST)](
+                                                 const QMimeData* data) {
+                                               this->plot(
+                                                   ToQStringList(MIME::decode(
+                                                       data->data(mime))));
+                                               return true;
+                                             }}}},
+      SciQLopObject{this}
 {
   setAcceptDrops(true);
-  setXRange({(QDateTime::currentSecsSinceEpoch()-3600*24*700) * 1.,
-             (QDateTime::currentSecsSinceEpoch()-3600*24*699) * 1.});
+  setXRange({(QDateTime::currentSecsSinceEpoch() - 3600 * 24 * 700) * 1.,
+             (QDateTime::currentSecsSinceEpoch() - 3600 * 24 * 699) * 1.});
 }
 
 TimeSyncPannel::~TimeSyncPannel()
 {
-  std::cout << "TimeSyncPannel::~TimeSyncPannel" << std::endl;
+  qCDebug(gui_logs) << "TimeSyncPannel::~TimeSyncPannel";
 }
 
 void TimeSyncPannel::plot(const QStringList& products)

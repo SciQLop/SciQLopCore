@@ -20,30 +20,29 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/PlotWidget.hpp"
-#include "SciQLopCore/DataSource/DataSources.hpp"
-#include "SciQLopCore/logging/SciQLopLogs.hpp"
-#include "SciQLopCore/SciQLopCore.hpp"
+
 #include "SciQLopCore/Data/Pipelines.hpp"
-
-
-
+#include "SciQLopCore/DataSource/DataSources.hpp"
+#include "SciQLopCore/SciQLopCore.hpp"
+#include "SciQLopCore/logging/SciQLopLogs.hpp"
 
 PlotWidget::PlotWidget(QWidget* parent)
-    : DropHelper<SciQLopPlots::SciQLopPlot>{
-          parent,
-          {{MIME::IDS::TIME_RANGE,
-            [this](const QMimeData*) {
-              this->setXRange({{}, {}});
-              return true;
-            }},
-           {MIME::IDS::PRODUCT_LIST,
-            [mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
-              qCDebug(gui_logs) << MIME::decode(data->data(mime));
-              return true;
-            }}}}
+    : DropHelper<SciQLopPlots::SciQLopPlot>{parent,
+                                            {{MIME::IDS::TIME_RANGE,
+                                              [this](const QMimeData*) {
+                                                this->setXRange({{}, {}});
+                                                return true;
+                                              }},
+                                             {MIME::IDS::PRODUCT_LIST,
+                                              [mime = MIME::txt(
+                                                   MIME::IDS::PRODUCT_LIST)](
+                                                  const QMimeData* data) {
+                                                qCDebug(gui_logs)
+                                                    << MIME::decode(
+                                                           data->data(mime));
+                                                return true;
+                                              }}}},
+      SciQLopObject{this}
 {}
 
-void PlotWidget::plot(const QStringList& products)
-{
-
-}
+void PlotWidget::plot(const QStringList& products) {}

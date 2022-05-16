@@ -57,6 +57,10 @@ void MainWindow::addWidgetIntoDock(Qt::DockWidgetArea area, QWidget *w)
       doc->setAllowedAreas(Qt::AllDockWidgetAreas);
       doc->setWidget(w);
       this->addDockWidget(area, doc);
+      if(auto so=dynamic_cast<SciQLopObject*>(w);so)
+      {
+          doc->setWindowTitle(so->name());
+      }
     }
 }
 

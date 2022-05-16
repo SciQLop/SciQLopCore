@@ -21,12 +21,15 @@
 ----------------------------------------------------------------------------*/
 #pragma once
 
+#include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
 #include <QWidget>
 #include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
 
-class PlotWidget : public DropHelper<SciQLopPlots::SciQLopPlot>
+class PlotWidget : public DropHelper<SciQLopPlots::SciQLopPlot>,
+                   public SciQLopObject
+
 {
   Q_OBJECT
 
@@ -36,5 +39,4 @@ public:
   void plot(const QStringList& products);
 
 protected:
-
 };
