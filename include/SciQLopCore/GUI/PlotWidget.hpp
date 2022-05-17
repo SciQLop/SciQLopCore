@@ -27,16 +27,19 @@
 #include <QWidget>
 #include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
 
-class PlotWidget : public DropHelper<SciQLopPlots::SciQLopPlot>,
-                   public SciQLopObject
 
+
+class PlotWidget : public SciQLopPlots::SciQLopPlot, public SciQLopObject
 {
   Q_OBJECT
 
+    DropHelper d_helper;
 public:
   PlotWidget(QWidget* parent);
 
   void plot(const QStringList& products);
 
 protected:
+protected:
+  DropHelper_default_decl();
 };

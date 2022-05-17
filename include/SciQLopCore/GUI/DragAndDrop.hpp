@@ -20,14 +20,18 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #pragma once
+#include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/MimeTypes/MimeTypes.hpp"
 #include "SciQLopCore/logging/SciQLopLogs.hpp"
 
+#include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
+#include <QMainWindow>
 #include <QMimeData>
+#include <QTabBar>
 #include <cpp_utils/containers/algorithms.hpp>
 #include <functional>
 #include <tuple>
@@ -47,19 +51,19 @@ struct DropHandler
   {}
 };
 
-template<typename Widget_t> struct DropHelper : Widget_t
+struct DropHelper
 {
-  inline DropHelper(QWidget* parent,
-                    std::initializer_list<DropHandler> handlers)
-      : Widget_t{parent}, drop_handlers{handlers}
-  {
-  }
+  inline DropHelper(std::initializer_list<DropHandler> handlers)
+      : drop_handlers{handlers}
+  {}
 
-protected:
-  virtual inline void dragEnterEvent(QDragEnterEvent* event) override
+  template<typename Widget_t>
+  inline void dragEnterEvent(Widget_t* self, QDragEnterEvent* event)
   {
     const auto& formats = event->mimeData()->formats();
-    for(int i = 0; i < std::size(drop_handlers); i++)
+    qCDebug(gui_logs) << SciQLopObject::className(self)
+                      << "dragEnterEvent: " << formats;
+    for(auto i = 0UL; i < std::size(drop_handlers); i++)
     {
       if(cpp_utils::containers::contains(formats, drop_handlers[i].mime_str))
       {
@@ -68,15 +72,37 @@ protected:
         return;
       }
     }
+    if constexpr(std::is_base_of_v<QMainWindow, Widget_t>)
+    {
+      event->acceptProposedAction();
+    }
     current_handler_index = -1;
   }
 
-  virtual inline void dragMoveEvent(QDragMoveEvent* event) override
+  template<typename Widget_t>
+  inline void dragMoveEvent(Widget_t* self, QDragMoveEvent* event)
   {
-    if(current_handler_index) event->acceptProposedAction();
+    if(current_handler_index != -1)
+      event->acceptProposedAction();
+    else
+    {
+      if constexpr(std::is_base_of_v<QMainWindow, Widget_t>)
+      {
+        qCDebug(gui_logs) << "dragMoveEvent is QMainWindow";
+        QTabBar* tabBar = dynamic_cast<QTabBar*>(self->childAt(event->position().toPoint()));
+        if(tabBar != nullptr)
+        {
+          tabBar->setCurrentIndex(tabBar->tabAt(tabBar->mapFromParent(event->position().toPoint())));
+        }
+      }
+    }
   }
-  virtual inline void dragLeaveEvent(QDragLeaveEvent* event) override {}
-  virtual inline void dropEvent(QDropEvent* event) override
+
+  template<typename Widget_t>
+  inline void dragLeaveEvent(Widget_t* self, QDragLeaveEvent* event)
+  {}
+  template<typename Widget_t>
+  inline void dropEvent(Widget_t* self, QDropEvent* event)
   {
     if(current_handler_index != -1)
     {
@@ -85,7 +111,7 @@ protected:
         event->acceptProposedAction();
         event->accept();
         qCDebug(gui_logs)
-            << "dropEvent: "
+            << SciQLopObject::className(self) << "dropEvent: "
             << MIME::decode(event->mimeData()->data(
                    drop_handlers[current_handler_index].mime_str));
       }
@@ -96,3 +122,27 @@ private:
   std::vector<DropHandler> drop_handlers;
   int current_handler_index = -1;
 };
+
+#define DropHelper_default_decl()                                              \
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;                \
+  virtual void dragMoveEvent(QDragMoveEvent* event) override;                  \
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;                \
+  virtual void dropEvent(QDropEvent* event) override
+
+#define DropHelper_default_def(classname, d_helper)                            \
+  void classname::dragEnterEvent(QDragEnterEvent* event)                       \
+  {                                                                            \
+    d_helper.dragEnterEvent(this, event);                                      \
+  }                                                                            \
+  void classname::dragMoveEvent(QDragMoveEvent* event)                         \
+  {                                                                            \
+    d_helper.dragMoveEvent(this, event);                                       \
+  }                                                                            \
+  void classname::dragLeaveEvent(QDragLeaveEvent* event)                       \
+  {                                                                            \
+    d_helper.dragLeaveEvent(this, event);                                      \
+  }                                                                            \
+  void classname::dropEvent(QDropEvent* event)                                 \
+  {                                                                            \
+    d_helper.dropEvent(this, event);                                           \
+  }

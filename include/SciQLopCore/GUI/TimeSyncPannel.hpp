@@ -28,9 +28,11 @@
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
-class TimeSyncPannel : public DropHelper<SciQLopPlots::SyncPannel>, public SciQLopObject
+
+class TimeSyncPannel : public SciQLopPlots::SyncPannel, public SciQLopObject
 {
   Q_OBJECT
+  DropHelper d_helper;
 
 public:
   TimeSyncPannel(QWidget* parent = nullptr);
@@ -39,5 +41,7 @@ public:
 private:
   void plot(const QStringList& products);
 
+protected:
+  DropHelper_default_decl();
 
 };

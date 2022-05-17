@@ -43,23 +43,19 @@ QStringList ToQStringList(const QVariantList& list)
 }
 
 TimeSyncPannel::TimeSyncPannel(QWidget* parent)
-    : DropHelper<SciQLopPlots::SyncPannel>{parent,
-                                           {{MIME::IDS::TIME_RANGE,
-                                             [this](const QMimeData*) {
-                                               this->setXRange({{}, {}});
-                                               return true;
-                                             }},
-                                            {MIME::IDS::PRODUCT_LIST,
-                                             [this,
-                                              mime = MIME::txt(
-                                                  MIME::IDS::PRODUCT_LIST)](
-                                                 const QMimeData* data) {
-                                               this->plot(
-                                                   ToQStringList(MIME::decode(
-                                                       data->data(mime))));
-                                               return true;
-                                             }}}},
-      SciQLopObject{this}
+    : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
+      d_helper{{{MIME::IDS::TIME_RANGE,
+                 [this](const QMimeData*) {
+                   this->setXRange({{}, {}});
+                   return true;
+                 }},
+                {MIME::IDS::PRODUCT_LIST,
+                 [this, mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](
+                     const QMimeData* data) {
+                   this->plot(ToQStringList(MIME::decode(data->data(mime))));
+                   return true;
+                 }}}}
+
 {
   setAcceptDrops(true);
   setXRange({(QDateTime::currentSecsSinceEpoch() - 3600 * 24 * 700) * 1.,
@@ -77,3 +73,5 @@ void TimeSyncPannel::plot(const QStringList& products)
   addPlot(p);
   SciQLopCore::pipelines().plot(products, p);
 }
+
+DropHelper_default_def(TimeSyncPannel,d_helper);

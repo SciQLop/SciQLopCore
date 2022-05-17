@@ -29,11 +29,16 @@
 
 class TimeSyncPannel;
 
-class CentralWidget : public DropHelper<QMainWindow>, public SciQLopObject
+class CentralWidget : public QMainWindow, public SciQLopObject
 {
   Q_OBJECT
+
+    DropHelper d_helper;
 public:
   CentralWidget(QWidget* parent=nullptr);
 
   void addTimeSynPannel(TimeSyncPannel* pannel);
+
+protected:
+  DropHelper_default_decl();
 };

@@ -26,11 +26,12 @@
 #include <iostream>
 
 CentralWidget::CentralWidget(QWidget* parent)
-    : DropHelper<QMainWindow>{parent, {}}, SciQLopObject{this}
+    : QMainWindow{parent}, SciQLopObject{this},d_helper{}
 {
   setWindowFlags(Qt::Widget);
   setWindowTitle("Plot area");
   setDockNestingEnabled(true);
+  this->setAcceptDrops(true);
 }
 
 void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
@@ -46,3 +47,5 @@ void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
     qCDebug(gui_logs) <<"TimeSyncPannel added";
   }
 }
+
+DropHelper_default_def(CentralWidget,d_helper)
