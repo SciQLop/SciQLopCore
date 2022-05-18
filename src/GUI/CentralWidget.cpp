@@ -50,7 +50,7 @@ void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
     doc->setWidget(pannel);
     this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
     doc->setWindowTitle(pannel->name());
-
+    this->dockWidgets.append(doc);
     qCDebug(gui_logs) << "TimeSyncPannel added";
   }
 }

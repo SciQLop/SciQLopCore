@@ -34,6 +34,8 @@ class CentralWidget : public QMainWindow, public SciQLopObject
   Q_OBJECT
 
     DropHelper d_helper;
+    QList<QDockWidget*> dockWidgets;
+    QDockWidget* placeHolder=nullptr;
 public:
   CentralWidget(QWidget* parent=nullptr);
 

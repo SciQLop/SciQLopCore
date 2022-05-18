@@ -8,6 +8,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/GUI/PlotWidget.hpp',
     '../include/SciQLopCore/GUI/TimeSyncPannel.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
+    '../include/SciQLopCore/GUI/DragAndDrop.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp',
     '../include/SciQLopCore/Data/Pipelines.hpp'
 )
@@ -51,7 +52,6 @@ sciqlopcore_headers = files(
     '../include/SciQLopCore/Common/DateUtils.hpp',
     '../include/SciQLopCore/Common/debug.hpp',
     '../include/SciQLopCore/Common/MetaTypes.hpp',
-    '../include/SciQLopCore/GUI/DragAndDrop.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItem.hpp',
     '../include/SciQLopCore/DataSource/DataProviderParameters.hpp',
     '../include/SciQLopCore/DataSource/DataSourceItemMergeHelper.hpp',

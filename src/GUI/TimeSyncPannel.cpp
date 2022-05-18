@@ -34,17 +34,18 @@
 
 TimeSyncPannel::TimeSyncPannel(QWidget* parent)
     : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
-      d_helper{{{MIME::IDS::TIME_RANGE,
-                 [this](const QMimeData*) {
-                   this->setXRange({{}, {}});
-                   return true;
-                 }},
-                {MIME::IDS::PRODUCT_LIST,
-                 [this, mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](
-                     const QMimeData* data) {
-                   this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
-                   return true;
-                 }}}}
+      d_helper{
+          {{MIME::IDS::TIME_RANGE,
+            [this](const QMimeData*) {
+              this->setXRange({{}, {}});
+              return true;
+            }},
+           {MIME::IDS::PRODUCT_LIST,
+            [this,
+             mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
+              this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
+              return true;
+            }}}}
 
 {
   setAcceptDrops(true);
@@ -57,11 +58,35 @@ TimeSyncPannel::~TimeSyncPannel()
   qCDebug(gui_logs) << "TimeSyncPannel::~TimeSyncPannel";
 }
 
-void TimeSyncPannel::plot(const QStringList& products)
+void TimeSyncPannel::plot(const QStringList& products, int index)
 {
   auto p = new PlotWidget{this};
-  addPlot(p);
+  addPlot(p, index);
+  connect(p, &PlotWidget::parentCreatePlaceHolder, this,
+          [this](PlotWidget* caller, SciQLopEnums::Insert insert) {
+            int index = this->indexOf(caller);
+            if(insert == SciQLopEnums::Insert::below) index += 1;
+            this->createPlaceHolder(index);
+          });
   SciQLopCore::pipelines().plot(products, p);
 }
 
-DropHelper_default_def(TimeSyncPannel,d_helper);
+bool TimeSyncPannel::createPlaceHolder(int index)
+{
+  auto placeHolder = new PlaceHolder(this);
+  placeHolder->setMinimumHeight(height()/3);
+  connect(
+      placeHolder, &PlaceHolder::gotDrop, this,
+      [this, index](QDropEvent* event) {
+        plot(MIME::ToQStringList(MIME::decode(
+                 event->mimeData()->data(MIME::txt(MIME::IDS::PRODUCT_LIST)))),
+             index);
+      },
+      Qt::DirectConnection);
+  dynamic_cast<QVBoxLayout*>(widget()->layout())
+      ->insertWidget(index, placeHolder);
+
+  return true;
+}
+
+DropHelper_default_def(TimeSyncPannel, d_helper);

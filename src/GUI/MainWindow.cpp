@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}
 {
   ui->setupUi(this);
+  ui->addTSPannel->setIcon(QIcon{"://icons/add.png"});
+  connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSynPannel(new TimeSyncPannel);});
 }
 
 MainWindow::~MainWindow() {}

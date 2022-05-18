@@ -29,11 +29,11 @@ class MyProvider2(DataProvider):
         if metadata["type"] == "scalar":
                 return ScalarTimeSerie(
                     v.time, v.data
-                )
+                ) if v else ScalarTimeSerie(np.array([]), np.array([]))
         if metadata["type"] == "vector":
                 return VectorTimeSerie(
                     v.time, v.data
-                )
+                )if v else VectorTimeSerie(np.array([]), np.array([]))
 
 
 t = MyProvider()

@@ -26,8 +26,18 @@ class Pipelines;
 
 class SciQLopCore
 {
-    SciQLopCore();
+  SciQLopCore();
+
 public:
-    static DataSources& dataSources();
-    static Pipelines& pipelines();
+  static DataSources& dataSources();
+  static Pipelines& pipelines();
 };
+
+namespace SciQLopEnums
+{
+  enum class Insert
+  {
+    above,
+    below
+  };
+}

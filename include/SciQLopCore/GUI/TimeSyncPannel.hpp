@@ -38,9 +38,13 @@ public:
   TimeSyncPannel(QWidget* parent = nullptr);
   ~TimeSyncPannel();
 
-  void plot(const QStringList& products);
+  void plot(const QStringList& products, int index=-1);
+
 
 private:
+  bool createPlaceHolder(int index);
+
+  bool deletePlaceHolder();
 
 protected:
   DropHelper_default_decl();

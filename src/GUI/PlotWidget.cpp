@@ -23,6 +23,7 @@
 
 #include "SciQLopCore/Data/Pipelines.hpp"
 #include "SciQLopCore/DataSource/DataSources.hpp"
+#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
 #include "SciQLopCore/SciQLopCore.hpp"
 #include "SciQLopCore/logging/SciQLopLogs.hpp"
 
@@ -34,15 +35,38 @@ PlotWidget::PlotWidget(QWidget* parent)
               this->setXRange({{}, {}});
               return true;
             }},
-           {MIME::IDS::PRODUCT_LIST,
-            [mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
-              qCDebug(gui_logs) << MIME::decode(data->data(mime));
+           {MIME::IDS::PRODUCT_LIST, [mime = MIME::txt(MIME::IDS::PRODUCT_LIST),
+                                      this](const QMimeData* data) {
+              if(!parentHasPlaceHolder)
+              {
+                this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
+              }
               return true;
             }}}}
 {
-    this->setAcceptDrops(true);
+  this->setAcceptDrops(true);
 }
 
-void PlotWidget::plot(const QStringList& products) {}
+void PlotWidget::plot(const QStringList& products)
+{
+  SciQLopCore::pipelines().plot(products, this);
+}
 
-DropHelper_default_def(PlotWidget,d_helper)
+bool PlotWidget::createPlaceHolder(const QPointF& position)
+{
+  qCDebug(gui_logs) << "PlotWidget::createPlaceHolder";
+  const auto y = position.y();
+  if((0 < y) && (y < (0.2 * height())))
+  {
+    emit parentCreatePlaceHolder(this, SciQLopEnums::Insert::above);
+    parentHasPlaceHolder = true;
+  }
+  else if(((0.8 * height()) < y) && (y < height()))
+  {
+    emit parentCreatePlaceHolder(this, SciQLopEnums::Insert::below);
+    parentHasPlaceHolder = true;
+  }
+  return parentHasPlaceHolder;
+}
+
+DropHelper_default_def(PlotWidget, d_helper)

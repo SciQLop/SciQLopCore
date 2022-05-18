@@ -21,6 +21,7 @@
 ----------------------------------------------------------------------------*/
 #pragma once
 
+#include "SciQLopCore/SciQLopCore.hpp"
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
@@ -34,12 +35,16 @@ class PlotWidget : public SciQLopPlots::SciQLopPlot, public SciQLopObject
   Q_OBJECT
 
     DropHelper d_helper;
+    bool parentHasPlaceHolder=false;
 public:
   PlotWidget(QWidget* parent);
 
   void plot(const QStringList& products);
 
-protected:
+  bool createPlaceHolder(const QPointF& position);
+
+  Q_SIGNAL void parentCreatePlaceHolder(PlotWidget* caller,SciQLopEnums::Insert insert);
+
 protected:
   DropHelper_default_decl();
 };

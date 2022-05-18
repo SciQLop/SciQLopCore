@@ -33,8 +33,78 @@
 #include <QMimeData>
 #include <QTabBar>
 #include <cpp_utils/containers/algorithms.hpp>
+#include <cpp_utils/types/detectors.hpp>
 #include <functional>
 #include <tuple>
+
+HAS_METHOD(has_createPlaceHolder, createPlaceHolder, const QPointF&);
+HAS_METHOD(has_deletePlaceHolder, deletePlaceHolder);
+
+namespace details
+{
+
+  template<typename Widget_t>
+  inline void QMainWindowDragMoveEvent(Widget_t* self, QDragMoveEvent* event)
+  {
+    if constexpr(std::is_base_of_v<QMainWindow, Widget_t>)
+    {
+      qCDebug(gui_logs) << "dragMoveEvent is QMainWindow";
+      QTabBar* tabBar =
+          dynamic_cast<QTabBar*>(self->childAt(event->position().toPoint()));
+      if(tabBar != nullptr)
+      {
+        tabBar->setCurrentIndex(
+            tabBar->tabAt(tabBar->mapFromParent(event->position().toPoint())));
+      }
+    }
+  }
+
+  template<typename Widget_t>
+  inline bool incertPlaceHolder(Widget_t* self, QDragMoveEvent* event)
+  {
+    if constexpr(has_createPlaceHolder_v<Widget_t>)
+    {
+      return self->createPlaceHolder(event->position());
+    }
+    return false;
+  }
+
+}; // namespace details
+
+class PlaceHolder : public QWidget
+{
+  Q_OBJECT
+public:
+  PlaceHolder(QWidget* parent = nullptr) : QWidget(parent)
+  {
+    setAcceptDrops(true);
+    setStyleSheet("background-color: #BBD5EE; border: 1px solid #2A7FD4");
+  }
+  Q_SIGNAL void gotDrop(QDropEvent* event);
+
+protected:
+  inline void dragEnterEvent(QDragEnterEvent* event) final
+  {
+    qCDebug(gui_logs) << "PlaceHolder::dragEnterEvent";
+    event->acceptProposedAction();
+  }
+  inline void dragMoveEvent(QDragMoveEvent* event) final
+  {
+    qCDebug(gui_logs) << "PlaceHolder::dragMoveEvent";
+    event->acceptProposedAction();
+  }
+  inline void dragLeaveEvent(QDragLeaveEvent* event) final
+  {
+    qCDebug(gui_logs) << "PlaceHolder::dragLeaveEvent";
+    deleteLater();
+  }
+  inline void dropEvent(QDropEvent* event) final
+  {
+    qCDebug(gui_logs) << "PlaceHolder::dropEvent";
+    emit gotDrop(event);
+    deleteLater();
+  }
+};
 
 struct DropHandler
 {
@@ -72,35 +142,22 @@ struct DropHelper
         return;
       }
     }
-    if constexpr(std::is_base_of_v<QMainWindow, Widget_t>)
-    {
-      event->acceptProposedAction();
-    }
+    if constexpr(std::is_base_of_v<QMainWindow, Widget_t>) { event->accept(); }
     current_handler_index = -1;
   }
 
   template<typename Widget_t>
   inline void dragMoveEvent(Widget_t* self, QDragMoveEvent* event)
   {
-    if(current_handler_index != -1)
-      event->acceptProposedAction();
-    else
-    {
-      if constexpr(std::is_base_of_v<QMainWindow, Widget_t>)
-      {
-        qCDebug(gui_logs) << "dragMoveEvent is QMainWindow";
-        QTabBar* tabBar = dynamic_cast<QTabBar*>(self->childAt(event->position().toPoint()));
-        if(tabBar != nullptr)
-        {
-          tabBar->setCurrentIndex(tabBar->tabAt(tabBar->mapFromParent(event->position().toPoint())));
-        }
-      }
-    }
+    if(current_handler_index != -1) event->acceptProposedAction();
+    details::QMainWindowDragMoveEvent(self, event);
+    details::incertPlaceHolder(self, event);
   }
 
   template<typename Widget_t>
   inline void dragLeaveEvent(Widget_t* self, QDragLeaveEvent* event)
   {}
+
   template<typename Widget_t>
   inline void dropEvent(Widget_t* self, QDropEvent* event)
   {
@@ -109,7 +166,6 @@ struct DropHelper
       if(drop_handlers[current_handler_index].callback(event->mimeData()))
       {
         event->acceptProposedAction();
-        event->accept();
         qCDebug(gui_logs)
             << SciQLopObject::className(self) << "dropEvent: "
             << MIME::decode(event->mimeData()->data(
