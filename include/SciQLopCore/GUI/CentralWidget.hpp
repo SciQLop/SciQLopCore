@@ -38,6 +38,7 @@ public:
   CentralWidget(QWidget* parent=nullptr);
 
   void addTimeSynPannel(TimeSyncPannel* pannel);
+  void plot(const QStringList& products);
 
 protected:
   DropHelper_default_decl();

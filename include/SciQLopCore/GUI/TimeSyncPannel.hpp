@@ -38,8 +38,9 @@ public:
   TimeSyncPannel(QWidget* parent = nullptr);
   ~TimeSyncPannel();
 
-private:
   void plot(const QStringList& products);
+
+private:
 
 protected:
   DropHelper_default_decl();

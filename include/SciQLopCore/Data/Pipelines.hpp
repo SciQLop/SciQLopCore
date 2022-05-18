@@ -20,25 +20,24 @@
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
 #pragma once
-#include <QObject>
-
-#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
-
 #include "SciQLopCore/DataSource/IDataProvider.hpp"
+
+#include <QObject>
+#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
+#include <vector>
 
 class IPipeline
 {
 public:
-    inline virtual ~IPipeline(){}
+  inline virtual ~IPipeline() {}
 };
-
-
 
 class Pipelines : QObject
 {
   Q_OBJECT
+  std::vector<IPipeline*> m_pipelines;
+  void addPipeline(IPipeline*);
 public:
   Pipelines(QObject* parent = nullptr);
-  void plot(const QStringList& products, SciQLopPlots::SciQLopPlot *plot);
-
+  void plot(const QStringList& products, SciQLopPlots::SciQLopPlot* plot);
 };

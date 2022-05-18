@@ -114,4 +114,14 @@ namespace MIME
     return decode(mime->data(MIME_TYPES[id]));
   }
 
+  inline QStringList ToQStringList(const QVariantList& list)
+  {
+    QStringList r;
+    for(const auto& e : list)
+    {
+      if(e.userType() == QMetaType::QString) { r.append(e.toString()); }
+    }
+    return r;
+  }
+
 } // namespace MIME

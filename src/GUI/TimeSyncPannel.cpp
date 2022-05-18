@@ -32,16 +32,6 @@
 #include <QMimeData>
 #include <iostream>
 
-QStringList ToQStringList(const QVariantList& list)
-{
-  QStringList r;
-  for(const auto& e : list)
-  {
-    if(e.userType() == QMetaType::QString) { r.append(e.toString()); }
-  }
-  return r;
-}
-
 TimeSyncPannel::TimeSyncPannel(QWidget* parent)
     : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
       d_helper{{{MIME::IDS::TIME_RANGE,
@@ -52,7 +42,7 @@ TimeSyncPannel::TimeSyncPannel(QWidget* parent)
                 {MIME::IDS::PRODUCT_LIST,
                  [this, mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](
                      const QMimeData* data) {
-                   this->plot(ToQStringList(MIME::decode(data->data(mime))));
+                   this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
                    return true;
                  }}}}
 

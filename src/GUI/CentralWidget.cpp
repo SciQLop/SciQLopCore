@@ -26,7 +26,14 @@
 #include <iostream>
 
 CentralWidget::CentralWidget(QWidget* parent)
-    : QMainWindow{parent}, SciQLopObject{this},d_helper{}
+    : QMainWindow{parent}, SciQLopObject{this},
+      d_helper{
+          {{MIME::IDS::PRODUCT_LIST,
+            [this,
+             mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
+              this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
+              return true;
+            }}}}
 {
   setWindowFlags(Qt::Widget);
   setWindowTitle("Plot area");
@@ -44,8 +51,15 @@ void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
     this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
     doc->setWindowTitle(pannel->name());
 
-    qCDebug(gui_logs) <<"TimeSyncPannel added";
+    qCDebug(gui_logs) << "TimeSyncPannel added";
   }
 }
 
-DropHelper_default_def(CentralWidget,d_helper)
+void CentralWidget::plot(const QStringList& products)
+{
+  auto p = new TimeSyncPannel{};
+  addTimeSynPannel(p);
+  p->plot(products);
+}
+
+DropHelper_default_def(CentralWidget, d_helper)

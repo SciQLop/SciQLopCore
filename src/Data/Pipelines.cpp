@@ -64,7 +64,6 @@ data_t vector_to_data_t(TimeSeries::ITimeSerie* ts)
   return {};
 }
 
-
 template<DataSeriesType dst> data_t to_data_t(TimeSeries::ITimeSerie* ts)
 {
   if constexpr(dst == DataSeriesType::SCALAR) return scalar_to_data_t(ts);
@@ -74,16 +73,11 @@ template<DataSeriesType dst> data_t to_data_t(TimeSeries::ITimeSerie* ts)
 template<DataSeriesType ds_type>
 inline int components_count(const QVariantHash& metaData)
 {
-  if constexpr (ds_type==DataSeriesType::NONE)
-    return 0;
-  if constexpr (ds_type==DataSeriesType::SCALAR)
-    return 1;
-  if constexpr (ds_type==DataSeriesType::VECTOR)
-    return 3;
-  if constexpr (ds_type==DataSeriesType::MULTICOMPONENT)
-    return 1;
-  if constexpr (ds_type==DataSeriesType::SPECTROGRAM)
-    return 1;
+  if constexpr(ds_type == DataSeriesType::NONE) return 0;
+  if constexpr(ds_type == DataSeriesType::SCALAR) return 1;
+  if constexpr(ds_type == DataSeriesType::VECTOR) return 3;
+  if constexpr(ds_type == DataSeriesType::MULTICOMPONENT) return 1;
+  if constexpr(ds_type == DataSeriesType::SPECTROGRAM) return 1;
 }
 
 template<typename data_t, DataSeriesType ds_type>
@@ -96,11 +90,11 @@ class Pipeline : public IPipeline
 
   std::vector<QColor> colors = {Qt::blue, Qt::red, Qt::green, Qt::yellow};
 
-
 public:
   Pipeline(SciQLopPlots::SciQLopPlot* plot, IDataProvider* provider,
            QVariantHash metaData, QColor color = Qt::blue)
-      : graph{SciQLopPlots::add_graph<data_t>(plot, components_count<ds_type>(metaData))},
+      : graph{SciQLopPlots::add_graph<data_t>(
+            plot, components_count<ds_type>(metaData))},
         provider{provider}
   {
     std::cout << "Pipeline ctor" << std::endl;
@@ -121,6 +115,8 @@ public:
   inline ~Pipeline() override {}
 };
 
+void Pipelines::addPipeline(IPipeline* p) { m_pipelines.push_back(p); }
+
 Pipelines::Pipelines(QObject* parent) : QObject{parent} {}
 
 void Pipelines::plot(const QStringList& products,
@@ -135,14 +131,14 @@ void Pipelines::plot(const QStringList& products,
     {
       case DataSeriesType::SCALAR: {
         std::cout << "Scalar TS" << std::endl;
-        auto pipeline = new Pipeline<data_t, DataSeriesType::SCALAR>(
-            plot, provider, metaData);
+        addPipeline(new Pipeline<data_t, DataSeriesType::SCALAR>(plot, provider,
+                                                                 metaData));
       }
       break;
       case DataSeriesType::VECTOR: {
         std::cout << "Vector TS" << std::endl;
-        auto pipeline = new Pipeline<data_t, DataSeriesType::VECTOR>(
-            plot, provider, metaData);
+        addPipeline(new Pipeline<data_t, DataSeriesType::VECTOR>(plot, provider,
+                                                                 metaData));
       }
       break;
       default: break;
