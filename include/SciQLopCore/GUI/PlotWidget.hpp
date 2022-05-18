@@ -42,9 +42,10 @@ public:
   void plot(const QStringList& products);
 
   bool createPlaceHolder(const QPointF& position);
+  bool deletePlaceHolder();
 
   Q_SIGNAL void parentCreatePlaceHolder(PlotWidget* caller,SciQLopEnums::Insert insert);
-
+  Q_SIGNAL void parentDeletePlaceHolder();
 protected:
   DropHelper_default_decl();
 };

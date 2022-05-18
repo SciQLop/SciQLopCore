@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/MainWindow.hpp"
 
-#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
+#include "SciQLopCore/GUI/TimeSyncPanel.hpp"
 #include "ui_mainwindow.h"
 
 #include <QAction>
@@ -41,14 +41,14 @@ MainWindow::MainWindow(QWidget* parent)
 {
   ui->setupUi(this);
   ui->addTSPannel->setIcon(QIcon{"://icons/add.png"});
-  connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSynPannel(new TimeSyncPannel);});
+  connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSyncPannel(new TimeSyncPanel);});
 }
 
 MainWindow::~MainWindow() {}
 
-void MainWindow::addTimeSynPannel(TimeSyncPannel* pannel)
+void MainWindow::addTimeSyncPannel(TimeSyncPanel* pannel)
 {
-    this->ui->centralwidget->addTimeSynPannel(pannel);
+    this->ui->centralwidget->addTimeSyncPannel(pannel);
 }
 
 void MainWindow::addWidgetIntoDock(Qt::DockWidgetArea area, QWidget *w)

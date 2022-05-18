@@ -29,22 +29,21 @@
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
 
-class TimeSyncPannel : public SciQLopPlots::SyncPannel, public SciQLopObject
+class TimeSyncPanel : public SciQLopPlots::SyncPannel, public SciQLopObject
 {
   Q_OBJECT
   DropHelper d_helper;
-
+  PlaceHolder* placeHolder=nullptr;
 public:
-  TimeSyncPannel(QWidget* parent = nullptr);
-  ~TimeSyncPannel();
+  TimeSyncPanel(QWidget* parent = nullptr);
+  virtual ~TimeSyncPanel() override;
 
   void plot(const QStringList& products, int index=-1);
+  bool deletePlaceHolder();
 
 
 private:
   bool createPlaceHolder(int index);
-
-  bool deletePlaceHolder();
 
 protected:
   DropHelper_default_decl();

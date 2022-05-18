@@ -23,7 +23,7 @@
 
 #include "SciQLopCore/Data/Pipelines.hpp"
 #include "SciQLopCore/DataSource/DataSources.hpp"
-#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
+#include "SciQLopCore/GUI/TimeSyncPanel.hpp"
 #include "SciQLopCore/SciQLopCore.hpp"
 #include "SciQLopCore/logging/SciQLopLogs.hpp"
 
@@ -45,6 +45,7 @@ PlotWidget::PlotWidget(QWidget* parent)
             }}}}
 {
   this->setAcceptDrops(true);
+  this->setMinimumHeight(200);
 }
 
 void PlotWidget::plot(const QStringList& products)
@@ -56,17 +57,23 @@ bool PlotWidget::createPlaceHolder(const QPointF& position)
 {
   qCDebug(gui_logs) << "PlotWidget::createPlaceHolder";
   const auto y = position.y();
-  if((0 < y) && (y < (0.2 * height())))
+  if(((0.03 * height()) < y) && (y < (0.2 * height())))
   {
     emit parentCreatePlaceHolder(this, SciQLopEnums::Insert::above);
     parentHasPlaceHolder = true;
   }
-  else if(((0.8 * height()) < y) && (y < height()))
+  else if(((0.8 * height()) < y) && (y < (0.97 * height())))
   {
     emit parentCreatePlaceHolder(this, SciQLopEnums::Insert::below);
     parentHasPlaceHolder = true;
   }
   return parentHasPlaceHolder;
+}
+
+bool PlotWidget::deletePlaceHolder()
+{
+  emit parentDeletePlaceHolder();
+  return true;
 }
 
 DropHelper_default_def(PlotWidget, d_helper)

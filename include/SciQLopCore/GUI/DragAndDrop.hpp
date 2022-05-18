@@ -29,6 +29,7 @@
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
+#include <QLayout>
 #include <QMainWindow>
 #include <QMimeData>
 #include <QTabBar>
@@ -69,6 +70,15 @@ namespace details
     return false;
   }
 
+  template<typename Widget_t> inline bool deletePlaceHolder(Widget_t* self)
+  {
+    if constexpr(has_deletePlaceHolder_v<Widget_t>)
+    {
+      return self->deletePlaceHolder();
+    }
+    return false;
+  }
+
 }; // namespace details
 
 class PlaceHolder : public QWidget
@@ -83,19 +93,34 @@ public:
   Q_SIGNAL void gotDrop(QDropEvent* event);
 
 protected:
+  inline void leaveEvent(QEvent* event) final
+  {
+   parentWidget()->layout()->removeWidget(this);
+   deleteLater();
+   event->accept();
+  }
+
   inline void dragEnterEvent(QDragEnterEvent* event) final
   {
     qCDebug(gui_logs) << "PlaceHolder::dragEnterEvent";
     event->acceptProposedAction();
+
   }
   inline void dragMoveEvent(QDragMoveEvent* event) final
   {
     qCDebug(gui_logs) << "PlaceHolder::dragMoveEvent";
-    event->acceptProposedAction();
+    auto y = event->position().y();
+    if((y < (height() * 0.05)) or (y > (height() * 0.95)))
+    {
+      parentWidget()->layout()->removeWidget(this);
+      deleteLater();
+    }
+    else { event->acceptProposedAction(); }
   }
   inline void dragLeaveEvent(QDragLeaveEvent* event) final
   {
     qCDebug(gui_logs) << "PlaceHolder::dragLeaveEvent";
+    parentWidget()->layout()->removeWidget(this);
     deleteLater();
   }
   inline void dropEvent(QDropEvent* event) final
@@ -130,6 +155,7 @@ struct DropHelper
   template<typename Widget_t>
   inline void dragEnterEvent(Widget_t* self, QDragEnterEvent* event)
   {
+    details::deletePlaceHolder(self);
     const auto& formats = event->mimeData()->formats();
     qCDebug(gui_logs) << SciQLopObject::className(self)
                       << "dragEnterEvent: " << formats;
@@ -156,11 +182,13 @@ struct DropHelper
 
   template<typename Widget_t>
   inline void dragLeaveEvent(Widget_t* self, QDragLeaveEvent* event)
-  {}
+  {
+  }
 
   template<typename Widget_t>
   inline void dropEvent(Widget_t* self, QDropEvent* event)
   {
+    details::deletePlaceHolder(self);
     if(current_handler_index != -1)
     {
       if(drop_handlers[current_handler_index].callback(event->mimeData()))

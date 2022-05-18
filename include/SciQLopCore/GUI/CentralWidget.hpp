@@ -27,7 +27,7 @@
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
-class TimeSyncPannel;
+class TimeSyncPanel;
 
 class CentralWidget : public QMainWindow, public SciQLopObject
 {
@@ -39,7 +39,7 @@ class CentralWidget : public QMainWindow, public SciQLopObject
 public:
   CentralWidget(QWidget* parent=nullptr);
 
-  void addTimeSynPannel(TimeSyncPannel* pannel);
+  void addTimeSyncPannel(TimeSyncPanel* pannel);
   void plot(const QStringList& products);
 
 protected:

@@ -16,7 +16,7 @@
 #include <SciQLopCore/GUI/MainWindow.hpp>
 #include <SciQLopCore/GUI/CentralWidget.hpp>
 #include <SciQLopCore/GUI/PorductsTree.hpp>
-#include <SciQLopCore/GUI/TimeSyncPannel.hpp>
+#include <SciQLopCore/GUI/TimeSyncPanel.hpp>
 #include <SciQLopCore/MimeTypes/MimeTypes.hpp>
 
 #endif // SCIQLOP_BINDINGS_H

@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets
 from SciQLopBindings import DataProvider, Product, ScalarTimeSerie, VectorTimeSerie
-from SciQLopBindings import SciQLopCore, MainWindow, TimeSyncPannel, ProductsTree, DataSeriesType
+from SciQLopBindings import SciQLopCore, MainWindow, TimeSyncPanel, ProductsTree, DataSeriesType
 import numpy as np
 import speasy as spz
 
@@ -39,8 +39,8 @@ class MyProvider2(DataProvider):
 t = MyProvider()
 u = MyProvider2()
 w = MainWindow()
-w.addTimeSynPannel(TimeSyncPannel())
-w.addTimeSynPannel(TimeSyncPannel())
+w.addTimeSyncPannel(TimeSyncPanel())
+w.addTimeSyncPannel(TimeSyncPanel())
 w.addWidgetIntoDock(QtCore.Qt.LeftDockWidgetArea, ProductsTree())
 
 w.show()

@@ -82,7 +82,7 @@
     </namespace-type>
     <object-type name="SciQLopObject" />
     <object-type name="MainWindow">
-        <modify-function signature="addTimeSynPannel(TimeSyncPannel*)">
+        <modify-function signature="addTimeSyncPannel(TimeSyncPanel*)">
             <modify-argument index="1">
                 <parent index="this" action="add"/>
             </modify-argument>
@@ -94,7 +94,7 @@
         </modify-function>
     </object-type>
     <object-type name="CentralWidget" >
-        <modify-function signature="addTimeSynPannel(TimeSyncPannel*)">
+        <modify-function signature="addTimeSyncPannel(TimeSyncPanel*)">
             <modify-argument index="1">
                 <parent index="this" action="add"/>
             </modify-argument>
@@ -109,7 +109,7 @@
         </modify-function>
     </object-type>
     <object-type name="ProductsTree" />
-    <object-type name="TimeSyncPannel" />
+    <object-type name="TimeSyncPanel" />
 </typesystem>
 
 

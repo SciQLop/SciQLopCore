@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include <QTabWidget>
 #include <SciQLopCore/GUI/CentralWidget.hpp>
-#include <SciQLopCore/GUI/TimeSyncPannel.hpp>
+#include <SciQLopCore/GUI/TimeSyncPanel.hpp>
 #include <SciQLopCore/logging/SciQLopLogs.hpp>
 #include <iostream>
 
@@ -41,24 +41,25 @@ CentralWidget::CentralWidget(QWidget* parent)
   this->setAcceptDrops(true);
 }
 
-void CentralWidget::addTimeSynPannel(TimeSyncPannel* pannel)
+void CentralWidget::addTimeSyncPannel(TimeSyncPanel* pannel)
 {
   if(pannel)
   {
     auto doc = new QDockWidget(this);
+    doc->setAttribute(Qt::WA_DeleteOnClose);
     doc->setAllowedAreas(Qt::AllDockWidgetAreas);
     doc->setWidget(pannel);
     this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
     doc->setWindowTitle(pannel->name());
     this->dockWidgets.append(doc);
-    qCDebug(gui_logs) << "TimeSyncPannel added";
+    qCDebug(gui_logs) << "TimeSyncPanel added";
   }
 }
 
 void CentralWidget::plot(const QStringList& products)
 {
-  auto p = new TimeSyncPannel{};
-  addTimeSynPannel(p);
+  auto p = new TimeSyncPanel{};
+  addTimeSyncPannel(p);
   p->plot(products);
 }
 

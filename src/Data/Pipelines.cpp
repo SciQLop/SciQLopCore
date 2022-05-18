@@ -24,6 +24,7 @@
 #include "SciQLopCore/DataSource/DataProviderParameters.hpp"
 #include "SciQLopCore/DataSource/DataSources.hpp"
 #include "SciQLopCore/DataSource/IDataProvider.hpp"
+#include "SciQLopCore/GUI/PlotWidget.hpp"
 #include "SciQLopCore/SciQLopCore.hpp"
 #include "SciQLopPlots/Qt/Graph.hpp"
 
@@ -93,8 +94,8 @@ class Pipeline : public IPipeline
 public:
   Pipeline(SciQLopPlots::SciQLopPlot* plot, IDataProvider* provider,
            QVariantHash metaData, QColor color = Qt::blue)
-      : graph{SciQLopPlots::add_graph<data_t>(
-            plot, components_count<ds_type>(metaData))},
+      : IPipeline{plot}, graph{SciQLopPlots::add_graph<data_t>(
+                             plot, components_count<ds_type>(metaData))},
         provider{provider}
   {
     std::cout << "Pipeline ctor" << std::endl;
@@ -111,8 +112,14 @@ public:
         }
       }
     });
+    graph.transformations_out.add(plot->xRange());
   }
-  inline ~Pipeline() override {}
+  inline ~Pipeline() override
+  {
+    graph.transformations_out.close();
+    if(genThread.joinable()) genThread.join();
+    std::cout << "Pipeline::~Pipeline()" << std::endl;
+  }
 };
 
 void Pipelines::addPipeline(IPipeline* p) { m_pipelines.push_back(p); }

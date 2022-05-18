@@ -28,7 +28,7 @@ namespace Ui
 {
 class MainWindow;
 } // Ui
-class TimeSyncPannel;
+class TimeSyncPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -38,7 +38,7 @@ public:
   explicit MainWindow(QWidget* parent = nullptr);
   virtual ~MainWindow() override;
 
-  void addTimeSynPannel(TimeSyncPannel* pannel);
+  void addTimeSyncPannel(TimeSyncPanel* pannel);
   void addWidgetIntoDock(Qt::DockWidgetArea,QWidget*);
 
 protected:

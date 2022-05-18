@@ -19,7 +19,7 @@
 /*-- Author : Alexis Jeandet
 -- Mail : alexis.jeandet@member.fsf.org
 ----------------------------------------------------------------------------*/
-#include "SciQLopCore/GUI/TimeSyncPannel.hpp"
+#include "SciQLopCore/GUI/TimeSyncPanel.hpp"
 
 #include "SciQLopCore/Data/Pipelines.hpp"
 #include "SciQLopCore/GUI/PlotWidget.hpp"
@@ -32,7 +32,7 @@
 #include <QMimeData>
 #include <iostream>
 
-TimeSyncPannel::TimeSyncPannel(QWidget* parent)
+TimeSyncPanel::TimeSyncPanel(QWidget* parent)
     : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
       d_helper{
           {{MIME::IDS::TIME_RANGE,
@@ -53,12 +53,12 @@ TimeSyncPannel::TimeSyncPannel(QWidget* parent)
              (QDateTime::currentSecsSinceEpoch() - 3600 * 24 * 699) * 1.});
 }
 
-TimeSyncPannel::~TimeSyncPannel()
+TimeSyncPanel::~TimeSyncPanel()
 {
-  qCDebug(gui_logs) << "TimeSyncPannel::~TimeSyncPannel";
+  qCDebug(gui_logs) << "TimeSyncPanel::~TimeSyncPanel";
 }
 
-void TimeSyncPannel::plot(const QStringList& products, int index)
+void TimeSyncPanel::plot(const QStringList& products, int index)
 {
   auto p = new PlotWidget{this};
   addPlot(p, index);
@@ -68,25 +68,44 @@ void TimeSyncPannel::plot(const QStringList& products, int index)
             if(insert == SciQLopEnums::Insert::below) index += 1;
             this->createPlaceHolder(index);
           });
+
+  connect(p, &PlotWidget::parentDeletePlaceHolder, this,
+          [this]() { deletePlaceHolder(); });
   SciQLopCore::pipelines().plot(products, p);
 }
 
-bool TimeSyncPannel::createPlaceHolder(int index)
+bool TimeSyncPanel::deletePlaceHolder()
 {
-  auto placeHolder = new PlaceHolder(this);
-  placeHolder->setMinimumHeight(height()/3);
-  connect(
-      placeHolder, &PlaceHolder::gotDrop, this,
-      [this, index](QDropEvent* event) {
-        plot(MIME::ToQStringList(MIME::decode(
-                 event->mimeData()->data(MIME::txt(MIME::IDS::PRODUCT_LIST)))),
-             index);
-      },
-      Qt::DirectConnection);
-  dynamic_cast<QVBoxLayout*>(widget()->layout())
-      ->insertWidget(index, placeHolder);
-
+  if(this->placeHolder != nullptr)
+  {
+    delete this->placeHolder;
+    this->placeHolder = nullptr;
+  }
   return true;
 }
 
-DropHelper_default_def(TimeSyncPannel, d_helper);
+bool TimeSyncPanel::createPlaceHolder(int index)
+{
+  if(placeHolder == nullptr)
+  {
+    placeHolder = new PlaceHolder(this);
+    placeHolder->setMinimumHeight(height() / (count() + 1));
+    connect(
+        placeHolder, &PlaceHolder::gotDrop, this,
+        [this, index](QDropEvent* event) {
+          plot(MIME::ToQStringList(MIME::decode(event->mimeData()->data(
+                   MIME::txt(MIME::IDS::PRODUCT_LIST)))),
+               index);
+          placeHolder = nullptr;
+        },
+        Qt::DirectConnection);
+    connect(placeHolder, &PlaceHolder::destroyed, this,
+            [this]() { this->placeHolder = nullptr; });
+    dynamic_cast<QVBoxLayout*>(widget()->layout())
+        ->insertWidget(index, placeHolder);
+    return true;
+  }
+  return false;
+}
+
+DropHelper_default_def(TimeSyncPanel, d_helper);

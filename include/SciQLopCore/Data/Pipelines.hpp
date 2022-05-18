@@ -21,14 +21,17 @@
 ----------------------------------------------------------------------------*/
 #pragma once
 #include "SciQLopCore/DataSource/IDataProvider.hpp"
+#include "SciQLopCore/GUI/PlotWidget.hpp"
 
 #include <QObject>
 #include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
 #include <vector>
 
-class IPipeline
+class IPipeline : public QObject
 {
+  Q_OBJECT
 public:
+  IPipeline(QObject* parent = nullptr) : QObject{parent} {}
   inline virtual ~IPipeline() {}
 };
 
@@ -37,6 +40,7 @@ class Pipelines : QObject
   Q_OBJECT
   std::vector<IPipeline*> m_pipelines;
   void addPipeline(IPipeline*);
+
 public:
   Pipelines(QObject* parent = nullptr);
   void plot(const QStringList& products, SciQLopPlots::SciQLopPlot* plot);
