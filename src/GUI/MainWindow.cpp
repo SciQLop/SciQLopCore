@@ -34,13 +34,22 @@
 #include <QToolBar>
 #include <QToolButton>
 
+inline void init_resources()
+{
+#ifdef SCIQLOP_STATIC_BUILD
+  Q_INIT_RESOURCE(sqpguiresources);
+#endif
+}
+
 Q_LOGGING_CATEGORY(LOG_MainWindow, "MainWindow")
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}
 {
+  init_resources();
   ui->setupUi(this);
   ui->addTSPannel->setIcon(QIcon{"://icons/add.png"});
+  setWindowIcon(QIcon{"://icons/SciQLop.png"});
   connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSyncPannel(new TimeSyncPanel);});
 }
 

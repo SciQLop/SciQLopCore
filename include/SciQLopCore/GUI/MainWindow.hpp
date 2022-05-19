@@ -51,13 +51,6 @@ private:
   Ui::MainWindow* ui;
 };
 
-inline void init_resources()
-{
-  // Q_IMPORT_PLUGIN(DemoPlugin);
-  // Q_INIT_RESOURCE(sqpguiresources);
- // SqpApplication::setOrganizationName("LPP");
- // SqpApplication::setOrganizationDomain("lpp.fr");
-  //SqpApplication::setApplicationName("SciQLop");
-}
+
 
 

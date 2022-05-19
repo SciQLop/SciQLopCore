@@ -79,11 +79,19 @@ sciqlopcore_sources = files(
     'Data/Pipelines.cpp'
 )
 
+
+cpp_args = []
+
+if get_option('default_library') == 'static'
+    cpp_args += ['-DSCIQLOP_STATIC_BUILD']
+endif
+
 sciqlopcore_lib = library('sciqlopcore',
                           sciqlopcore_moc_gen,
                           sciqlopcore_ui_gen,
                           sciqlopcore_sources,
                           sciqlopcore_rc_gen,
+                          cpp_args: cpp_args,
                           dependencies: [time_series_dep, cpp_utils_dep, SciQLopPlots_dep, qt_core, qt_widgets, qt_gui],
                           include_directories:'../include',
                           extra_files:[sciqlopcore_headers,

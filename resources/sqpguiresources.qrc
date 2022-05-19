@@ -29,5 +29,6 @@
         <file>icons/discard.png</file>
         <file>icons/Simple_icon_time.svg</file>
         <file>icons/satellite.svg</file>
+        <file>icons/SciQLop.png</file>
     </qresource>
 </RCC>
