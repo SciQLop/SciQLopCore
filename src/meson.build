@@ -9,6 +9,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/GUI/TimeSyncPanel.hpp',
     '../include/SciQLopCore/GUI/PorductsTree.hpp',
     '../include/SciQLopCore/GUI/DragAndDrop.hpp',
+    '../include/SciQLopCore/GUI/TimeWidget.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp',
     '../include/SciQLopCore/Data/Pipelines.hpp'
 )
@@ -23,11 +24,14 @@ sciqlopcore_moc_sources = files(
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPanel.cpp',
     'GUI/CentralWidget.cpp',
+    'GUI/TimeWidget.cpp',
     'Common/SciQLopObject.cpp',
     'Data/Pipelines.cpp'
 )
 
-sciqlopcore_ui_sources = files('../UI/ProductsTree.ui', '../UI/mainwindow.ui')
+sciqlopcore_ui_sources = files('../UI/ProductsTree.ui',
+                               '../UI/mainwindow.ui',
+                               '../UI/TimeWidget.ui')
 
 sciqlopcore_rc_sources = files('../resources/sqpguiresources.qrc')
 
@@ -73,6 +77,7 @@ sciqlopcore_sources = files(
     'GUI/PorductsTree.cpp',
     'GUI/PlotWidget.cpp',
     'GUI/TimeSyncPanel.cpp',
+    'GUI/TimeWidget.cpp',
     'SciQLopCore.cpp',
     'Common/SciQLopObject.cpp',
     'logging/SciQLopLogs.cpp',

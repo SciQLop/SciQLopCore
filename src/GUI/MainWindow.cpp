@@ -22,6 +22,7 @@
 #include "SciQLopCore/GUI/MainWindow.hpp"
 
 #include "SciQLopCore/GUI/TimeSyncPanel.hpp"
+#include "SciQLopCore/GUI/TimeWidget.hpp"
 #include "ui_mainwindow.h"
 
 #include <QAction>
@@ -49,6 +50,7 @@ MainWindow::MainWindow(QWidget* parent)
   init_resources();
   ui->setupUi(this);
   ui->addTSPannel->setIcon(QIcon{"://icons/add.png"});
+  ui->toolBar->insertAction(ui->addTSPannel, new TimeWidgetAction);
   setWindowIcon(QIcon{"://icons/SciQLop.png"});
   connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSyncPannel(new TimeSyncPanel);});
 }
