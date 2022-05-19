@@ -67,6 +67,7 @@ sciqlop_bindings_moc_gen = qtmod.compile_moc(
 sciqlop_bindings = python3.extension_module('SciQLopBindings',
         sciqlop_bindings_src, shiboken_generator_out, sciqlop_bindings_moc_gen,
         dependencies : [ python3_dep, shiboken_dep, sciqlopcore_dep, cpp_utils_dep],
+        install: true,
         include_directories : numpy_inc
 )
 

@@ -40,6 +40,19 @@ def find_lib(name, search_folders):
         if len(found):
             return found[0]
 
+def link_flag(lib_path):
+    basename = os.path.basename(lib_path)
+    if basename.startswith('lib'):
+        return f"-l{basename[3:].split('.so')[0]}"
+    return lib_path
+
+
+def make_link_flags(libs_paths):
+    folders = list(set(map(lambda l: f"-L{os.path.dirname(l)}",libs_paths)))
+    libs = list(map(link_flag, libs_paths))
+    return folders + libs
+
+
 if shiboken.__file__ and shiboken_generator.__file__ and PySide.__file__:
     PySide_inc = first_existing_path([f'{PySide_mod_path}/include',f'/usr/include/PySide{pyside_ver}'])
     PySide_typesys = first_existing_path([f'{PySide_mod_path}/typesystems','/usr/share/PySide{pyside_ver}/typesystems'])
@@ -51,10 +64,10 @@ if shiboken.__file__ and shiboken_generator.__file__ and PySide.__file__:
     modules = args.modules.split(',')
 
     if args.libs:
-        main_lib = find_lib(f'libshiboken{pyside_ver}{ext_sufix}*', [f'{shiboken_mod_path}', '/usr/lib64/'])
-        main_lib += " "+find_lib(f'lib*y*ide*{ext_sufix}*', [f'{PySide_mod_path}', '/usr/lib64/'])
+        main_lib = [find_lib(f'libshiboken{pyside_ver}{ext_sufix}*', [f'{shiboken_mod_path}', '/usr/lib64/'])]
+        main_lib += [find_lib(f'lib*y*ide*{ext_sufix}*', [f'{PySide_mod_path}', '/usr/lib64/'])]
         modules_libs = [importlib.import_module(f'PySide{pyside_ver}.{module}').__file__ for module in modules]
-        print(" ".join([main_lib]+ modules_libs))
+        print(" ".join(main_lib + modules_libs))
 
     if args.includes:
         modules_incs = [f"-I{PySide_inc}/{module}" for module in modules]

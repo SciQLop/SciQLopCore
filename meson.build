@@ -2,7 +2,7 @@ project(
   'SciQLopCore',
   'cpp',
   version : '0.0.1',
-  default_options : ['warning_level=3', 'cpp_std=c++17'],
+  default_options : ['warning_level=3', 'cpp_std=c++17', 'default_library=static'],
   license : 'GPL3'
 )
 
@@ -34,6 +34,8 @@ qt_test = dependency(qt_sdk, modules : 'Test')
 cpp_utils_dep = dependency('cpp_utils')
 time_series_dep = dependency('TimeSeries')
 SciQLopPlots_dep = dependency('SciQLopPlots')
+
+sciqlopcore_extra_files = files('pyproject.toml', 'README.md')
 
 subdir('src')
 subdir('bindings')
