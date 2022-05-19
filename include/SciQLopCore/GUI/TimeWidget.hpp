@@ -50,12 +50,10 @@ signals:
 
 
 protected:
+    void mousePressEvent(QMouseEvent *event);
 
 private:
     Ui::TimeWidget* ui;
-
-    struct TimeWidgetPrivate;
-    std::unique_ptr<TimeWidgetPrivate> impl;
 };
 
 class TimeWidgetAction : public QWidgetAction

@@ -27,20 +27,12 @@
 
 #include <QMimeData>
 #include <QStyle>
-
-
-struct TimeWidget::TimeWidgetPrivate
-{
-
-    explicit TimeWidgetPrivate() {}
-
-    QPoint m_DragStartPosition;
-};
+#include <QMouseEvent>
+#include <QDrag>
 
 TimeWidget::TimeWidget(QWidget* parent)
         : QWidget { parent }
         , ui { new Ui::TimeWidget }
-        , impl { std::make_unique<TimeWidgetPrivate>() }
 {
     ui->setupUi(this);
 
@@ -50,15 +42,11 @@ TimeWidget::TimeWidget(QWidget* parent)
  //   connect(ui->endDateTimeEdit, &QDateTimeEdit::dateTimeChanged, this,
  //       &TimeWidget::onTimeUpdateRequested);
 
-    // Initialisation
     auto endDateTime = QDateTime::currentDateTimeUtc();
     auto startDateTime = endDateTime.addSecs(-3600); // one hour before
 
     ui->startDateTimeEdit->setDateTime(startDateTime);
     ui->endDateTimeEdit->setDateTime(endDateTime);
-
-    auto dateTime = DateTimeRange { DateUtils::secondsSinceEpoch(startDateTime),
-        DateUtils::secondsSinceEpoch(endDateTime) };
 
 }
 
@@ -81,5 +69,18 @@ DateTimeRange TimeWidget::timeRange() const
 {
     return DateTimeRange { DateUtils::secondsSinceEpoch(ui->startDateTimeEdit->dateTime()),
         DateUtils::secondsSinceEpoch(ui->endDateTimeEdit->dateTime()) };
+}
+
+void TimeWidget::mousePressEvent(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton) {
+
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(MIME::mimeData(timeRange()));
+    drag->setPixmap(QPixmap{"://icons/time.png"}.scaledToHeight(32));
+
+    Qt::DropAction dropAction = drag->exec();
+
+  }
 }
 

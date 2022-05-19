@@ -33,7 +33,7 @@
 
 QString QVariant2QString(const QVariant& variant) noexcept
 {
-  if(variant.canConvert<QVariantList>())
+  if(variant.userType() == QMetaType::QStringList)
   {
     auto valueString = QStringLiteral("{");
     auto variantList = variant.value<QVariantList>();

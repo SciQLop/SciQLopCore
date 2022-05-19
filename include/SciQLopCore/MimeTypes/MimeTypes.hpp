@@ -109,15 +109,15 @@ namespace MIME
   // override mimeData in corresponding object source code
   template<typename T> QMimeData* mimeData(const T& object) = delete;
 
-  template<IDS id> QVariantList fromMimeData(const QMimeData* mime)
+  template<IDS id> inline QVariantList fromMimeData(const QMimeData* mime)
   {
     return decode(mime->data(MIME_TYPES[id]));
   }
 
-  inline QStringList ToQStringList(const QVariantList& list)
+  inline QStringList mimeDataTo(const QMimeData* data, const QString& mimeType)
   {
     QStringList r;
-    for(const auto& e : list)
+    for(const auto& e : decode(data->data(mimeType)))
     {
       if(e.userType() == QMetaType::QString) { r.append(e.toString()); }
     }

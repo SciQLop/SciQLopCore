@@ -95,16 +95,15 @@ public:
 protected:
   inline void leaveEvent(QEvent* event) final
   {
-   parentWidget()->layout()->removeWidget(this);
-   deleteLater();
-   event->accept();
+    parentWidget()->layout()->removeWidget(this);
+    deleteLater();
+    event->accept();
   }
 
   inline void dragEnterEvent(QDragEnterEvent* event) final
   {
     qCDebug(gui_logs) << "PlaceHolder::dragEnterEvent";
     event->acceptProposedAction();
-
   }
   inline void dragMoveEvent(QDragMoveEvent* event) final
   {
@@ -137,12 +136,18 @@ struct DropHandler
   QString mime_str;
   std::function<bool(const QMimeData*)> callback;
 
-  DropHandler(MIME::IDS id, std::function<bool(const QMimeData*)>&& callback)
-      : mime_id{id}, mime_str{MIME::txt(id)}, callback(std::move(callback))
+  bool createsPlaceHolder = false;
+
+  DropHandler(MIME::IDS id, std::function<bool(const QMimeData*)>&& callback,
+              bool createsPlaceHolder = false)
+      : mime_id{id}, mime_str{MIME::txt(id)},
+        callback(std::move(callback)), createsPlaceHolder{createsPlaceHolder}
   {}
   DropHandler(MIME::IDS id,
-              const std::function<bool(const QMimeData*)>& callback)
-      : mime_id{id}, mime_str{MIME::txt(id)}, callback(callback)
+              const std::function<bool(const QMimeData*)>& callback,
+              bool createsPlaceHolder = false)
+      : mime_id{id}, mime_str{MIME::txt(id)},
+        callback(callback), createsPlaceHolder{createsPlaceHolder}
   {}
 };
 
@@ -165,6 +170,7 @@ struct DropHelper
       {
         current_handler_index = i;
         event->acceptProposedAction();
+        createsPlaceHolder = drop_handlers[i].createsPlaceHolder;
         return;
       }
     }
@@ -175,15 +181,18 @@ struct DropHelper
   template<typename Widget_t>
   inline void dragMoveEvent(Widget_t* self, QDragMoveEvent* event)
   {
-    if(current_handler_index != -1) event->acceptProposedAction();
+    if(current_handler_index != -1)
+    {
+      event->acceptProposedAction();
+      if(createsPlaceHolder)
+        details::incertPlaceHolder(self, event);
+    }
     details::QMainWindowDragMoveEvent(self, event);
-    details::incertPlaceHolder(self, event);
   }
 
   template<typename Widget_t>
   inline void dragLeaveEvent(Widget_t* self, QDragLeaveEvent* event)
-  {
-  }
+  {}
 
   template<typename Widget_t>
   inline void dropEvent(Widget_t* self, QDropEvent* event)
@@ -205,6 +214,7 @@ struct DropHelper
 private:
   std::vector<DropHandler> drop_handlers;
   int current_handler_index = -1;
+  bool createsPlaceHolder = false;
 };
 
 #define DropHelper_default_decl()                                              \

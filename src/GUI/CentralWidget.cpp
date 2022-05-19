@@ -31,7 +31,7 @@ CentralWidget::CentralWidget(QWidget* parent)
           {{MIME::IDS::PRODUCT_LIST,
             [this,
              mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
-              this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
+              this->plot(MIME::mimeDataTo(data, mime));
               return true;
             }}}}
 {

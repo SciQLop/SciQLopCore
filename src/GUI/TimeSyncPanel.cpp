@@ -34,18 +34,17 @@
 
 TimeSyncPanel::TimeSyncPanel(QWidget* parent)
     : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
-      d_helper{
-          {{MIME::IDS::TIME_RANGE,
-            [this](const QMimeData*) {
-              this->setXRange({{}, {}});
-              return true;
-            }},
-           {MIME::IDS::PRODUCT_LIST,
-            [this,
-             mime = MIME::txt(MIME::IDS::PRODUCT_LIST)](const QMimeData* data) {
-              this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
-              return true;
-            }}}}
+      d_helper{{{MIME::IDS::TIME_RANGE,
+                 [this](const QMimeData* data) {
+                   this->setXRange(
+                       MIME::mimeDataTo<SciQLopPlots::axis::range>(data));
+                   return true;
+                 }},
+                {MIME::IDS::PRODUCT_LIST, [this](const QMimeData* data) {
+                   this->plot(
+                       MIME::mimeDataTo(data, MIME::MIME_TYPE_PRODUCT_LIST));
+                   return true;
+                 }}}}
 
 {
   setAcceptDrops(true);
@@ -93,8 +92,7 @@ bool TimeSyncPanel::createPlaceHolder(int index)
     connect(
         placeHolder, &PlaceHolder::gotDrop, this,
         [this, index](QDropEvent* event) {
-          plot(MIME::ToQStringList(MIME::decode(event->mimeData()->data(
-                   MIME::txt(MIME::IDS::PRODUCT_LIST)))),
+          plot(MIME::mimeDataTo(event->mimeData(), MIME::MIME_TYPE_EVENT_LIST),
                index);
           placeHolder = nullptr;
         },

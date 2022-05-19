@@ -21,6 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/GUI/PlotWidget.hpp"
 
+#include "SciQLopCore/Data/DateTimeRange.hpp"
 #include "SciQLopCore/Data/Pipelines.hpp"
 #include "SciQLopCore/DataSource/DataSources.hpp"
 #include "SciQLopCore/GUI/TimeSyncPanel.hpp"
@@ -29,20 +30,20 @@
 
 PlotWidget::PlotWidget(QWidget* parent)
     : SciQLopPlots::SciQLopPlot{parent}, SciQLopObject{this},
-      d_helper{
-          {{MIME::IDS::TIME_RANGE,
-            [this](const QMimeData*) {
-              this->setXRange({{}, {}});
-              return true;
-            }},
-           {MIME::IDS::PRODUCT_LIST, [mime = MIME::txt(MIME::IDS::PRODUCT_LIST),
-                                      this](const QMimeData* data) {
-              if(!parentHasPlaceHolder)
-              {
-                this->plot(MIME::ToQStringList(MIME::decode(data->data(mime))));
-              }
-              return true;
-            }}}}
+      d_helper{{{MIME::IDS::TIME_RANGE,
+                 [this](const QMimeData* data) {
+                   this->setXRange(
+                       MIME::mimeDataTo<SciQLopPlots::axis::range>(data));
+                   return true;
+                 }},
+                {MIME::IDS::PRODUCT_LIST, [this](const QMimeData* data) {
+                   if(!parentHasPlaceHolder)
+                   {
+                     this->plot(
+                         MIME::mimeDataTo(data, MIME::MIME_TYPE_PRODUCT_LIST));
+                   }
+                   return true;
+                 }, true}}}
 {
   this->setAcceptDrops(true);
   this->setMinimumHeight(200);

@@ -65,10 +65,35 @@ data_t vector_to_data_t(TimeSeries::ITimeSerie* ts)
   return {};
 }
 
+data_t multicomponent_to_data_t(TimeSeries::ITimeSerie* ts)
+{
+  if(ts)
+  {
+    auto mc_ts          = dynamic_cast<MultiComponentTimeSerie*>(ts);
+    const auto sz       = mc_ts->size();
+    const auto comp_cnt = mc_ts->size(1);
+    std::vector<double> x(sz);
+    std::vector<double> y(comp_cnt * sz);
+    for(auto i = 0UL; i < sz; i++)
+    {
+      for(auto comp = 0UL; comp < comp_cnt; comp++)
+      {
+        y[i + (comp * sz)] = (*mc_ts)[i][comp];
+      }
+      x[i] = mc_ts->t(i);
+    }
+
+    return {x, y};
+  }
+  return {};
+}
+
 template<DataSeriesType dst> data_t to_data_t(TimeSeries::ITimeSerie* ts)
 {
   if constexpr(dst == DataSeriesType::SCALAR) return scalar_to_data_t(ts);
   if constexpr(dst == DataSeriesType::VECTOR) return vector_to_data_t(ts);
+  if constexpr(dst == DataSeriesType::MULTICOMPONENT)
+    return multicomponent_to_data_t(ts);
 }
 
 template<DataSeriesType ds_type>
@@ -77,7 +102,8 @@ inline int components_count(const QVariantHash& metaData)
   if constexpr(ds_type == DataSeriesType::NONE) return 0;
   if constexpr(ds_type == DataSeriesType::SCALAR) return 1;
   if constexpr(ds_type == DataSeriesType::VECTOR) return 3;
-  if constexpr(ds_type == DataSeriesType::MULTICOMPONENT) return 1;
+  if constexpr(ds_type == DataSeriesType::MULTICOMPONENT)
+    return metaData["components"].toInt();
   if constexpr(ds_type == DataSeriesType::SPECTROGRAM) return 1;
 }
 
@@ -148,9 +174,15 @@ void Pipelines::plot(const QStringList& products,
                                                                  metaData));
       }
       break;
+
+      case DataSeriesType::MULTICOMPONENT: {
+        std::cout << "Vector MULTICOMPONENT" << std::endl;
+        addPipeline(new Pipeline<data_t, DataSeriesType::MULTICOMPONENT>(
+            plot, provider, metaData));
+      }
+      break;
       default: break;
     }
-    // SciQLopPlots::add_graph<>(this);
     std::cout << provider << std::endl;
   }
 }

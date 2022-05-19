@@ -23,6 +23,8 @@
 
 #include "../Common/DateUtils.hpp"
 #include "../Common/MetaTypes.hpp"
+#include "SciQLopCore/MimeTypes/MimeTypes.hpp"
+#include "SciQLopPlots/axis_range.hpp"
 
 #include <QDate>
 #include <QDebug>
@@ -135,6 +137,11 @@ struct DateTimeRange
   double m_TStart;
   /// End time (UTC)
   double m_TEnd;
+
+  inline SciQLopPlots::axis::range to_axis_range() const
+  {
+    return {this->m_TStart, this->m_TEnd};
+  }
 
   Seconds<double> delta() const noexcept
   {
@@ -289,3 +296,47 @@ DateTimeRange::transform(const DateTimeRangeTransformation& tr) const noexcept
 
 // Required for using shared_ptr in signals/slots
 SCIQLOP_REGISTER_META_TYPE(SQPRANGE_REGISTRY, DateTimeRange)
+
+namespace MIME
+{
+  template<> inline QMimeData* mimeData<DateTimeRange>(const DateTimeRange& dt)
+  {
+    QMimeData* data = new QMimeData;
+    data->setData(MIME::MIME_TYPE_TIME_RANGE,
+                  MIME::encode(QVariantList{dt.m_TStart, dt.m_TEnd}));
+    return data;
+  }
+
+  template<typename T>
+  inline std::enable_if_t<std::is_same_v<T, DateTimeRange>, T>
+  mimeDataTo(const QMimeData* data)
+  {
+    if(data != nullptr)
+    {
+      auto v = MIME::decode(data->data(MIME::MIME_TYPE_TIME_RANGE));
+      if((v.length() == 2) && (v[0].userType() == QMetaType::Double) &&
+         (v[1].userType() == QMetaType::Double))
+      {
+        return {v[0].toDouble(), v[1].toDouble()};
+      }
+    }
+    return {std::nan(""), std::nan("")};
+  }
+
+  template<typename T>
+  inline std::enable_if_t<std::is_same_v<T, SciQLopPlots::axis::range>, T>
+  mimeDataTo(const QMimeData* data)
+  {
+    if(data != nullptr)
+    {
+      auto v = MIME::decode(data->data(MIME::MIME_TYPE_TIME_RANGE));
+      if((v.length() == 2) && (v[0].userType() == QMetaType::Double) &&
+         (v[1].userType() == QMetaType::Double))
+      {
+        return {v[0].toDouble(), v[1].toDouble()};
+      }
+    }
+    return {std::nan(""), std::nan("")};
+  }
+
+}; // namespace MIME
