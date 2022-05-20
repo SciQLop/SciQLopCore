@@ -30,6 +30,7 @@
 #include <QVector>
 #include <algorithm>
 #include <cpp_utils/trees/algorithms.hpp>
+#include <cpp_utils/containers/algorithms.hpp>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -238,11 +239,16 @@ namespace MIME
   inline QMimeData* mimeData(const std::vector<DataSourceItem*>& items)
   {
     QVariantList path_list;
-    std::transform(std::cbegin(items), std::cend(items),
-                   std::back_inserter(path_list),
-                   [](const auto& item) { return item->path(); });
+    QStringList txt;
+    for(auto item:items)
+    {
+        path_list << item->path();
+        txt << item->path();
+    }
+
     QMimeData* m = new QMimeData;
     m->setData(MIME::MIME_TYPE_PRODUCT_LIST, MIME::encode(path_list));
+    m->setText(cpp_utils::containers::join(txt,':'));
     return m;
   }
 } // namespace MIME

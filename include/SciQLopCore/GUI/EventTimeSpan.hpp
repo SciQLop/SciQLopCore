@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
 -- This file is a part of the SciQLop Software
--- Copyright (C) 2017, Plasma Physics Laboratory - CNRS
+-- Copyright (C) 2022, Plasma Physics Laboratory - CNRS
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -21,42 +21,27 @@
 ----------------------------------------------------------------------------*/
 #pragma once
 
-#include <QMainWindow>
-#include <QToolBar>
+#include "SciQLopCore/SciQLopCore.hpp"
+#include "SciQLopCore/Common/SciQLopObject.hpp"
+#include "SciQLopCore/Data/DateTimeRange.hpp"
+#include "SciQLopCore/GUI/TimeSyncPanel.hpp"
+
 #include <QWidget>
+#include <SciQLopPlots/Qt/QCustomPlot/SciQLopPlots.hpp>
 
-namespace Ui
-{
-  class MainWindow;
-} // namespace Ui
-class TimeSyncPanel;
 
-class MainWindow : public QMainWindow
+
+class EventTimeSpan : public QObject, public SciQLopObject
 {
   Q_OBJECT
-
+  QList<SciQLopPlots::TimeSpan*> timeSpans;
+  DateTimeRange _range;
+  void addTimeSpan(PlotWidget* plot, const DateTimeRange& range);
 public:
-  explicit MainWindow(QWidget* parent = nullptr);
-  virtual ~MainWindow() override;
+  EventTimeSpan(TimeSyncPanel* panel, const DateTimeRange& range);
+  EventTimeSpan(TimeSyncPanel* panel, double start, double stop);
 
-  void plot(const QStringList& products);
+  void setTimeRange(const DateTimeRange& range);
+  void setTimeRange(double start, double stop);
 
-  void addTimeSyncPannel(TimeSyncPanel* pannel);
-  void addWidgetIntoDock(Qt::DockWidgetArea, QWidget*);
-
-  QToolBar* toolBar();
-
-  TimeSyncPanel* plotPanel(const QString& name);
-  QStringList panels() const;
-
-  Q_SIGNAL void panels_list_changed(QStringList panels);
-
-protected:
-  void changeEvent(QEvent* e) override;
-  void closeEvent(QCloseEvent* event) override;
-
-  void keyPressEvent(QKeyEvent* event) override;
-
-private:
-  Ui::MainWindow* ui;
 };

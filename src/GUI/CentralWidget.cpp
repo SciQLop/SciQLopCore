@@ -25,6 +25,30 @@
 #include <SciQLopCore/logging/SciQLopLogs.hpp>
 #include <iostream>
 
+void CentralWidget::addPanel(TimeSyncPanel *panel)
+{
+    if(panel)
+    {
+      auto doc = new QDockWidget(this);
+      doc->setAttribute(Qt::WA_DeleteOnClose);
+      doc->setAllowedAreas(Qt::AllDockWidgetAreas);
+      doc->setWidget(panel);
+      panel->setParent(doc);
+      this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
+      doc->setWindowTitle(panel->name());
+      this->_panels.append(panel);
+      connect(panel,&TimeSyncPanel::destroyed,this,[this,panel](){this->removePanel(panel);});
+      qCDebug(gui_logs) << "TimeSyncPanel added";
+      emit this->panels_list_changed(panels());
+    }
+}
+
+void CentralWidget::removePanel(TimeSyncPanel *panel)
+{
+    this->_panels.removeAll(panel);
+    emit this->panels_list_changed(panels());
+}
+
 CentralWidget::CentralWidget(QWidget* parent)
     : QMainWindow{parent}, SciQLopObject{this},
       d_helper{
@@ -43,19 +67,7 @@ CentralWidget::CentralWidget(QWidget* parent)
 
 void CentralWidget::addTimeSyncPanel(TimeSyncPanel* panel)
 {
-  if(panel)
-  {
-    auto doc = new QDockWidget(this);
-    doc->setAttribute(Qt::WA_DeleteOnClose);
-    doc->setAllowedAreas(Qt::AllDockWidgetAreas);
-    doc->setWidget(panel);
-    panel->setParent(doc);
-    this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
-    doc->setWindowTitle(panel->name());
-    this->_panels.append(panel);
-    connect(panel,&TimeSyncPanel::destroyed,this,[this,panel](){this->_panels.removeAll(panel);});
-    qCDebug(gui_logs) << "TimeSyncPanel added";
-  }
+  addPanel(panel);
 }
 
 void CentralWidget::plot(const QStringList& products)

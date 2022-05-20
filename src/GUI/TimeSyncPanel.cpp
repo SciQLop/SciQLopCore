@@ -71,6 +71,7 @@ void TimeSyncPanel::plot(const QStringList& products, int index)
   connect(p, &PlotWidget::parentDeletePlaceHolder, this,
           [this]() { deletePlaceHolder(); });
   SciQLopCore::pipelines().plot(products, p);
+  emit this->plotAdded(p);
 }
 
 bool TimeSyncPanel::deletePlaceHolder()
@@ -109,6 +110,11 @@ bool TimeSyncPanel::createPlaceHolder(int index)
     return true;
   }
   return false;
+}
+
+QList<SciQLopPlots::interfaces::IPlotWidget *> TimeSyncPanel::plots() const
+{
+    return SciQLopPlots::SyncPanel::plots();
 }
 
 DropHelper_default_def(TimeSyncPanel, d_helper);

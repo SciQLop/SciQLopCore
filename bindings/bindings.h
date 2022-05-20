@@ -17,6 +17,7 @@
 #include <SciQLopCore/GUI/CentralWidget.hpp>
 #include <SciQLopCore/GUI/PorductsTree.hpp>
 #include <SciQLopCore/GUI/TimeSyncPanel.hpp>
+#include <SciQLopCore/GUI/EventTimeSpan.hpp>
 #include <SciQLopCore/MimeTypes/MimeTypes.hpp>
 
 #endif // SCIQLOP_BINDINGS_H

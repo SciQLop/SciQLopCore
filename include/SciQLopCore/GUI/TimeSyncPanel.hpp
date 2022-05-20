@@ -28,6 +28,8 @@
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
+class EventTimeSpan;
+class PlotWidget;
 
 class TimeSyncPanel : public SciQLopPlots::SyncPanel, public SciQLopObject
 {
@@ -43,9 +45,14 @@ public:
 
   void setTimeRange(double start, double stop);
 
+  friend EventTimeSpan;
+
+  Q_SIGNAL void plotAdded(PlotWidget*);
+
 private:
   bool createPlaceHolder(int index);
 
+  QList<SciQLopPlots::interfaces::IPlotWidget*> plots() const;
 protected:
   DropHelper_default_decl();
 

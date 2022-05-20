@@ -121,6 +121,7 @@
     </object-type>
     <object-type name="ProductsTree" />
     <object-type name="TimeSyncPanel" />
+    <object-type name="EventTimeSpan" />
 </typesystem>
 
 

@@ -54,9 +54,16 @@ MainWindow::MainWindow(QWidget* parent)
   setWindowIcon(QIcon{"://icons/SciQLop.png"});
   connect(ui->addTSPannel, &QAction::triggered, this,
           [this]() { this->addTimeSyncPannel(new TimeSyncPanel); });
+
+  connect(ui->centralwidget,&CentralWidget::panels_list_changed,this,&MainWindow::panels_list_changed);
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::plot(const QStringList &products)
+{
+    ui->centralwidget->plot(products);
+}
 
 void MainWindow::addTimeSyncPannel(TimeSyncPanel* pannel)
 {

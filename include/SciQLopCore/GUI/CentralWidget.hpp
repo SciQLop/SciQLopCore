@@ -36,6 +36,8 @@ class CentralWidget : public QMainWindow, public SciQLopObject
     DropHelper d_helper;
     QList<TimeSyncPanel*> _panels;
     QDockWidget* placeHolder=nullptr;
+    void addPanel(TimeSyncPanel* panel);
+    void removePanel(TimeSyncPanel* panel);
 public:
   CentralWidget(QWidget* parent=nullptr);
 
@@ -44,6 +46,8 @@ public:
 
   TimeSyncPanel* plotPanel(const QString& name);
   QStringList panels()const ;
+
+  Q_SIGNAL void panels_list_changed(QStringList panels);
 
 protected:
   DropHelper_default_decl();
