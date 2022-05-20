@@ -33,7 +33,7 @@
 #include <iostream>
 
 TimeSyncPanel::TimeSyncPanel(QWidget* parent)
-    : SciQLopPlots::SyncPannel{parent}, SciQLopObject{this},
+    : SciQLopPlots::SyncPanel{parent}, SciQLopObject{this},
       d_helper{{{MIME::IDS::TIME_RANGE,
                  [this](const QMimeData* data) {
                    this->setXRange(
@@ -81,6 +81,11 @@ bool TimeSyncPanel::deletePlaceHolder()
     this->placeHolder = nullptr;
   }
   return true;
+}
+
+void TimeSyncPanel::setTimeRange(double start, double stop)
+{
+    setXRange({start,stop});
 }
 
 bool TimeSyncPanel::createPlaceHolder(int index)

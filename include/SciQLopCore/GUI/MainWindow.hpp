@@ -23,6 +23,7 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QToolBar>
 
 namespace Ui
 {
@@ -40,6 +41,11 @@ public:
 
   void addTimeSyncPannel(TimeSyncPanel* pannel);
   void addWidgetIntoDock(Qt::DockWidgetArea,QWidget*);
+
+  QToolBar* toolBar();
+
+  TimeSyncPanel* plotPanel(const QString& name);
+  QStringList panels()const ;
 
 protected:
   void changeEvent(QEvent* e) override;

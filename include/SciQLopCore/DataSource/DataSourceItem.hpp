@@ -71,9 +71,9 @@ public:
 
   // explicit DataSourceItem(DataSourceItemType type, const QString& name);
   explicit DataSourceItem(DataSourceItemType type, const QString& name,
-                          DataSeriesType ds_type = DataSeriesType::NONE,
-                          QVariantHash data               = {},
-                          std::optional<QUuid> sourceUUID = std::nullopt);
+                          DataSeriesType ds_type,
+                          QVariantHash data,
+                          QString sourceUUID);
 
   ~DataSourceItem();
 
@@ -226,7 +226,7 @@ public:
   const_iterator_type cbegin() const noexcept;
   const_iterator_type cend() const noexcept;
 
-  std::optional<QUuid> source_uuid() const noexcept;
+  QString source_uuid() const noexcept;
 
 private:
   struct DataSourceItemPrivate;

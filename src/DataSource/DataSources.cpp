@@ -50,7 +50,7 @@ QString QVariant2QString(const QVariant& variant) noexcept
 
 inline std::unique_ptr<DataSourceItem> make_folder_item(const QString& name)
 {
-  return std::make_unique<DataSourceItem>(DataSourceItemType::NODE, name);
+    return std::make_unique<DataSourceItem>(DataSourceItemType::NODE, name,DataSeriesType::NONE,QVariantHash{},"");
 }
 
 template<typename T>
@@ -107,7 +107,7 @@ DataSourceItem* make_path_items(const T& path_list_begin,
 
 inline std::unique_ptr<DataSourceItem>
 make_product_item(const QString& name, DataSeriesType ds_type,
-                  QVariantHash& metaData, const QUuid& dataSourceUid,
+                  QVariantHash& metaData, const QString& dataSourceUid,
                   const QString& DATA_SOURCE_NAME, DataSources* dataSources)
 {
   auto result = std::make_unique<DataSourceItem>(
@@ -128,8 +128,8 @@ make_product_item(const QString& name, DataSeriesType ds_type,
 }
 
 DataSources::DataSources()
-    : SciQLopObject{SciQLopObject::className(this)},
-      _root(new DataSourceItem(DataSourceItemType::NODE, "")),
+    : SciQLopObject{this},
+      _root(new DataSourceItem(DataSourceItemType::NODE, "",DataSeriesType::NONE,QVariantHash{},"")),
       _completionModel(new QStringListModel)
 {}
 
@@ -238,7 +238,7 @@ Qt::ItemFlags DataSources::flags(const QModelIndex& index) const
 // this should be much faster than doing a ResetModel all the time
 // but this is more difficult to implement
 void DataSources::addDataSourceItem(
-    const QUuid& providerUid, const QString& path, DataSeriesType ds_type,
+    const QString& providerUid, const QString& path, DataSeriesType ds_type,
     const QMap<QString, QString>& metaData) noexcept
 {
   beginResetModel();
@@ -271,16 +271,16 @@ void DataSources::removeDataSourceItems(const QStringList& paths) noexcept
 
 void DataSources::addProvider(IDataProvider* provider) noexcept
 {
-  _DataProviders.insert({provider->id(), provider});
-  _Products[provider->id()] = QStringList{};
+  _DataProviders.insert({provider->name(), provider});
+  _Products[provider->name()] = QStringList{};
 }
 
 void DataSources::removeProvider(IDataProvider* provider) noexcept
 {
-  assert(cpp_utils::containers::contains(_Products, provider->id()));
-  removeDataSourceItems(_Products[provider->id()]);
-  _DataProviders.erase(provider->id());
-  _Products.erase(provider->id());
+  assert(cpp_utils::containers::contains(_Products, provider->name()));
+  removeDataSourceItems(_Products[provider->name()]);
+  _DataProviders.erase(provider->name());
+  _Products.erase(provider->name());
 }
 
 void DataSources::updateNodeMetaData(
@@ -308,9 +308,9 @@ IDataProvider* DataSources::provider(const QString& path)
   if(node != nullptr)
   {
     if(auto ds_uuid = node->source_uuid();
-       ds_uuid.has_value() && node->isProductOrComponent())
+       !ds_uuid.isEmpty() && node->isProductOrComponent())
     {
-      if(auto data_source_it = _DataProviders.find(ds_uuid.value());
+      if(auto data_source_it = _DataProviders.find(ds_uuid);
          data_source_it != std::cend(_DataProviders))
         return data_source_it->second;
     }

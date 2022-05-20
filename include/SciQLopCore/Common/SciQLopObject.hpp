@@ -24,26 +24,29 @@
 #include "SciQLopCore/Common/MetaTypes.hpp"
 #include "cpp_utils/types/detectors.hpp"
 
-#include <QUuid>
 #include <QString>
+#include <QMap>
+#include <QSet>
+
 
 HAS_METHOD(has_metaObject, metaObject)
 
+#include <array>
 #include <string>
 #include <string_view>
-#include <array>
 #include <utility>
 
-//taken here https://bitwizeshift.github.io/posts/2021/03/09/getting-an-unmangled-type-name-at-compile-time/
+// taken here
+// https://bitwizeshift.github.io/posts/2021/03/09/getting-an-unmangled-type-name-at-compile-time/
 
-template <std::size_t...Idxs>
-constexpr auto substring_as_array(std::string_view str, std::index_sequence<Idxs...>)
+template<std::size_t... Idxs>
+constexpr auto substring_as_array(std::string_view str,
+                                  std::index_sequence<Idxs...>)
 {
   return std::array{str[Idxs]..., '\n'};
 }
 
-template <typename T>
-constexpr auto type_name_array()
+template<typename T> constexpr auto type_name_array()
 {
 #if defined(__clang__)
   constexpr auto prefix   = std::string_view{"[T = "};
@@ -58,11 +61,11 @@ constexpr auto type_name_array()
   constexpr auto suffix   = std::string_view{">(void)"};
   constexpr auto function = std::string_view{__FUNCSIG__};
 #else
-# error Unsupported compiler
+#error Unsupported compiler
 #endif
 
   constexpr auto start = function.find(prefix) + prefix.size();
-  constexpr auto end = function.rfind(suffix);
+  constexpr auto end   = function.rfind(suffix);
 
   static_assert(start < end);
 
@@ -70,61 +73,42 @@ constexpr auto type_name_array()
   return substring_as_array(name, std::make_index_sequence<name.size()>{});
 }
 
-template <typename T>
-struct type_name_holder {
+template<typename T> struct type_name_holder
+{
   static inline constexpr auto value = type_name_array<T>();
 };
 
-template <typename T>
-constexpr auto type_name() -> std::string_view
+template<typename T> constexpr auto type_name() -> std::string_view
 {
   constexpr auto& value = type_name_holder<T>::value;
   return std::string_view{value.data(), value.size()};
 }
 
-
 class SciQLopObject
 {
+  static QMap<QString, QSet<int>> used_names;
 
-  QUuid _id = QUuid::createUuid();
+  static QString generate_unique_name(const QString& prefix);
+
   QString _className;
+  QString _uniqueName;
 
-protected:
-  void setClassName(const QString& name)
-  {
-    _className = name;
-  }
+  SciQLopObject(const QString& className);
 
 public:
-  SciQLopObject(const QString & className);
 
-  template<typename T>
-  SciQLopObject(T* self)
-      :_className(className(self))
-  {
-
-  }
+  template<typename T> SciQLopObject(T* self) : SciQLopObject{className(self)} {}
 
   virtual ~SciQLopObject();
 
-  QUuid id() const;
-  QString name();
+  QString name()const;
 
-  inline operator QUuid() { return _id; }
-
-  template<typename T>
-  static QString className(const T*)
+  template<typename T> static QString className(const T*)
   {
-      if constexpr(has_metaObject_v<T>)
-      {
-          return T::staticMetaObject.className();
-      }
-      else
-      {
-        return QString::fromStdString(std::string{type_name<T>()});
-      }
+    if constexpr(has_metaObject_v<T>)
+    {
+      return T::staticMetaObject.className();
+    }
+    else { return QString::fromStdString(std::string{type_name<T>()}); }
   }
-
 };
-
-

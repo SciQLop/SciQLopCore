@@ -41,17 +41,19 @@ CentralWidget::CentralWidget(QWidget* parent)
   this->setAcceptDrops(true);
 }
 
-void CentralWidget::addTimeSyncPannel(TimeSyncPanel* pannel)
+void CentralWidget::addTimeSyncPanel(TimeSyncPanel* panel)
 {
-  if(pannel)
+  if(panel)
   {
     auto doc = new QDockWidget(this);
     doc->setAttribute(Qt::WA_DeleteOnClose);
     doc->setAllowedAreas(Qt::AllDockWidgetAreas);
-    doc->setWidget(pannel);
+    doc->setWidget(panel);
+    panel->setParent(doc);
     this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, doc);
-    doc->setWindowTitle(pannel->name());
-    this->dockWidgets.append(doc);
+    doc->setWindowTitle(panel->name());
+    this->_panels.append(panel);
+    connect(panel,&TimeSyncPanel::destroyed,this,[this,panel](){this->_panels.removeAll(panel);});
     qCDebug(gui_logs) << "TimeSyncPanel added";
   }
 }
@@ -59,8 +61,28 @@ void CentralWidget::addTimeSyncPannel(TimeSyncPanel* pannel)
 void CentralWidget::plot(const QStringList& products)
 {
   auto p = new TimeSyncPanel{};
-  addTimeSyncPannel(p);
+  addTimeSyncPanel(p);
   p->plot(products);
+}
+
+TimeSyncPanel *CentralWidget::plotPanel(const QString &name)
+{
+    for(auto p:this->_panels)
+    {
+        if(p->name()==name)
+            return p;
+    }
+    return nullptr;
+}
+
+QStringList CentralWidget::panels() const
+{
+    QStringList ps;
+    for(const auto p:_panels)
+    {
+        ps << p->name();
+    }
+    return ps;
 }
 
 DropHelper_default_def(CentralWidget, d_helper)

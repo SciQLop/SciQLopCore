@@ -64,12 +64,11 @@ void py::DataProvider::set_icon(const QString& path, const QString& name)
 void py::DataProvider::register_products(const QVector<Product*>& products)
 {
   auto& dataSources     = SciQLopCore::dataSources();
-  auto id               = this->id();
   auto data_source_name = this->name();
   std::for_each(std::cbegin(products), std::cend(products),
-                [&id, &dataSources](const Product* product) {
+                [&data_source_name, &dataSources](const Product* product) {
                   dataSources.addDataSourceItem(
-                      id, product->path, product->ds_type, product->metadata);
+                      data_source_name, product->path, product->ds_type, product->metadata);
                 });
 }
 

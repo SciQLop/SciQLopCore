@@ -25,7 +25,7 @@
 #include "SciQLopCore/SciQLopCore.hpp"
 
 IDataProvider::IDataProvider(QObject *parent)
-    : QObject(parent), SciQLopObject(SciQLopObject::className(this))
+    : QObject(parent), SciQLopObject{this}
 {
   SciQLopCore::dataSources().addProvider(this);
 }

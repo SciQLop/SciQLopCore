@@ -29,7 +29,7 @@
 #include "SciQLopCore/GUI/DragAndDrop.hpp"
 
 
-class TimeSyncPanel : public SciQLopPlots::SyncPannel, public SciQLopObject
+class TimeSyncPanel : public SciQLopPlots::SyncPanel, public SciQLopObject
 {
   Q_OBJECT
   DropHelper d_helper;
@@ -41,6 +41,7 @@ public:
   void plot(const QStringList& products, int index=-1);
   bool deletePlaceHolder();
 
+  void setTimeRange(double start, double stop);
 
 private:
   bool createPlaceHolder(int index);

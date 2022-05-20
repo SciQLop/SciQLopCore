@@ -37,7 +37,7 @@ struct DataSourceItem::DataSourceItemPrivate
 {
   explicit DataSourceItemPrivate(DataSourceItemType type, const QString& name,
                                  DataSeriesType ds_type, QVariantHash data,
-                                 std::optional<QUuid> sourceUUID = std::nullopt)
+                                 QString sourceUUID)
       : m_Parent{nullptr}, m_dataSourceUid{sourceUUID},
         m_Children{}, m_name{name}, m_ds_type{ds_type}, m_Type{type},
         m_Data{std::move(data)}, m_Actions{}
@@ -46,7 +46,7 @@ struct DataSourceItem::DataSourceItemPrivate
   }
   ~DataSourceItemPrivate();
   DataSourceItem* m_Parent;
-  std::optional<QUuid> m_dataSourceUid = std::nullopt;
+  QString m_dataSourceUid;
   std::vector<std::unique_ptr<DataSourceItem>> m_Children;
   QString m_icon;
   QString m_name;
@@ -61,7 +61,7 @@ struct DataSourceItem::DataSourceItemPrivate
   auto end() noexcept { return m_Children.end(); }
   auto cbegin() const noexcept { return m_Children.cbegin(); }
   auto cend() const noexcept { return m_Children.cend(); }
-  inline std::optional<QUuid> source_uuid() const noexcept
+  inline QString source_uuid() const noexcept
   {
     return m_dataSourceUid;
   }
@@ -86,7 +86,7 @@ struct DataSourceItem::DataSourceItemPrivate
 
 DataSourceItem::DataSourceItem(DataSourceItemType type, const QString& name,
                                DataSeriesType ds_type, QVariantHash data,
-                               std::optional<QUuid> sourceUUID)
+                               QString sourceUUID)
     : impl{std::make_unique<DataSourceItemPrivate>(type, name, ds_type,
                                                    std::move(data), sourceUUID)}
 {}
@@ -97,7 +97,7 @@ DataSourceItem::~DataSourceItem() = default;
 std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
 {
   auto result = std::make_unique<DataSourceItem>(
-      impl->m_Type, impl->m_name, impl->dataSeriesType(), impl->m_Data);
+      impl->m_Type, impl->m_name, impl->dataSeriesType(), impl->m_Data,impl->source_uuid()+"_copy");
 
   // Clones children
   for(const auto& child : impl->m_Children)
@@ -357,7 +357,7 @@ DataSourceItem::const_iterator_type DataSourceItem::end() const noexcept
   return impl->cend();
 }
 
-std::optional<QUuid> DataSourceItem::source_uuid() const noexcept
+QString DataSourceItem::source_uuid() const noexcept
 {
   return impl->source_uuid();
 }

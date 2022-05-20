@@ -34,13 +34,16 @@ class CentralWidget : public QMainWindow, public SciQLopObject
   Q_OBJECT
 
     DropHelper d_helper;
-    QList<QDockWidget*> dockWidgets;
+    QList<TimeSyncPanel*> _panels;
     QDockWidget* placeHolder=nullptr;
 public:
   CentralWidget(QWidget* parent=nullptr);
 
-  void addTimeSyncPannel(TimeSyncPanel* pannel);
+  void addTimeSyncPanel(TimeSyncPanel* pannel);
   void plot(const QStringList& products);
+
+  TimeSyncPanel* plotPanel(const QString& name);
+  QStringList panels()const ;
 
 protected:
   DropHelper_default_decl();

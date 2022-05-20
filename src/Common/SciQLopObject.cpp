@@ -21,24 +21,34 @@
 ----------------------------------------------------------------------------*/
 #include "SciQLopCore/Common/SciQLopObject.hpp"
 
-SciQLopObject::SciQLopObject(const QString &className)
-    :_className{className}
-{
+#include <iostream>
 
+QMap<QString, QSet<int>> SciQLopObject::used_names = {};
+
+QString SciQLopObject::generate_unique_name(const QString& prefix)
+{
+  auto& indexes = SciQLopObject::used_names[prefix];
+  int i         = 0;
+  while(indexes.contains(i))
+    i++;
+  indexes.insert(i);
+  return QString("%1-%2").arg(prefix).arg(i);
 }
+
+SciQLopObject::SciQLopObject(const QString& className)
+    : _className{className}, _uniqueName{
+                                 SciQLopObject::generate_unique_name(className)}
+{}
 
 SciQLopObject::~SciQLopObject()
 {
-
+  auto parts = name().split('-');
+  if(std::size(parts) == 2)
+  {
+    bool convSuccess = false;
+    auto index       = parts[1].toInt(&convSuccess);
+    if(convSuccess) { SciQLopObject::used_names[parts[0]].remove(index); }
+  }
 }
 
-QUuid SciQLopObject::id() const { return _id; }
-
-QString SciQLopObject::name()
-{
-    return QString("%1-%2")
-            .arg(this->_className)
-            .arg(id().toString());
-}
-
-
+QString SciQLopObject::name() const { return _uniqueName; }

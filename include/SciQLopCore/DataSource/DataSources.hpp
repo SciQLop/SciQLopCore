@@ -59,7 +59,7 @@ public:
 
   Qt::ItemFlags flags(const QModelIndex& index) const final;
 
-  void addDataSourceItem(const QUuid& providerUid, const QString& path,
+  void addDataSourceItem(const QString &providerUid, const QString& path,
                          DataSeriesType ds_type,
                          const QMap<QString, QString>& metaData) noexcept;
 
@@ -99,8 +99,8 @@ private:
   void _updateCompletionModel(const QMap<QString, QString>& metaData,
                               const QString& name);
   DataSourceItem* _root=nullptr;
-  std::map<QUuid, IDataProvider*> _DataProviders;
-  std::map<QUuid, QStringList> _Products;
+  std::map<QString, IDataProvider*> _DataProviders;
+  std::map<QString, QStringList> _Products;
   QHash<QString, QVariant> _icons;
   QStringListModel* _completionModel=nullptr;
 };

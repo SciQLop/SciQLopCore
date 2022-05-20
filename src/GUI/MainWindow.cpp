@@ -52,29 +52,42 @@ MainWindow::MainWindow(QWidget* parent)
   ui->addTSPannel->setIcon(QIcon{"://icons/add.png"});
   ui->toolBar->insertAction(ui->addTSPannel, new TimeWidgetAction);
   setWindowIcon(QIcon{"://icons/SciQLop.png"});
-  connect(ui->addTSPannel,&QAction::triggered,this,[this](){this->addTimeSyncPannel(new TimeSyncPanel);});
+  connect(ui->addTSPannel, &QAction::triggered, this,
+          [this]() { this->addTimeSyncPannel(new TimeSyncPanel); });
 }
 
 MainWindow::~MainWindow() {}
 
 void MainWindow::addTimeSyncPannel(TimeSyncPanel* pannel)
 {
-    this->ui->centralwidget->addTimeSyncPannel(pannel);
+  this->ui->centralwidget->addTimeSyncPanel(pannel);
 }
 
-void MainWindow::addWidgetIntoDock(Qt::DockWidgetArea area, QWidget *w)
+void MainWindow::addWidgetIntoDock(Qt::DockWidgetArea area, QWidget* w)
 {
-    if(w)
+  if(w)
+  {
+    auto doc = new QDockWidget(this);
+    doc->setAllowedAreas(Qt::AllDockWidgetAreas);
+    doc->setWidget(w);
+    this->addDockWidget(area, doc);
+    if(auto so = dynamic_cast<SciQLopObject*>(w); so)
     {
-      auto doc = new QDockWidget(this);
-      doc->setAllowedAreas(Qt::AllDockWidgetAreas);
-      doc->setWidget(w);
-      this->addDockWidget(area, doc);
-      if(auto so=dynamic_cast<SciQLopObject*>(w);so)
-      {
-          doc->setWindowTitle(so->name());
-      }
+      doc->setWindowTitle(so->name());
     }
+  }
+}
+
+QToolBar* MainWindow::toolBar() { return this->ui->toolBar; }
+
+TimeSyncPanel *MainWindow::plotPanel(const QString &name)
+{
+    return this->ui->centralwidget->plotPanel(name);
+}
+
+QStringList MainWindow::panels() const
+{
+    return this->ui->centralwidget->panels();
 }
 
 void MainWindow::changeEvent(QEvent* e)
