@@ -92,7 +92,7 @@ bool TimeSyncPanel::createPlaceHolder(int index)
     connect(
         placeHolder, &PlaceHolder::gotDrop, this,
         [this, index](QDropEvent* event) {
-          plot(MIME::mimeDataTo(event->mimeData(), MIME::MIME_TYPE_EVENT_LIST),
+          plot(MIME::mimeDataTo(event->mimeData(), MIME::MIME_TYPE_PRODUCT_LIST),
                index);
           placeHolder = nullptr;
         },
