@@ -86,7 +86,15 @@ bool TimeSyncPanel::deletePlaceHolder()
 
 void TimeSyncPanel::setTimeRange(double start, double stop)
 {
-    setXRange({start,stop});
+  setXRange({start,stop});
+}
+
+void TimeSyncPanel::autoScaleY()
+{
+  for(auto p:plots())
+  {
+    p->autoScaleY();
+  }
 }
 
 bool TimeSyncPanel::createPlaceHolder(int index)

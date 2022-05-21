@@ -32,6 +32,7 @@ void EventTimeSpan::addTimeSpan(PlotWidget* plot, const DateTimeRange& range)
   {
     auto ts = new SciQLopPlots::TimeSpan{
         plot, axis::range{range.m_TStart, range.m_TEnd}};
+    ts->set_deletable(false);
     timeSpans.push_back(ts);
     connect(plot, &PlotWidget::destroyed, this,
             [this, ts]() { timeSpans.removeAll(ts); });
@@ -57,6 +58,14 @@ EventTimeSpan::EventTimeSpan(TimeSyncPanel* panel, const DateTimeRange& range)
 EventTimeSpan::EventTimeSpan(TimeSyncPanel* panel, double start, double stop)
     : EventTimeSpan(panel, DateTimeRange{start, stop})
 {}
+
+EventTimeSpan::~EventTimeSpan()
+{
+  for(auto ts : timeSpans)
+  {
+    delete ts;
+  }
+}
 
 void EventTimeSpan::setTimeRange(const DateTimeRange& range)
 {

@@ -40,6 +40,7 @@ class EventTimeSpan : public QObject, public SciQLopObject
 public:
   EventTimeSpan(TimeSyncPanel* panel, const DateTimeRange& range);
   EventTimeSpan(TimeSyncPanel* panel, double start, double stop);
+  ~EventTimeSpan();
 
   void setTimeRange(const DateTimeRange& range);
   void setTimeRange(double start, double stop);

@@ -44,6 +44,7 @@ public:
   bool deletePlaceHolder();
 
   void setTimeRange(double start, double stop);
+  void autoScaleY();
 
   friend EventTimeSpan;
 
