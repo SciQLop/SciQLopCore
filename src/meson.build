@@ -12,6 +12,7 @@ sciqlopcore_moc_headers = files(
     '../include/SciQLopCore/GUI/TimeWidget.hpp',
     '../include/SciQLopCore/GUI/EventTimeSpan.hpp',
     '../include/SciQLopCore/Common/SciQLopObject.hpp',
+    '../include/SciQLopCore/Common/Product.hpp',
     '../include/SciQLopCore/Data/Pipelines.hpp'
 )
 

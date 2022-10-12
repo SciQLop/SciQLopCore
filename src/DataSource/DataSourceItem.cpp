@@ -102,13 +102,13 @@ std::unique_ptr<DataSourceItem> DataSourceItem::clone() const
   // Clones children
   for(const auto& child : impl->m_Children)
   {
-    result->appendChild(std::move(child->clone()));
+      result->appendChild(child->clone());
   }
 
   // Clones actions
   for(const auto& action : impl->m_Actions)
   {
-    result->addAction(std::move(action->clone()));
+      result->addAction(action->clone());
   }
 
   return result;

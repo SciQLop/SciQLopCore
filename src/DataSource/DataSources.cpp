@@ -50,7 +50,8 @@ QString QVariant2QString(const QVariant& variant) noexcept
 
 inline std::unique_ptr<DataSourceItem> make_folder_item(const QString& name)
 {
-    return std::make_unique<DataSourceItem>(DataSourceItemType::NODE, name,DataSeriesType::NONE,QVariantHash{},"");
+  return std::make_unique<DataSourceItem>(
+      DataSourceItemType::NODE, name, DataSeriesType::NONE, QVariantHash{}, "");
 }
 
 template<typename T>
@@ -129,7 +130,8 @@ make_product_item(const QString& name, DataSeriesType ds_type,
 
 DataSources::DataSources()
     : SciQLopObject{this},
-      _root(new DataSourceItem(DataSourceItemType::NODE, "",DataSeriesType::NONE,QVariantHash{},"")),
+      _root(new DataSourceItem(DataSourceItemType::NODE, "",
+                               DataSeriesType::NONE, QVariantHash{}, "")),
       _completionModel(new QStringListModel)
 {}
 
@@ -242,20 +244,47 @@ void DataSources::addDataSourceItem(
     const QMap<QString, QString>& metaData) noexcept
 {
   beginResetModel();
+  QSet<QString> completion_data;
   auto path_list = path.split('/', Qt::SkipEmptyParts);
   auto name      = *(std::cend(path_list) - 1);
   auto path_item =
       make_path_items(std::cbegin(path_list), std::cend(path_list) - 1, _root);
+  completion_data << name;
   QVariantHash meta_data{{DataSourceItem::NAME_DATA_KEY, name}};
-  for(auto& key : metaData.keys())
-  {
-    meta_data[key] = metaData[key];
-  }
+  std::for_each(metaData.keyBegin(), metaData.keyEnd(),
+                [&](const auto& key) { meta_data[key] = metaData[key];completion_data << key; });
   path_item->appendChild(
       make_product_item(name, ds_type, meta_data, providerUid, "test", this));
   endResetModel();
-  _updateCompletionModel(metaData, name);
+  _updateCompletionModel(completion_data);
   _Products[providerUid].append(path);
+}
+
+void DataSources::addProducts(const QString& providerUid,
+                              const QVector<Product*>& products)
+{
+  beginResetModel();
+  QSet<QString> completion_data;
+  for(const auto product : products)
+  {
+    auto path_list = product->path.split('/', Qt::SkipEmptyParts);
+    auto name      = *(std::cend(path_list) - 1);
+    auto path_item = make_path_items(std::cbegin(path_list),
+                                     std::cend(path_list) - 1, _root);
+    QVariantHash meta_data{{DataSourceItem::NAME_DATA_KEY, name}};
+    completion_data << name;
+    std::for_each(
+        product->metadata.keyBegin(), product->metadata.keyEnd(),
+        [&](const auto& key) {
+        meta_data[key] = product->metadata[key];
+        completion_data << key;
+    });
+    path_item->appendChild(make_product_item(name, product->ds_type, meta_data,
+                                             providerUid, "test", this));
+    _Products[providerUid].append(product->path);
+  }
+  _updateCompletionModel(completion_data);
+  endResetModel();
 }
 
 void DataSources::removeDataSourceItems(const QStringList& paths) noexcept
@@ -281,19 +310,6 @@ void DataSources::removeProvider(IDataProvider* provider) noexcept
   removeDataSourceItems(_Products[provider->name()]);
   _DataProviders.erase(provider->name());
   _Products.erase(provider->name());
-}
-
-void DataSources::updateNodeMetaData(
-    const QString& path, const QMap<QString, QString>& metaData) noexcept
-{
-  auto node = walk_tree(path, _root);
-  if(node != nullptr)
-  {
-    std::for_each(
-        metaData.constKeyValueBegin(), metaData.constKeyValueEnd(),
-        [node](const auto& it) { node->setData(it.first, it.second, true); });
-  }
-  _updateCompletionModel(metaData, "");
 }
 
 void DataSources::setIcon(const QString& path, const QString& iconName)
@@ -332,14 +348,13 @@ QVariantHash DataSources::nodeData(const QString& path)
   return {};
 }
 
-void DataSources::_updateCompletionModel(const QMap<QString, QString>& metaData,
-                                         const QString& name)
+void DataSources::_updateCompletionModel(const QSet<QString> new_data)
 {
   auto currentList = _completionModel->stringList();
-  std::for_each(metaData.cbegin(), metaData.cend(),
-                [&currentList](const auto& key) {
-                  if(!currentList.contains(key)) currentList << key;
+  std::for_each(new_data.cbegin(), new_data.cend(),
+                [&currentList](const auto& value) {
+                  currentList << value;
                 });
-  if(!name.isEmpty() && !currentList.contains(name)) currentList << name;
+  currentList.removeDuplicates();
   _completionModel->setStringList(currentList);
 }

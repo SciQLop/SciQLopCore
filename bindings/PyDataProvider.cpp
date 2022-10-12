@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------------*/
 #include "PyDataProvider.hpp"
 
-py::DataProvider::DataProvider(QObject* parent): IDataProvider(parent){}
+py::DataProvider::DataProvider(QObject* parent) : IDataProvider(parent) {}
 
 py::DataProvider::~DataProvider()
 {
@@ -49,7 +49,7 @@ py::DataProvider::getData(const DataProviderParameters& parameters)
     auto result = get_data(metadata, parameters.m_Range.m_TStart,
                            parameters.m_Range.m_TEnd);
     std::cout << "Before take" << std::endl;
-    auto ts     = result->take();
+    auto ts = result->take();
     delete result;
     return ts;
   }
@@ -65,11 +65,13 @@ void py::DataProvider::register_products(const QVector<Product*>& products)
 {
   auto& dataSources     = SciQLopCore::dataSources();
   auto data_source_name = this->name();
-  std::for_each(std::cbegin(products), std::cend(products),
-                [&data_source_name, &dataSources](const Product* product) {
-                  dataSources.addDataSourceItem(
-                      data_source_name, product->path, product->ds_type, product->metadata);
-                });
+  dataSources.addProducts(data_source_name, products);
+  //  std::for_each(std::cbegin(products), std::cend(products),
+  //                [&data_source_name, &dataSources](const Product* product) {
+  //                  dataSources.addDataSourceItem(
+  //                      data_source_name, product->path, product->ds_type,
+  //                      product->metadata);
+  //                });
 }
 
 py::ITimeSerie::ITimeSerie() : ts{nullptr} {}

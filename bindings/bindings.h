@@ -11,6 +11,7 @@
 #include <SciQLopCore/DataSource/IDataProvider.hpp>
 #include <SciQLopCore/DataSource/DataSources.hpp>
 #include <SciQLopCore/Common/SciQLopObject.hpp>
+#include <SciQLopCore/Common/Product.hpp>
 #include <SciQLopCore/SciQLopCore.hpp>
 #include <SciQLopPlots/Qt/SyncPanel.hpp>
 #include <SciQLopCore/GUI/MainWindow.hpp>

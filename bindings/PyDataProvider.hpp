@@ -29,26 +29,12 @@
 #include <SciQLopCore/DataSource/DataSources.hpp>
 #include <SciQLopCore/DataSource/IDataProvider.hpp>
 #include <SciQLopCore/SciQLopCore.hpp>
+#include <SciQLopCore/Common/Product.hpp>
 #include <TimeSeries.h>
 // must be included last because of Python/Qt definition of slots
 #include "numpy_wrappers.hpp"
 namespace py
 {
-  struct Product
-  {
-    QString path;
-    std::vector<std::string> components;
-    QMap<QString, QString> metadata;
-    DataSeriesType ds_type;
-    Product() = default;
-    explicit Product(const QString& path,
-                     const std::vector<std::string>& components,
-                     DataSeriesType ds_type,
-                     const QMap<QString, QString>& metadata)
-        : path{path}, components{components}, metadata{metadata},ds_type{ds_type}
-    {}
-    ~Product() = default;
-  };
 
   struct ITimeSerie
   {

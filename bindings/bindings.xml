@@ -10,6 +10,7 @@
     <primitive-type name="std::string"/>
     <primitive-type name="std::size_t"/>
     <primitive-type name="long"/>
+    <object-type name="Product" />
     <object-type name="IDataProvider">
         <modify-function signature="getData(const DataProviderParameters&amp;)">
             <modify-argument index="return">
@@ -71,7 +72,6 @@
         <object-type name="VectorTimeSerie" />
         <object-type name="MultiComponentTimeSerie" />
         <object-type name="SpectrogramTimeSerie" />
-        <object-type name="Product" />
     </namespace-type>
     <namespace-type name="SciQLopPlots" visible="true">
         <object-type name="SyncPanel" />

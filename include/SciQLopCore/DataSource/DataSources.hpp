@@ -24,6 +24,7 @@
 
 #include "DataSourceItem.hpp"
 #include "SciQLopCore/Common/SciQLopObject.hpp"
+#include "SciQLopCore/Common/Product.hpp"
 #include "SciQLopCore/DataSource/IDataProvider.hpp"
 
 #include <QAbstractItemModel>
@@ -63,6 +64,8 @@ public:
                          DataSeriesType ds_type,
                          const QMap<QString, QString>& metaData) noexcept;
 
+  void addProducts(const QString &providerUid,const QVector<Product*>& products);
+
   void removeDataSourceItems(const QStringList& paths) noexcept;
 
   template<typename data_provider_t, class... Args>
@@ -73,9 +76,6 @@ public:
 
   void addProvider(IDataProvider* provider) noexcept;
   void removeProvider(IDataProvider* provider) noexcept;
-
-  void updateNodeMetaData(const QString& path,
-                          const QMap<QString, QString>& metaData) noexcept;
 
   void addIcon(const QString& name, QVariant icon)
   {
@@ -96,8 +96,7 @@ public:
   QVariantHash nodeData(const QString& path);
 
 private:
-  void _updateCompletionModel(const QMap<QString, QString>& metaData,
-                              const QString& name);
+  void _updateCompletionModel(const QSet<QString> new_data);
   DataSourceItem* _root=nullptr;
   std::map<QString, IDataProvider*> _DataProviders;
   std::map<QString, QStringList> _Products;
